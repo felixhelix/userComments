@@ -21,41 +21,47 @@ new Vue({
     userComments: [],
     dataFetched: false,
     commentText: '',
-    postDataInput: ''
+    replyText: ''
   },
-  mounted() {
-    // Fetch CSRF token when the component is mounted
-    this.fetchFormData();    
+  mounted() {    
     // Fetch data from the API when the component is mounted
     this.fetchData();
   },
   methods: {
     fetchFormData() {
       // The token is embedded in the form template
-      this.csrfToken = document.getElementById('csfrtoken').value;
-      this.submissionId = document.getElementById('submissionId').value;
+      this.csrfToken = document.getElementById('csfrToken').value;
+      // An API key is needed for unauthenticated access
+      this.apiKey = document.getElementById('commentsApp').dataset.apiKey;
+      // this.submissionId = document.getElementById('submissionId').value;
       this.foreignCommentId = document.getElementById('foreignCommentId').value;      
     },
     fetchData() {
+      this.location = window.location.href;
+      this.submissionId = this.location.split("/")[this.location.split("/").length -1];
       // Make a GET request to the API
-      fetch('http://localhost/ops3/index.php/socios/api/v1/userComments/getCommentsBySubmission/' + this.submissionId , {
-        headers: {
-          'X-Csrf-Token': this.csrfToken,
-        },
-      })
+      fetch('http://localhost/ops3/index.php/socios/api/v1/userComments/getCommentsBySubmission/' + this.submissionId + "?" + new URLSearchParams({
+        'apiToken': "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.IjFmMzEzNTRmMGFkODQyM2Y5ZTAyYTNkYTBkYjNhNTI3Y2EyOWY0N2Qi.5-ql-FFy5Pr3UAiE3bfnW7G1gOqbXT1u7gEB3mHl2Q4"
+      }))
         .then(response => response.json())
         .then(data => {
           // Set the fetched data to the component state
           this.userComments = data;
           this.dataFetched = true;
-          // Clear the input field
+          // Clear the input fields
           this.commentText = '';
+          this.replyText = '';
         })
         .catch(error => {
           console.error('Error fetching data:', error);
         });
     },
+    postReply() {
+
+    },
     postData() {
+      // Fetch CSRF token and submission data
+      this.fetchFormData();
       // Make a POST request to the API
       fetch('http://localhost/ops3/index.php/socios/api/v1/userComments/submitComment', {
         method: 'POST',
@@ -66,7 +72,7 @@ new Vue({
         body: JSON.stringify({
           commentText: this.commentText,
           submissionId: this.submissionId,
-          foreignCommentId: this.foreignCommentId,
+          foreignCommentId: null,
           completed: false
         }),
       })

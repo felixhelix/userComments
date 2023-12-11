@@ -37,19 +37,11 @@ class UserCommentsHandler extends APIHandler
         parent::__construct();
     }
 
-    public function authorize($request, &$args, $roleAssignments)
-    {
-        import('lib.pkp.classes.security.authorization.PolicySet');
-        $rolePolicy = new PolicySet(COMBINING_PERMIT_OVERRIDES);
-
-        import('lib.pkp.classes.security.authorization.RoleBasedHandlerOperationPolicy');
-        foreach ($roleAssignments as $role => $operations) {
-            $rolePolicy->addPolicy(new RoleBasedHandlerOperationPolicy($request, $role, $operations));
-        }
-        $this->addPolicy($rolePolicy);
-
-        return parent::authorize($request, $args, $roleAssignments);
-    }
+	function authorize($request, &$args, $roleAssignments) {
+		import('lib.pkp.classes.security.authorization.ContextAccessPolicy');
+		$this->addPolicy(new ContextAccessPolicy($request, $roleAssignments));
+		return parent::authorize($request, $args, $roleAssignments);
+	}
 
     public function getComment($slimRequest, $response, $args)
     {
@@ -73,16 +65,20 @@ class UserCommentsHandler extends APIHandler
         $submissionId = (int) $args['submissionId'];
 
 		$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
+        $userDao = DAORegistry::getDAO('UserDAO'); 	
         $queryResults = $userCommentDao->getBySubmissionId($submissionId);
 		// $userComments = $queryResults->toArray();
 
         $userComments = [];
 
         while ($userComment = $queryResults->next()) {  
+            $user = $userDao->getById($userComment->getUserId());
             $userComments[] = [
             'id' => $userComment->getId(),
             'submissionId' => $userComment->getSubmissionId(),
             'foreignCommentId' => $userComment->getForeignCommentId(),
+            'userName' => $user->getFullName(),
+            'commentDate' =>$userComment->getDateCreated(),
             'commentText' => $userComment->getCommentText(),
             ];
         };

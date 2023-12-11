@@ -25,3 +25,6 @@ msgstr "Submit a Comment"
 
 msgid "plugins.generic.comments.success"
 msgstr "Comment Added"
+
+msgid "plugins.generic.comments.apiKey"
+msgstr "API key used for displaying comments to unauthenticated users."

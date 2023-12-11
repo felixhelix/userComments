@@ -1,0 +1,15 @@
+.userComments {
+    display: inline;
+    list-style: none outside;
+}
+
+.userComments li {
+    background-color: lightgrey;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.commentMeta {
+    display: block;
+    font-weight: 600;
+}

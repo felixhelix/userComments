@@ -35,11 +35,12 @@ class commentsPlugin extends GenericPlugin {
 
 			// Add additional styles and scripts
 			$request = Application::get()->getRequest();
-      		$url = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
+      		$jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
+			$cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
       		$templateMgr = TemplateManager::getManager($request);
 			$templateMgr->addJavaScript('vue', 'https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js');
-			$templateMgr->addJavaScript('comments', $url);
-
+			$templateMgr->addJavaScript('comments', $jsUrl);
+			$templateMgr->addStyleSheet('comments', $cssUrl);
 			
 			// Use a hook to insert a template on the details page
 			HookRegistry::register('Templates::Preprint::Details', [$this, 'addCommentBlock']);	
@@ -88,12 +89,15 @@ class commentsPlugin extends GenericPlugin {
     public function addCommentBlock(string $hookName, array $args): bool {
 		// Insert the comment template
 		$request = Application::get()->getRequest();
+		$user = $request->getUser();
         $smarty = & $args[1];
         $output = & $args[2];
 		$smarty->assign([
 			'csrfToken' => $request->getSession()->getCSRFToken(),
+			'apiKey' => $this->getSetting($request->getContext()->getId(), 'apiKey'),
 			'submissionId' => array_pop(explode('/', $request->getRequestPath())),
 			'foreignCommentId' => 1,
+			'user' => $user,
 		]);
         $output .= $smarty->fetch($this->getTemplateResource('commentBlock.tpl'));
         return false;
@@ -120,5 +124,70 @@ class commentsPlugin extends GenericPlugin {
         exit;
     }	
 
+	public function getActions($request, $actionArgs) {
+
+		// Get the existing actions
+			$actions = parent::getActions($request, $actionArgs);
+			if (!$this->getEnabled()) {
+				return $actions;
+			}
+	
+		// Create a LinkAction that will call the plugin's
+		// `manage` method with the `settings` verb.
+			$router = $request->getRouter();
+			import('lib.pkp.classes.linkAction.request.AjaxModal');
+			$linkAction = new LinkAction(
+				'settings',
+				new AjaxModal(
+					$router->url(
+						$request,
+						null,
+						null,
+						'manage',
+						null,
+						array(
+							'verb' => 'settings',
+							'plugin' => $this->getName(),
+							'category' => 'generic'
+						)
+					),
+					$this->getDisplayName()
+				),
+				__('manager.plugins.settings'),
+				null
+			);
+	
+		// Add the LinkAction to the existing actions.
+		// Make it the first action to be consistent with
+		// other plugins.
+			array_unshift($actions, $linkAction);
+	
+			return $actions;
+	}
+	
+	public function manage($args, $request) {
+		switch ($request->getUserVar('verb')) {
+			case 'settings':
+
+				// Load the custom form
+				$this->import('CommentsPluginSettingsForm');
+				$form = new CommentsPluginSettingsForm($this);
+
+				// Fetch the form the first time it loads, before
+				// the user has tried to save it
+				if (!$request->getUserVar('save')) {
+				$form->initData();
+						return new JSONMessage(true, $form->fetch($request));
+				}
+
+				// Validate and execute the form
+				$form->readInputData();
+				if ($form->validate()) {
+				$form->execute();
+				return new JSONMessage(true);
+				}
+			}
+		return parent::manage($args, $request);
+	}
 }
 

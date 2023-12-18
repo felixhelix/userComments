@@ -1,12 +1,13 @@
 const App = Vue.createApp({
   data() {
     return {
+    user: null,
     userComments: [],
     userCommentsTree: [],
     dataFetched: false,
     commentText: '',
     replyText: '',
-    buttonNode: null
+    buttonId: 'button_null',
     }
   },
   components: {
@@ -22,23 +23,24 @@ const App = Vue.createApp({
   },
   methods: {
     moveForm(userCommentid) {
-      console.log(userCommentid);
+      console.log("commentId: " + userCommentid);
       // remove form from current parent node
       formNode = document.getElementById("userCommentForm");
       currentParentNode = formNode.parentNode;
       currentParentNode.removeChild(formNode);
-      // Add the button to the old form
-      if (this.buttonNode) {
-        currentParentNode.appendChild(this.buttonNode);
-      };
       // get the new parent node
       newParentNode = document.getElementById(this.createFormId(userCommentid));
       newParentNode.appendChild(formNode);
       // set the foreignCommentId to the commentId
       formNode.querySelector('#foreignCommentId').value = userCommentid;
-      // remove the button in the new container
-      this.buttonNode = document.getElementById(this.createButtonId(userCommentid));
-      newParentNode.removeChild(this.buttonNode);
+      // remove the button in the target container
+      // buttonNode = document.getElementById(this.createButtonId(userCommentid));
+      // newParentNode.removeChild(this.buttonNode);      
+      // // Add the button to the old form
+      // if (this.buttonNode) {
+      //   currentParentNode.appendChild(this.buttonNode);
+      // };      
+      this.buttonId = this.createButtonId(userCommentid)
     },
     createFormId(userCommentId) {
       return "comment_" + userCommentId;
@@ -65,11 +67,10 @@ const App = Vue.createApp({
         .then(data => {
           // Set the fetched data to the component state
           this.userComments = data;
-          this.userCommentsTree = this.buildTree(data);
+          this.userCommentsTree = this.buildTree(data).children;
           this.dataFetched = true;
           // Clear the input fields
           this.commentText = '';
-          this.unflattenArray
         })
         .catch(error => {
           console.error('Error fetching data:', error);
@@ -100,7 +101,7 @@ const App = Vue.createApp({
           // Fetch data again to update the displayed list
           this.fetchData();
           // Re-position the comment field, return a success message, put the focus on the new comment or reply
-          // ...
+          this.moveForm(null); 
         })
         .catch(error => {
           console.error('Error posting data:', error);
@@ -133,13 +134,13 @@ const App = Vue.createApp({
                 // console.log(JSON.stringify(childnodes));   
             }
         };
-        return {id: item.id, foreignCommentId: item.foreignCommentId, children: childnodes};
+        return {id: item.id, foreignCommentId: item.foreignCommentId, userName: item.userName, commentDate: item.commentDate, commentText: item.commentText, children: childnodes};
     }
   }
 });
 
 App.component('userCommentsBlock', {
-  props: ['userComments','user'],
+  props: ['userComments','user', 'buttonId'],
   methods: {
     createFormId(userCommentId) {
       return "comment_" + userCommentId;
@@ -153,31 +154,35 @@ App.component('userCommentsBlock', {
       formNode = document.getElementById("userCommentForm");
       currentParentNode = formNode.parentNode;
       currentParentNode.removeChild(formNode);
-      // Add the button to the old form
-      if (this.buttonNode) {
-        currentParentNode.appendChild(this.buttonNode);
-      };
       // get the new parent node
       newParentNode = document.getElementById(this.createFormId(userCommentid));
       newParentNode.appendChild(formNode);
       // set the foreignCommentId to the commentId
       formNode.querySelector('#foreignCommentId').value = userCommentid;
-      // remove the button in the new container
+      // remove the button in the target container
       this.buttonNode = document.getElementById(this.createButtonId(userCommentid));
-      newParentNode.removeChild(this.buttonNode);
+      newParentNode.removeChild(this.buttonNode);      
+      // Add the button to the old form
+      if (this.buttonNode) {
+        currentParentNode.appendChild(this.buttonNode);
+      };
     },    
   },
   template: `
   <ul class="userComments" v-if="userComments && userComments.length">
   <li v-for="userComment in userComments" :key="userComment.id">
-      {{ userComment.commentText }}
-      <span class="commentMeta">{{ userComment.userName }} {{ userComment.commentDate }}</span>
-      <div :v-if="user" :id=createFormId(userComment.id) :data-commentID=userComment.id>
-          <button :id=createButtonId(userComment.id) @click="moveForm(userComment.id)">reply</button>
+      <div class="userComment">
+        {{ userComment.commentText }}
+        <span class="commentMeta">{{ userComment.userName }} {{ userComment.commentDate }}</span>
+        <div :v-if="user" :id=createFormId(userComment.id) :data-commentID=userComment.id>
+            <button :id=createButtonId(userComment.id) @click="moveForm(userComment.id)">reply</button>
+        </div>
       </div>
+      <div style="margin-left: 1rem" v-if="userComment.children && userComment.children.length">
+        <user-comments-block :user-comments="userComment.children" :user="user" :buttonId="null"></user-comments-block>
+      </div>      
   </li>
 </ul>`
 });
 
 App.mount('#commentsApp')
-  

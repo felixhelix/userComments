@@ -84,7 +84,7 @@ class UserCommentDAO extends DAO {
 				$userComment->getSubmissionId(),
 				(int) $userComment->getContextId(),
 				$userComment->getUserId(),
-				$userComment->getForeignCommentId(),
+				$userComment->getForeignCommentId() == "NULL" ? null : $userComment->getForeignCommentId(),
 			)
 		);
 		

@@ -83,9 +83,7 @@ class UserCommentsHandler extends APIHandler
             ];
         };
         
-        error_log(json_encode($userComments));
-
-
+        error_log("getCommentsBySubmission: " . json_encode($userComments));
 
         return $response->withJson(
             $userComments, 200);

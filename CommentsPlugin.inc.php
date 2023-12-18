@@ -38,7 +38,7 @@ class commentsPlugin extends GenericPlugin {
       		$jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
 			$cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
       		$templateMgr = TemplateManager::getManager($request);
-			$templateMgr->addJavaScript('vue', 'https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js');
+			$templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');
 			$templateMgr->addJavaScript('comments', $jsUrl);
 			$templateMgr->addStyleSheet('comments', $cssUrl);
 			
@@ -127,42 +127,42 @@ class commentsPlugin extends GenericPlugin {
 	public function getActions($request, $actionArgs) {
 
 		// Get the existing actions
-			$actions = parent::getActions($request, $actionArgs);
-			if (!$this->getEnabled()) {
-				return $actions;
-			}
+		$actions = parent::getActions($request, $actionArgs);
+		if (!$this->getEnabled()) {
+			return $actions;
+		}
 	
 		// Create a LinkAction that will call the plugin's
 		// `manage` method with the `settings` verb.
-			$router = $request->getRouter();
-			import('lib.pkp.classes.linkAction.request.AjaxModal');
-			$linkAction = new LinkAction(
-				'settings',
-				new AjaxModal(
-					$router->url(
-						$request,
-						null,
-						null,
-						'manage',
-						null,
-						array(
-							'verb' => 'settings',
-							'plugin' => $this->getName(),
-							'category' => 'generic'
-						)
-					),
-					$this->getDisplayName()
+		$router = $request->getRouter();
+		import('lib.pkp.classes.linkAction.request.AjaxModal');
+		$linkAction = new LinkAction(
+			'settings',
+			new AjaxModal(
+				$router->url(
+					$request,
+					null,
+					null,
+					'manage',
+					null,
+					array(
+						'verb' => 'settings',
+						'plugin' => $this->getName(),
+						'category' => 'generic'
+					)
 				),
-				__('manager.plugins.settings'),
-				null
-			);
+				$this->getDisplayName()
+			),
+			__('manager.plugins.settings'),
+			null
+		);
 	
 		// Add the LinkAction to the existing actions.
 		// Make it the first action to be consistent with
 		// other plugins.
-			array_unshift($actions, $linkAction);
-	
-			return $actions;
+		array_unshift($actions, $linkAction);
+
+		return $actions;
 	}
 	
 	public function manage($args, $request) {

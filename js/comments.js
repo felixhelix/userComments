@@ -8,49 +8,47 @@ const App = Vue.createApp({
     commentText: '',
     replyText: '',
     buttonId: 'button_null',
+    apiKey: '',
+    csrfToken: ''
     }
   },
-  components: {
-    // userCommentsBlock
-  },
-  beforeCreate() {
-    // import NodeTree from "./NodeTree";
-  },
-  mounted() {    
+  mounted() {     
+    // Read some props from the root element
+    this.originalParentNode = this.$el.parentNode;
+    this.apiKey = this.originalParentNode.dataset.apikey;
+    this.csrfToken = this.originalParentNode.dataset.csrftoken;   
+    this.user = this.originalParentNode.dataset.user;   
     // Fetch data from the API when the component is mounted
     this.fetchData();
-    this.originalParentNode = this.$el.parentNode;
   },
   methods: {
     moveForm(userCommentid) {
-      console.log("commentId: " + userCommentid);
       // remove form from current parent node
       formNode = document.getElementById("userCommentForm");
-      currentParentNode = formNode.parentNode;
-      currentParentNode.removeChild(formNode);
+      oldParentNode = formNode.parentNode;
+      oldParentNode.removeChild(formNode);
       // get the new parent node
       newParentNode = document.getElementById(this.createFormId(userCommentid));
       newParentNode.appendChild(formNode);
       // set the foreignCommentId to the commentId
       formNode.querySelector('#foreignCommentId').value = userCommentid;
-      // remove the button in the target container
-      // buttonNode = document.getElementById(this.createButtonId(userCommentid));
-      // newParentNode.removeChild(this.buttonNode);      
-      // // Add the button to the old form
-      // if (this.buttonNode) {
-      //   currentParentNode.appendChild(this.buttonNode);
-      // };      
-      this.buttonId = this.createButtonId(userCommentid)
-    },
+      // hide the button in the new container
+      button = document.getElementById(this.createCommentId(userCommentid));
+      button.style.display = "none";
+      // show the button in the old container
+      button = oldParentNode.getElementsByTagName('button')[0];
+      button.style.display = "block";
+    },   
     createFormId(userCommentId) {
       return "comment_" + userCommentId;
     },
+    createCommentId(userCommentId) {
+      return "comment_" + userCommentId;
+    },      
     createButtonId(userCommentId) {
       return "button_" + userCommentId;
     },    
     fetchFormData() {
-      // The token is embedded in the smarty template
-      this.csrfToken = document.getElementById('csfrToken').value;
       // this.submissionId = document.getElementById('submissionId').value;
       this.foreignCommentId = document.getElementById('foreignCommentId').value;      
     },
@@ -134,38 +132,68 @@ const App = Vue.createApp({
                 // console.log(JSON.stringify(childnodes));   
             }
         };
-        return {id: item.id, foreignCommentId: item.foreignCommentId, userName: item.userName, commentDate: item.commentDate, commentText: item.commentText, children: childnodes};
+        return {id: item.id, foreignCommentId: item.foreignCommentId, userName: item.userName, commentDate: item.commentDate, commentText: item.commentText, flaggedDate: item.flaggedDate, visible: item.visible, children: childnodes};
     }
   }
 });
 
 App.component('userCommentsBlock', {
-  props: ['userComments','user', 'buttonId'],
+  props: ['userComments'],
   methods: {
     createFormId(userCommentId) {
-      return "comment_" + userCommentId;
+      return "commentForm_" + userCommentId;
     },
-    createButtonId(userCommentId) {
-      return "button_" + userCommentId;
+    createCommentId(userCommentId) {
+      return "comment_" + userCommentId;
     },  
+    createFlagId(userCommentId) {
+      return "flag_" + userCommentId;
+    },  
+    flagComment(userCommentId) {
+      alert("flag comment " + userCommentId);
+      // Make a POST request to the API
+      fetch('http://localhost/ops3/index.php/socios/api/v1/userComments/flagComment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Csrf-Token': this.$root.csrfToken,          
+        },
+        body: JSON.stringify({
+          userCommentId: userCommentId,
+          completed: false
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Handle the response if needed
+          console.log('Data posted successfully:', data);
+
+          // Change look of button to reflect flagging
+          // ...
+        })
+        .catch(error => {
+          console.error('Error posting data:', error);
+        });      
+    },
+    moveFormRoot(userCommentid) { 
+      return this.$root.moveForm(userCommentid);
+    },
     moveForm(userCommentid) {
-      console.log(userCommentid);
       // remove form from current parent node
       formNode = document.getElementById("userCommentForm");
-      currentParentNode = formNode.parentNode;
-      currentParentNode.removeChild(formNode);
+      oldParentNode = formNode.parentNode;
+      oldParentNode.removeChild(formNode);
       // get the new parent node
       newParentNode = document.getElementById(this.createFormId(userCommentid));
       newParentNode.appendChild(formNode);
       // set the foreignCommentId to the commentId
       formNode.querySelector('#foreignCommentId').value = userCommentid;
-      // remove the button in the target container
-      this.buttonNode = document.getElementById(this.createButtonId(userCommentid));
-      newParentNode.removeChild(this.buttonNode);      
-      // Add the button to the old form
-      if (this.buttonNode) {
-        currentParentNode.appendChild(this.buttonNode);
-      };
+      // hide the button in the new container
+      button = document.getElementById(this.createCommentId(userCommentid));
+      button.style.display = "none";
+      // show the button in the old container
+      button = oldParentNode.getElementsByTagName('button')[0];
+      button.style.display = "block";
     },    
   },
   template: `
@@ -174,12 +202,14 @@ App.component('userCommentsBlock', {
       <div class="userComment">
         {{ userComment.commentText }}
         <span class="commentMeta">{{ userComment.userName }} {{ userComment.commentDate }}</span>
-        <div :v-if="user" :id=createFormId(userComment.id) :data-commentID=userComment.id>
-            <button :id=createButtonId(userComment.id) @click="moveForm(userComment.id)">reply</button>
+        <button v-if="$root.user && userComment.flaggedDate == null" :id=createFlagId(userComment.id) @click="flagComment(userComment.id)">flag</button>
+        <div v-if="userComment.flaggedDate != null" style="background-color: red">{{ userComment.flaggedDate}}</div>
+        <div v-if="$root.user" :id=createFormId(userComment.id) :data-commentID=userComment.id>
+            <button :id=createCommentId(userComment.id) @click="moveForm(userComment.id)">reply</button>
         </div>
       </div>
       <div style="margin-left: 1rem" v-if="userComment.children && userComment.children.length">
-        <user-comments-block :user-comments="userComment.children" :user="user" :buttonId="null"></user-comments-block>
+        <user-comments-block :user-comments="userComment.children"></user-comments-block>
       </div>      
   </li>
 </ul>`

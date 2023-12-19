@@ -118,6 +118,22 @@ class UserCommentDAO extends DAO {
 	}
 
 	/**
+	 * Update the database with a userComment object
+	 * @param $userComment userComment
+	 */
+	function updateFlag($objectId) {
+		$this->update(
+			'UPDATE	user_comments
+			SET	date_flagged = NOW()
+			WHERE object_id = ?',
+		array(
+			$objectId
+			)	
+		);
+		return $objectId;
+	}	
+
+	/**
 	 * Delete a userComment by ID.
 	 * @param $userComment int
 	 */
@@ -161,6 +177,8 @@ class UserCommentDAO extends DAO {
 		$userComment->setSubmissionId($row['submission_id']);
 		$userComment->setForeignCommentId($row['foreign_comment_id']);
 		$userComment->setDateCreated($row['date_created']);
+		$userComment->setDateFlagged($row['date_flagged']);
+		$userComment->setVisible($row['visible']);
 		$this->getDataObjectSettings('user_comment_settings', 'object_id', $row['object_id'], $userComment);
 
 		return $userComment;

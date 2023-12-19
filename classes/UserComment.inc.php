@@ -131,6 +131,38 @@ class UserComment extends DataObject {
 		return $this->setData('commentText', $commentText);
 	}
 
+	/**
+	 * Get flagged.
+	 * @return date
+	 */
+	function getDateFlagged() {
+		return $this->getData('dateFlagged');
+	}
+
+	/**
+	 * Set dateCreated.
+	 * @param $flagged date
+	 */
+	function setDateFlagged($dateFlagged) {
+		return $this->setData('dateFlagged', $dateFlagged);
+	}		
+
+	/**
+	 * Get visible.
+	 * @return boolean
+	 */
+	function getVisible() {
+		return $this->getData('visible');
+	}
+
+	/**
+	 * Set visible.
+	 * @param $visible boolean
+	 */
+	function setVisible($visible) {
+		return $this->setData('visible', $visible);
+	}	
+
 }
 
 ?>

@@ -30,6 +30,8 @@ class CommentsSchemaMigration extends Migration
             $table->bigInteger('user_id')->nullable();
             $table->bigInteger('foreign_comment_id')->nullable(); // this holds optionally the key of another comment
             $table->datetime('date_created');
+            $table->datetime('date_flagged')->nullable()->default(null);
+            $table->boolean('visible')->default(true);
         });
 
         Capsule::schema()->create('user_comment_settings', function (Blueprint $table) {

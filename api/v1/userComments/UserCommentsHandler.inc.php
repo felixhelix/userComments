@@ -15,6 +15,11 @@ class UserCommentsHandler extends APIHandler
                     'handler' => array($this, 'submitComment'),
                     'roles' => $roles
                 ),
+                array(
+                    'pattern' => $this->getEndpointPattern() . '/flagComment',
+                    'handler' => array($this, 'flagComment'),
+                    'roles' => $roles
+                ),                
             ),
             'GET' => array(
                 array(
@@ -80,6 +85,8 @@ class UserCommentsHandler extends APIHandler
             'userName' => $user->getFullName(),
             'commentDate' =>$userComment->getDateCreated(),
             'commentText' => $userComment->getCommentText(),
+            'flaggedDate' => $userComment->getDateFlagged(),
+            'visible' => $userComment->getVisible(),
             ];
         };
         
@@ -156,5 +163,31 @@ class UserCommentsHandler extends APIHandler
             'comment' => $userComment,
         ], 200);
     }
+
+    public function flagComment($slimRequest, $response, $args)
+    {
+        $request = APIHandler::getRequest();
+        $requestParams = $slimRequest->getParsedBody();
+        $userCommentId = $requestParams['userCommentId'];
+        $currentUser = $request->getUser();
+        $locale = AppLocale::getLocale();
+
+        error_log("flagged comment: " . $userCommentId);
+
+        // Creata a DAO for user comments
+        import('plugins.generic.comments.classes.UserCommentDAO');
+        $UserCommentDao = new UserCommentDAO();
+        DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
+            
+        // Update the data object
+        $commentId = $UserCommentDao->updateFlag($userCommentId);
+        error_log("comment id: " . $CommentId);
+
+        return $response->withJson(
+            ['id' => $commentId,
+            'comment' => 'comment was flagged',
+        ], 200);
+    }
+
 
 }

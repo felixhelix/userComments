@@ -170,6 +170,9 @@ App.component('userCommentsBlock', {
 
           // Change look of button to reflect flagging
           // ...
+
+          // Fetch data again to update the displayed list
+          this.$root.fetchData();
         })
         .catch(error => {
           console.error('Error posting data:', error);

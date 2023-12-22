@@ -174,7 +174,7 @@ class UserCommentsHandler extends APIHandler
 
         error_log("flagged comment: " . $userCommentId);
 
-        // Creata a DAO for user comments
+        // Create a DAO for user comments
         import('plugins.generic.comments.classes.UserCommentDAO');
         $UserCommentDao = new UserCommentDAO();
         DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);

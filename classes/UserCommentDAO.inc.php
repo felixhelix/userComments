@@ -134,6 +134,23 @@ class UserCommentDAO extends DAO {
 	}	
 
 	/**
+	 * Get a object for UserComments by submission ID
+	 * @param $contextId int (optional) context ID
+	 */
+	function getFlagged($contextId = null) {
+		if ($contextId) $params[] = (int) $contextId;
+
+		$result = $this->retrieve(
+			'SELECT * FROM user_comments WHERE date_flagged IS NOT NULL'
+			. ($contextId?' AND context_id = ?':''),
+			$params
+		);
+
+		return new DAOResultFactory($result, $this, '_fromRow');
+	}
+
+
+	/**
 	 * Delete a userComment by ID.
 	 * @param $userComment int
 	 */

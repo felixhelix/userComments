@@ -28,3 +28,6 @@ msgstr "Comment Added"
 
 msgid "plugins.generic.comments.apiKey"
 msgstr "API key used for displaying comments to unauthenticated users."
+
+msgid "plugins.generic.comments.listFlaggedComments"
+msgstr "List of flagged user comments"

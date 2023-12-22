@@ -48,6 +48,13 @@ class commentsPlugin extends GenericPlugin {
 			// Add the API handler
 			HookRegistry::register('Dispatcher::dispatch', array($this, 'setupUserCommentsHandler'));	
 
+			// Use a hook to add a menu item in the backend
+			HookRegistry::register('TemplateManager::display', array($this, 'addMenuItem'));
+			// HookRegistry::register('ListReviewedSubmissionHandler::display', array($this, 'addMenuItem'));
+
+			// Add the custom pages
+			HookRegistry::register('LoadHandler', array($this, 'setPageHandler'));
+
 			// Install database tables
 			// $migration = $this->getInstallMigration();
 			// $migration->up();
@@ -189,5 +196,50 @@ class commentsPlugin extends GenericPlugin {
 			}
 		return parent::manage($args, $request);
 	}
+
+	public function addMenuItem($hookName, $params)
+    {
+		$request = PKPApplication::get()->getRequest();
+		$context = $request->getContext();
+		$user = $request->getUser();
+		$router = $request->getRouter();
+        $templateMgr = $params[0];
+        $template = $params[1];
+		$managerGroupId = 3; // This should not be hard coded
+
+        if (!($template == 'dashboard/index.tpl')) {
+            return false;
+        }
+
+		// user has to be in manager group
+		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
+		error_log($userGroupDao->userInGroup($user->getId(), $managerGroupId));
+		if(!$userGroupDao->userInGroup($user->getId(), $managerGroupId)) {
+			return false;
+		}
+
+		$menu = & $templateMgr->getState('menu');
+		$menu['flaggedComments'] = [
+			'name' => 'Flagged Comments',
+			'url' => $router->url($request, 'socios', 'listFlaggedComments'),
+			'isCurrent' => $router->getRequestedPage($request) === 'listFlaggedComments',
+		];
+		$templateMgr->setState([
+			'menu' => $menu,
+		]);		
+
+		return False;
+	}	
+
+	public function setPageHandler($hookName, $params) {
+		$page = $params[0];	
+		switch ($page) {
+			case 'listFlaggedComments':
+				$this->import('ListFlaggedCommentsHandler');
+				define('HANDLER_CLASS', 'ListFlaggedCommentsHandler');
+				return true;			
+		}
+		return false;
+	}	
 }
 

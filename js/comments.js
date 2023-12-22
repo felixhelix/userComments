@@ -166,7 +166,7 @@ App.component('userCommentsBlock', {
   template: `
   <ul class="userComments" v-if="userComments && userComments.length">
   <li v-for="userComment in userComments" :key="userComment.id">
-      <div class="userComment">
+      <div class="userComment" :id="userComment.id">
         {{ userComment.commentText }}
         <span class="commentMeta">{{ userComment.userName }} {{ userComment.commentDate }}</span>
         <button v-if="$root.user && userComment.flaggedDate == null" @click="flagComment(userComment.id)">flag</button>

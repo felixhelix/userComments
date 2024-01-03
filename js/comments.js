@@ -166,16 +166,23 @@ App.component('userCommentsBlock', {
   template: `
   <ul class="userComments" v-if="userComments && userComments.length">
   <li v-for="userComment in userComments" :key="userComment.id">
+    <template v-if="userComment.visible != '0'">
       <div class="userComment" :id="userComment.id">
         {{ userComment.commentText }}
         <span class="commentMeta">{{ userComment.userName }} {{ userComment.commentDate }}</span>
         <button v-if="$root.user && userComment.flaggedDate == null" @click="flagComment(userComment.id)">flag</button>
         <div v-if="userComment.flaggedDate != null" style="background-color: red">{{ userComment.flaggedDate}}</div>
         <form-container :userCommentId=userComment.id></form-container>
-      </div>
-      <div style="margin-left: 1rem" v-if="userComment.children && userComment.children.length">
-        <user-comments-block :user-comments="userComment.children"></user-comments-block>
-      </div>      
+      </div>     
+    </template>
+    <template v-else>
+      <div class="userComment" :id="userComment.id">
+        <i>This comment has been unpublished due to violation of our code of conduct.</i>
+      <div>
+    </template>
+    <div style="margin-left: 1rem" v-if="userComment.children && userComment.children.length">
+    <user-comments-block :user-comments="userComment.children"></user-comments-block>
+  </div> 
   </li>
 </ul>`
 });

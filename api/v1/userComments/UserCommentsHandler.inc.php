@@ -19,7 +19,12 @@ class UserCommentsHandler extends APIHandler
                     'pattern' => $this->getEndpointPattern() . '/flagComment',
                     'handler' => array($this, 'flagComment'),
                     'roles' => $roles
-                ),                
+                ),      
+                array(
+                    'pattern' => $this->getEndpointPattern() . '/update',
+                    'handler' => array($this, 'toggleComment'),
+                    'roles' => $roles
+                ),                               
             ),
             'GET' => array(
                 array(
@@ -89,39 +94,10 @@ class UserCommentsHandler extends APIHandler
             'visible' => $userComment->getVisible(),
             ];
         };
-        
-        error_log("getCommentsBySubmission: " . json_encode($userComments));
 
         return $response->withJson(
             $userComments, 200);
-    }    
-
-    public function getComments($slimRequest, $response, $args)
-    {
-        $params = $slimRequest->getQueryParams(); // ['searchPhrase' => 'barnes']
-
-        error_log("get comments");
-
-
-
-        return $response->withJson([
-            ['id' => 1,
-            'submissionId' => 1,
-            'foreignCommentId' => Null,
-            'commentText' => "first API comment",
-            ],
-            ['id' => 2,
-            'submissionId' => 1,
-            'foreignCommentId' => 1,
-            'commentText' => "second API comment",
-            ],
-            ['id' => 3,
-            'submissionId' => 2,
-            'foreignCommentId' => Null,
-            'commentText' => "third API comment",
-            ],
-        ], 200);
-    }    
+    }      
 
     public function submitComment($slimRequest, $response, $args)
     {
@@ -172,16 +148,20 @@ class UserCommentsHandler extends APIHandler
         $currentUser = $request->getUser();
         $locale = AppLocale::getLocale();
 
-        error_log("flagged comment: " . $userCommentId);
-
         // Create a DAO for user comments
         import('plugins.generic.comments.classes.UserCommentDAO');
         $UserCommentDao = new UserCommentDAO();
         DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
+
+        // Get the data object
+        $userComment = $UserCommentDao->getById($userCommentId);
             
         // Update the data object
-        $commentId = $UserCommentDao->updateFlag($userCommentId);
-        error_log("comment id: " . $CommentId);
+        // $commentId = $UserCommentDao->updateFlag($userCommentId);
+        $userComment->setDateFlagged(Now());
+        $userComment->setFlaggedBy($currentUser->getId());
+        error_log("get commentId: " . $userComment->getId());
+        $UserCommentDao->updateObject($userComment);        
 
         return $response->withJson(
             ['id' => $commentId,
@@ -189,5 +169,34 @@ class UserCommentsHandler extends APIHandler
         ], 200);
     }
 
+    public function toggleComment($slimRequest, $response, $args)
+    {
+        // User comments may not be deleted
+        // This changes the visibility of the comment
+        $request = APIHandler::getRequest();
+        $requestParams = $slimRequest->getParsedBody();
+        $userCommentId = $requestParams['userCommentId'];
+        $visible = $requestParams['visible'];
+        $currentUser = $request->getUser();
+        $locale = AppLocale::getLocale();
+
+        // Create a DAO for user comments
+        import('plugins.generic.comments.classes.UserCommentDAO');
+        $UserCommentDao = new UserCommentDAO();
+        DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
+
+        // Get the data object
+        $userComment = $UserCommentDao->getById($userCommentId);    
+            
+        // Update the data object
+        $userComment->setVisible(!$visible);
+        $UserCommentDao->updateObject($userComment);               
+
+        return $response->withJson(
+            ['id' => $userCommentId,
+            'comment' => 'comment visibilty was changed',
+        ], 200);        
+
+    }
 
 }

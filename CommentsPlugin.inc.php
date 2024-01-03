@@ -55,6 +55,9 @@ class commentsPlugin extends GenericPlugin {
 			// Add the custom pages
 			HookRegistry::register('LoadHandler', array($this, 'setPageHandler'));
 
+			// Add link to flagged comments list on admin page
+			HookRegistry::register('Templates::Admin::Index::AdminFunctions', array($this, 'addAdminItem'));
+
 			// Install database tables
 			// $migration = $this->getInstallMigration();
 			// $migration->up();
@@ -211,7 +214,7 @@ class commentsPlugin extends GenericPlugin {
             return false;
         }
 
-		// user has to be in manager group
+		// user has to be in moderator group
 		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
 		error_log($userGroupDao->userInGroup($user->getId(), $managerGroupId));
 		if(!$userGroupDao->userInGroup($user->getId(), $managerGroupId)) {
@@ -221,8 +224,8 @@ class commentsPlugin extends GenericPlugin {
 		$menu = & $templateMgr->getState('menu');
 		$menu['flaggedComments'] = [
 			'name' => 'Flagged Comments',
-			'url' => $router->url($request, 'socios', 'listFlaggedComments'),
-			'isCurrent' => $router->getRequestedPage($request) === 'listFlaggedComments',
+			'url' => $router->url($request, 'socios', 'FlaggedComments'),
+			'isCurrent' => $router->getRequestedPage($request) === 'FlaggedComments',
 		];
 		$templateMgr->setState([
 			'menu' => $menu,
@@ -231,12 +234,18 @@ class commentsPlugin extends GenericPlugin {
 		return False;
 	}	
 
+	public function addAdminItem($hookName, $params) {
+		// alternatively show the link on the admin page
+		error_log("addAdminItem");
+		return "<li>Flagged Comments</li>";
+	}	
+
 	public function setPageHandler($hookName, $params) {
 		$page = $params[0];	
 		switch ($page) {
-			case 'listFlaggedComments':
-				$this->import('ListFlaggedCommentsHandler');
-				define('HANDLER_CLASS', 'ListFlaggedCommentsHandler');
+			case 'FlaggedComments':
+				$this->import('FlaggedCommentsHandler');
+				define('HANDLER_CLASS', 'flaggedCommentsHandler');
 				return true;			
 		}
 		return false;

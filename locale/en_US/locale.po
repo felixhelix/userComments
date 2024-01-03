@@ -31,3 +31,6 @@ msgstr "API key used for displaying comments to unauthenticated users."
 
 msgid "plugins.generic.comments.listFlaggedComments"
 msgstr "List of flagged user comments"
+
+msgid "plugins.generic.comments.editFlaggedComments"
+msgstr "Edit flagged user comment"

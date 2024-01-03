@@ -23,9 +23,8 @@ class UserCommentDAO extends DAO {
 	 * @param $objectId int UserComments ID
 	 * @param $submissionId int (optional) Submission ID
 	 */
-	function getById($objectId, $submissionId = null) {
+	function getById(int $objectId) {
 		$params = [(int) $objectId];
-		if ($submissionId) $params[] = (int) $submissionId;
 
 		$result = $this->retrieve(
 			'SELECT * FROM user_comments WHERE object_id = ?'
@@ -38,7 +37,7 @@ class UserCommentDAO extends DAO {
 	}
 
 	/**
-	 * Get a object for UserComments by submission ID
+	 * Get UserComments objects by submission ID
 	 * @param $submissionId int Submission ID
 	 * @param $contextId int (optional) context ID
 	 */
@@ -99,27 +98,23 @@ class UserCommentDAO extends DAO {
 	 * @param $userComment userComment
 	 */
 	function updateObject($userComment) {
-		// $this->update(
-		// 	'UPDATE	userComments
-		// 	SET	submission_id = ?,
-		// 		context_id = ?,
-		// 		user_id = ?,
-		// 		date_created = ?
-		// 	WHERE object_id = ?',
-		// 	array(
-		// 		$userComment->getSubmissionId(),
-		// 		(int) $userComment->getContextId(),
-		// 		$userComment->getUserId(),
-		// 		$userComment->getDateCreated(),
-		// 		(int) $userComment->getId()
-		// 	)
-		// );
+		$this->update(
+			'UPDATE user_comments 
+			SET visible = ?, 
+			date_flagged = ? 
+			WHERE object_id = ?',
+			array(
+				(bool) $userComment->getVisible(),
+				$userComment->getDateFlagged(),
+				(int) $userComment->getId()
+			)
+		);
 		$this->updateLocaleFields($userComment);
 	}
 
 	/**
 	 * Update the database with a userComment object
-	 * @param $userComment userComment
+	 * @param $objectId objectId
 	 */
 	function updateFlag($objectId) {
 		$this->update(
@@ -214,7 +209,7 @@ class UserCommentDAO extends DAO {
 	 * @return array
 	 */
 	function getAdditionalFieldNames() {
-		return array('commentText');
+		return array('commentText','flaggedBy');
 	}
 
 	/**

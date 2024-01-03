@@ -15,9 +15,12 @@
             {foreach $items as $item}
             <li class="listPanel__item">
                 <div class="listPanel__itemSummary">
-                    <div class="listPanel__itemIdentity"style="background-color: lightgrey;
+                    <div class="listPanel__itemIdentity" style="background-color: lightgrey;
                     padding: 0.5rem;
                     border-radius: 0.5rem;" >
+                        {if !$item.visible}
+                        <div type="warning" class="pkpNotification pkpNotification--warning">This comment is hidden</div>
+                        {/if}
                         <div>
                         Published: {$item.commentDate} <br> 
                         Flagged: {$item.flaggedDate}
@@ -38,9 +41,9 @@
                             <a href="http://localhost/ops3/index.php/socios/preprint/view/{$item.submissionId}">View in context</a>
                         </div>
                         <div class="listPanel_itemActions">
-                            <pkp-button element="a" href="">
-                                Hide Comment
-                            </pkp-button>
+                            <a href="{$item.commentUrl}">
+                                Edit Comment
+                            </a>
                         </div>
                     </div>
                 </div>

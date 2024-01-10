@@ -33,8 +33,8 @@ class UserCommentsHandler extends APIHandler
                     'roles' => $roles
                 ),
                 array(
-                    'pattern' => $this->getEndpointPattern() . '/getCommentsBySubmission/{submissionId}',
-                    'handler' => array($this, 'getCommentsBySubmission'),
+                    'pattern' => $this->getEndpointPattern() . '/getCommentsByPublication/{publicationId}',
+                    'handler' => array($this, 'getCommentsByPublication'),
                     'roles' => $roles
                 ),  
                 array(
@@ -65,18 +65,18 @@ class UserCommentsHandler extends APIHandler
         ], 200);
     }
 
-    public function getCommentsBySubmission($slimRequest, $response, $args)
+    public function getCommentsByPublication($slimRequest, $response, $args)
     {
         $params = $slimRequest->getQueryParams(); // ['searchPhrase' => 'barnes']
         // array_pop(explode('/', $slimRequest->getRequestPath()))
         // var_dump($slimRequest);
         // error_log("get comments by submission: " . json_encode(explode('/', $slimRequest->getRequestPath())));
         // error_log("get comments by submission: " . json_encode($args));
-        $submissionId = (int) $args['submissionId'];
+        $publicationId = (int) $args['publicationId'];
 
 		$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
         $userDao = DAORegistry::getDAO('UserDAO'); 	
-        $queryResults = $userCommentDao->getBySubmissionId($submissionId);
+        $queryResults = $userCommentDao->getByPublicationId($publicationId);
 		// $userComments = $queryResults->toArray();
 
         $userComments = [];
@@ -85,6 +85,8 @@ class UserCommentsHandler extends APIHandler
             $user = $userDao->getById($userComment->getUserId());
             $userComments[] = [
             'id' => $userComment->getId(),
+            'publicationId' => $userComment->getPublicationId(),
+            'publicationVersion' => $userComment->getPublicationVersion(),
             'submissionId' => $userComment->getSubmissionId(),
             'foreignCommentId' => $userComment->getForeignCommentId(),
             'userName' => $user->getFullName(),
@@ -104,13 +106,17 @@ class UserCommentsHandler extends APIHandler
         $request = APIHandler::getRequest();
         $requestParams = $slimRequest->getParsedBody();
         $commentText = $requestParams['commentText'];
-        $submissionId = $requestParams['submissionId'];
+        $publicationId = $requestParams['publicationId'];
         $foreignCommentId = $requestParams['foreignCommentId'];
         $currentUser = $request->getUser();
         $locale = AppLocale::getLocale();
 
         error_log("submitted comment: " . $reviewComment);
         error_log("locale: " . $locale);
+
+        // get submission values
+        $submissionId = null;
+        $publicationVersion = null;
 
         // Creata a DAO for user comments
         import('plugins.generic.comments.classes.UserCommentDAO');
@@ -120,9 +126,14 @@ class UserCommentsHandler extends APIHandler
         // Create the data object
         $UserComment = $UserCommentDao->newDataObject(); 
         $UserComment->setSubmissionId($submissionId);
+        $UserComment->setPublicationId($publicationId);        
+        $UserComment->setPublicationVersion($publicationVersion);        
         $UserComment->setForeignCommentId($foreignCommentId);        
         $UserComment->setContextId(1);
         $UserComment->setUserId($currentUser->getId());
+
+        error_log("SubmissionId: " .  $UserComment->getSubmissionId());
+        error_log("SubmissionId: " .   $submissionId);
 
         // add the author comment
         // $UserComment->setData('authorReply', $userComment, $locale); // This inserts a serialized (JSON) string in the setting_value field

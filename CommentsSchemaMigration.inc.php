@@ -26,6 +26,8 @@ class CommentsSchemaMigration extends Migration
         Capsule::schema()->create('user_comments', function (Blueprint $table) {
             $table->bigInteger('object_id')->autoIncrement();
             $table->bigInteger('submission_id')->nullable();
+            $table->bigInteger('publication_id')->nullable();            
+            $table->bigInteger('publication_version')->nullable();
             $table->bigInteger('context_id');
             $table->bigInteger('user_id')->nullable();
             $table->bigInteger('foreign_comment_id')->nullable(); // this holds optionally the key of another comment

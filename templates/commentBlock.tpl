@@ -1,6 +1,12 @@
 <div class="item">
     <h3>Comments</h3>
-    <div id="commentsApp" data-user="{$user->getId()}" data-apiKey="{$apiKey}" data-submissionId="{$submissionId}" data-csrfToken="{$csrfToken}">
+    <div id="commentsApp" 
+    data-user="{$user->getId()}" 
+    data-apiKey="{$apiKey}" 
+    data-submissionId="{$submissionId}" 
+    data-publicationId="{$publication->getData('id')}"
+    data-publicationVersion="{$publication->getData('version')}" 
+    data-csrfToken="{$csrfToken}">
         <user-comments-block :user-comments="userComments"></user-comments-block>
         <div>
         <h4>Submit a comment</h4>

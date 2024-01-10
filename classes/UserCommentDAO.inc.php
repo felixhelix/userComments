@@ -39,20 +39,39 @@ class UserCommentDAO extends DAO {
 	/**
 	 * Get UserComments objects by submission ID
 	 * @param $submissionId int Submission ID
+	 * @param $publicationVersion int Publication version number
 	 * @param $contextId int (optional) context ID
 	 */
-	function getBySubmissionId($submissionId, $contextId = null) {
-		$params = [(int) $submissionId];
+	function getBySubmissionId($submissionId, $publicationVersion = 1, $contextId = null) {
+		$params = [(int) $submissionId, (int) $version];
 		if ($contextId) $params[] = (int) $contextId;
 
 		$result = $this->retrieve(
-			'SELECT * FROM user_comments WHERE submission_id = ?'
+			'SELECT * FROM user_comments WHERE submission_id = ? AND publication_version = ?'
 			. ($contextId?' AND context_id = ?':''),
 			$params
 		);
 
 		return new DAOResultFactory($result, $this, '_fromRow');
 	}
+
+	/**
+	 * Get UserComments objects by publication ID
+	 * @param $publicationId int Publication ID
+	 * @param $contextId int (optional) context ID
+	 */
+	function getByPublicationId($publicationId, $contextId = null) {
+		$params = [(int) $publicationId];
+		if ($contextId) $params[] = (int) $contextId;
+
+		$result = $this->retrieve(
+			'SELECT * FROM user_comments WHERE publication_id = ?'
+			. ($contextId?' AND context_id = ?':''),
+			$params
+		);
+
+		return new DAOResultFactory($result, $this, '_fromRow');
+	}	
 
 	/**
 	 * Get a object for UserComments by user ID
@@ -78,9 +97,11 @@ class UserCommentDAO extends DAO {
 	 */
 	function insertObject($userComment) {
 		$this->update(
-			'INSERT INTO user_comments (submission_id, context_id, user_id, foreign_comment_id, date_created) VALUES (?, ?, ?, ?, NOW())',
+			'INSERT INTO user_comments (submission_id, publication_id, publication_version, context_id, user_id, foreign_comment_id, date_created) VALUES (?, ?, ?, ?, ?, ?, NOW())',
 			array(
-				$userComment->getSubmissionId(),
+				$userComment->getSubmissionId()  == "NULL" ? null : $userComment->getSubmissionId(),
+				$userComment->getPublicationId(),
+				$userComment->getPublicationVersion()  == "NULL" ? null : $userComment->getPublicationVersion(),
 				(int) $userComment->getContextId(),
 				$userComment->getUserId(),
 				$userComment->getForeignCommentId() == "NULL" ? null : $userComment->getForeignCommentId(),
@@ -187,6 +208,8 @@ class UserCommentDAO extends DAO {
 		$userComment->setContextId($row['context_id']);
 		$userComment->setUserId($row['user_id']);
 		$userComment->setSubmissionId($row['submission_id']);
+		$userComment->setPublicationId($row['publication_id']);		
+		$userComment->setPublicationVersion($row['publication_version']);		
 		$userComment->setForeignCommentId($row['foreign_comment_id']);
 		$userComment->setDateCreated($row['date_created']);
 		$userComment->setDateFlagged($row['date_flagged']);

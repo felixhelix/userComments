@@ -6,6 +6,9 @@ const App = Vue.createApp({
     dataFetched: false,
     commentText: '',
     apiKey: '',
+    submissionId: '',
+    version: '',
+    publicationId: '',
     csrfToken: '',
     foreignCommentId: null,
     commentAction: 'formButton' //'commentForm'
@@ -43,11 +46,12 @@ const App = Vue.createApp({
     },  
     fetchData() {
       this.location = window.location.href;
-      this.submissionId = this.location.split("/")[this.location.split("/").length -1];
+      // this.submissionId = this.location.split("/")[this.location.split("/").length -1];
+      this.publicationId = document.getElementById('commentsApp').dataset.publicationid;
       // An API key is needed for unauthenticated GET requests
       this.apiKey = document.getElementById('commentsApp').dataset.apikey;
       // Make a GET request to the API
-      fetch('http://localhost/ops3/index.php/socios/api/v1/userComments/getCommentsBySubmission/' + this.submissionId + "?" + new URLSearchParams({
+      fetch('http://localhost/ops3/index.php/socios/api/v1/userComments/getCommentsByPublication/' + this.publicationId + "?" + new URLSearchParams({
         'apiToken': this.apiKey
       }))
         .then(response => response.json())
@@ -72,7 +76,7 @@ const App = Vue.createApp({
         },
         body: JSON.stringify({
           commentText: submitEvent.target.commentText.value,
-          submissionId: this.submissionId,
+          publicationId: this.publicationId,
           foreignCommentId: submitEvent.target.dataset.usercommentid,
           completed: false
         }),
@@ -178,7 +182,7 @@ App.component('userCommentsBlock', {
     <template v-else>
       <div class="userComment" :id="userComment.id">
         <i>This comment has been unpublished due to violation of our code of conduct.</i>
-      <div>
+      </div>
     </template>
     <div style="margin-left: 1rem" v-if="userComment.children && userComment.children.length">
     <user-comments-block :user-comments="userComment.children"></user-comments-block>

@@ -97,15 +97,17 @@ class commentsPlugin extends GenericPlugin {
 	}
 
     public function addCommentBlock(string $hookName, array $args): bool {
-		// Insert the comment template
 		$request = Application::get()->getRequest();
 		$user = $request->getUser();
         $smarty = & $args[1];
-        $output = & $args[2];
+		$publication = $smarty->getTemplateVars('currentPublication');
+        $output = & $args[2];	
+		// Insert the comment template
 		$smarty->assign([
 			'csrfToken' => $request->getSession()->getCSRFToken(),
 			'apiKey' => $this->getSetting($request->getContext()->getId(), 'apiKey'),
-			'submissionId' => array_pop(explode('/', $request->getRequestPath())),
+			'submissionId' => $publication->getData('submissionId'), 
+			'version' =>  $publication->getData('version'),
 			'foreignCommentId' => 1,
 			'user' => $user,
 		]);
@@ -250,5 +252,6 @@ class commentsPlugin extends GenericPlugin {
 		}
 		return false;
 	}	
+
 }
 

@@ -52,6 +52,40 @@ class UserComment extends DataObject {
 	}
 
 	/**
+	 * Get Publication Id.
+	 * @return int
+	 */
+	function getPublicationId(){
+		return $this->getData('publication_id');
+	}
+
+	/**
+	 * Set Publication Id.
+	 * @return int
+	 * @param $publicationId int	 * 
+	 */
+	function setPublicationId($publicationId){
+		return $this->setData('publication_id', $publicationId);
+	}
+
+	/**
+	 * Get Publication version.
+	 * @return int
+	 */
+	function getPublicationVersion(){
+		return $this->getData('publication_version');
+	}
+
+	/**
+	 * Set Publication version.
+	 * @return int
+	 * @param $publicationVersion int	 * 
+	 */
+	function setPublicationVersion($publicationVersion){
+		return $this->setData('publication_version', $publicationVersion);
+	}
+
+	/**
 	 * Get foreign comment ID.
 	 * @return int
 	 */

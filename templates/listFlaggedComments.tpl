@@ -39,7 +39,6 @@
                         </div>
                         <div>
                             <a href="{url page="preprint" op="view" path=$item.submissionId|to_array:"version":$item.publicationId}">View in context</a>
-                            <a href="http://localhost/ops3/index.php/socios/preprint/view/{$item.submissionId}">View in context</a>
                         </div>
                         <div class="listPanel_itemActions">
                             <a href="{$item.commentUrl}">

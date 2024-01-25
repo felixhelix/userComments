@@ -134,14 +134,19 @@ class flaggedCommentsHandler extends Handler {
 		$plugin = PluginRegistry::getPlugin('generic', 'CommentsPlugin');
 		$templateMgr = TemplateManager::getManager();
 
-		// Get the author of the comment and some data about the preprint
+		// Get the userComment entity
 		$commentId = array_pop($args);
 		$userComment = $this->getComment($commentId); //returns a userComment object
+
+		// Get the author of the comment and some data about the preprint
 		$userDao = DAORegistry::getDAO('UserDAO'); 	
 		$user = $userDao->getById($userComment->getUserId());
 
+		// Get the user who flagged the comment
+		$flaggedByUser = $userDao->getById($userComment->getFlaggedBy());
+
 		// The list of flagged comments URL
-		$commentsListUrl = $request->getRouter()->url($request, null, 'FlaggedComments');			
+		$commentsListUrl = $request->getRouter()->url($request, null, 'FlaggedComments');		
 
 		// Create an instance of the comment form
 		$plugin->import('UserCommentForm');
@@ -160,14 +165,32 @@ class flaggedCommentsHandler extends Handler {
 
 		// The URL where the form will be submitted		
 		$dispatcher = $request->getDispatcher();
-		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'userComments/update');
+		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'userComments/edit');
+
+		// $actionNames = array(
+		// 	'toggleVisibility' => 'Toggle visibility',
+		// 	'unFlag' => 'Un-flag comment',
+		// );
 
 		$form = new UserCommentForm($apiUrl, $request, $props); // the parameters for the __construct function are variable
 		//  Compile all of the required props and pass them to the template’s component state
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->assign([
+			'plugin' => $plugin,
 			'pageTitle' => __('plugins.generic.comments.editFlaggedComments'),
-			'commentList_url' => $commentsListUrl]);
+			'commentListUrl' => $commentsListUrl,
+			'commentText' => $userComment->getCommentText(),	
+			'commentId' => $commentId,
+            'submissionId' => $userComment->getSubmissionId(),
+			'submissionUrl' => $request->getRouter()->url($request, null, 'preprint', 'view', $userComment->getSubmissionId()),
+            'foreignCommentId' => $userComment->getForeignCommentId(),
+            'userName' => $user->getFullName(),
+			'userEmail' => $user->getEmail(),
+            'commentDate' =>$userComment->getDateCreated(),
+            'commentText' => $userComment->getCommentText(),
+            'flaggedDate' => $userComment->getDateFlagged(),
+			'flaggedByUser' => $flaggedByUser->getFullName(),			
+		]);
 		$templateMgr->setState([
 			'components' => [
 				FORM_USER_COMMENT => $form->getConfig(),

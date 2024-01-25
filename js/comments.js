@@ -168,25 +168,25 @@ App.component('userCommentsBlock', {
     }
   },
   template: `
-  <ul class="userComments" v-if="userComments && userComments.length">
+  <ul class="rounded-lg" v-if="userComments && userComments.length">
   <li v-for="userComment in userComments" :key="userComment.id">
     <template v-if="userComment.visible != '0'">
-      <div class="userComment" :id="userComment.id">
+      <div class="bg-gray-100 p-2 rounded-lg my-1" :id="userComment.id">
         {{ userComment.commentText }}
-        <span class="commentMeta">{{ userComment.userName }} {{ userComment.commentDate }}</span>
+        <span class="block font-semibold pt-1">{{ userComment.userName }} {{ userComment.commentDate }}</span>
         <button v-if="$root.user && userComment.flaggedDate == null" @click="flagComment(userComment.id)">flag</button>
         <div v-if="userComment.flaggedDate != null" style="background-color: red">{{ userComment.flaggedDate}}</div>
         <form-container :userCommentId=userComment.id></form-container>
       </div>     
     </template>
     <template v-else>
-      <div class="userComment" :id="userComment.id">
+      <div class="bg-gray-100 p-1 rounded-lg" :id="userComment.id">
         <i>This comment has been unpublished due to violation of our code of conduct.</i>
       </div>
     </template>
-    <div style="margin-left: 1rem" v-if="userComment.children && userComment.children.length">
-    <user-comments-block :user-comments="userComment.children"></user-comments-block>
-  </div> 
+    <div class="pl-3" v-if="userComment.children && userComment.children.length">
+      <user-comments-block :user-comments="userComment.children"></user-comments-block>
+    </div>
   </li>
 </ul>`
 });
@@ -195,7 +195,7 @@ App.component('formContainer', {
   props: ['userCommentId'],
   data() {
     return {
-      commentAction: 'formButton'
+      commentAction:  (this.userCommentId == null ? 'commentForm' : 'formButton')
     }
   },  
   methods: {
@@ -206,7 +206,6 @@ App.component('formContainer', {
   template: `
     <div v-if="$root.user" :data-commentID=userCommentId>
       <component :is="commentAction" :userCommentId=userCommentId></component>
-      <!-- button @click="$root.moveForm2(userComment.id, $event)">reply</button -->
     </div>`
   });
   
@@ -215,7 +214,7 @@ App.component('commentForm', {
   template: `
     <form id="userCommentForm" @submit.prevent="$root.postData($parent, $event)" :data-userCommentId="userCommentId">
       <label for="commentText">Your comment:</label>
-      <textarea type="text" id="commentText" v-model="$root.commentText" required></textarea>
+      <textarea type="text" id="commentText" v-model="$root.commentText" required  class="userCommentFormField"></textarea>
       <input id="userCommentId" type="hidden" v-model="userCommentId">
       <button type="submit">Submit</button>
       <button @click="$parent.toggleComment()">close</button>

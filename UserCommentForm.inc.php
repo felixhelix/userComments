@@ -17,6 +17,7 @@
 use PKP\components\forms\FormComponent;
 use PKP\components\forms\FieldText;
 use PKP\components\forms\FieldHTML;
+use PKP\components\forms\FieldOptions;
 
 define('FORM_USER_COMMENT', 'userComment');
 
@@ -82,7 +83,7 @@ class UserCommentForm extends FormComponent
 		$this->addPage([
 			'id' => 'default',
 			'submitButton' => [
-				'label' => $props['$visible']? 'Hide Comment' : 'Show Comment',
+				'label' => 'Update Comment',
 			]]);	
 
 		$this->addGroup([
@@ -90,25 +91,45 @@ class UserCommentForm extends FormComponent
 			'pageId' => 'default',
 		]);			
 
-		$this->addField(new FieldHTML('commentInfo', [
-			'groupId' => 'default',
-			'description' => strtr($commentInfo, $props),
-			'size' => 'large'
-		]));	
+		// $this->addField(new FieldHTML('commentInfo', [
+		// 	'groupId' => 'default',
+		// 	'description' => strtr($commentInfo, $props),
+		// 	'size' => 'large'
+		// ]));	
 
-		$this->addField(new FieldText('visible', [
-			'groupId' => 'default',
-			'isRequired' => false,
-			'inputType' => 'hidden',		
-			'value' => $props['$visible']
-		]));
+		// $this->addField(new FieldText('visible', [
+		// 	'groupId' => 'default',
+		// 	'isRequired' => false,
+		// 	'inputType' => 'hidden',		
+		// 	'value' => $props['$visible']
+		// ]));
 
 		$this->addField(new FieldText('userCommentId', [
 			'groupId' => 'default',
 			'isRequired' => false,
 			'inputType' => 'hidden',
 			'value' => $props['$commentId']
-		]));		
+		]));	
+		
+		
+		$this->addField(new FieldOptions('visible', [
+			'groupId' => 'default',
+			'options' => [
+				['value' => true, 'label' => 'visible'],
+			],
+			'description' => 'If visibility is turned off, a replacement text is shown.',
+			'label' => 'Set visibility',
+			'value' => [$props['$visible']]
+		]));	
+
+		// $this->addField(new FieldOptions('toggleFlag', [
+		// 	'groupId' => 'default',
+		// 	'options' => [
+		// 		['value' => true, 'label' => 'flagged'],
+		// 	],
+		// 	'label' => 'Toggle flag',
+		// 	'value' => $props['$flaggedDate'] ? true : false
+		// ]));			
 
 	}
 }

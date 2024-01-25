@@ -10,8 +10,17 @@
 {extends file="layouts/backend.tpl"}
 
 {block name="page"}
-	<pkp-form
-		v-bind="components.{$smarty.const.FORM_USER_COMMENT}"
-		@set="set"
-	/>	
+<div class="pkpFormGroup">
+	<div class="pkpNotification pkpNotification--warning">Flagged {{$flaggedDate|date_format:$datetimeFormatLong}} by {{$flaggedByUser}}</div>
+	<div style="background-color: white; margin-top: 1rem; padding: 0.5rem; border-radius: 0.5rem;">
+		{{$commentText}}
+	</div>
+	<div>Posted {{$commentDate|date_format:$datetimeFormatLong}} by {{$userName}} ({{$userEmail}})</div>
+	<div><a href="{{$submissionUrl}}">View submission page</a></div>
+	<div><a href="{{$commentListUrl}}">Back to list</a></div>
+</div>
+<pkp-form
+	v-bind="components.{$smarty.const.FORM_USER_COMMENT}"
+	@set="set"
+/>	
 {/block}

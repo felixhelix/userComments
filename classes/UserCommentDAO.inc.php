@@ -96,6 +96,7 @@ class UserCommentDAO extends DAO {
 	 * @return int Inserted userComment ID
 	 */
 	function insertObject($userComment) {
+
 		$this->update(
 			'INSERT INTO user_comments (submission_id, publication_id, publication_version, context_id, user_id, foreign_comment_id, date_created) VALUES (?, ?, ?, ?, ?, ?, NOW())',
 			array(
@@ -242,6 +243,45 @@ class UserCommentDAO extends DAO {
 	function updateLocaleFields($userComment) {
 		$this->updateDataObjectSettings('user_comment_settings', $userComment, array('object_id' => (int) $userComment->getId()));
 	}
+
+	/**
+	 * A helper function to compile the key/value set for the primary table
+	 *
+	 * @param DataObject
+	 * @return array
+	 */
+	private function _getPrimaryDbProps($object) {
+		$schema = Services::get('schema')->get($this->schemaName);
+		$sanitizedProps = Services::get('schema')->sanitize($this->schemaName, $object->_data);
+
+		$primaryDbProps = [];
+		foreach ($this->primaryTableColumns as $propName => $columnName) {
+			if ($propName !== 'id' && array_key_exists($propName, $sanitizedProps)) {
+				// If the value is null and the prop is nullable, leave it null
+				if (is_null($sanitizedProps[$propName])
+						&& isset($schema->properties->{$propName}->validation)
+						&& in_array('nullable', $schema->properties->{$propName}->validation)) {
+					$primaryDbProps[$columnName] = null;
+
+				// Convert empty string values for DATETIME columns into null values
+				// because an empty string can not be saved to a DATETIME column
+				} elseif (array_key_exists($columnName, $sanitizedProps)
+						&& $sanitizedProps[$columnName] === ''
+						&& isset($schema->properties->{$propName}->validation)
+						&& (
+							in_array('date_format:Y-m-d H:i:s', $schema->properties->{$propName}->validation)
+							|| in_array('date_format:Y-m-d', $schema->properties->{$propName}->validation)
+						)
+				) {
+					$primaryDbProps[$columnName] = null;
+				} else {
+					$primaryDbProps[$columnName] = $this->convertToDB($sanitizedProps[$propName], $schema->properties->{$propName}->type);
+				}
+			}
+		}
+
+		return $primaryDbProps;
+	}	
 
 }
 

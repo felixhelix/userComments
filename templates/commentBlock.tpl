@@ -1,5 +1,5 @@
-<div class="item">
-    <h3>Comments</h3>
+<section class="my-4 text-sm">
+	<h2 class="font-semibold">Comments</h2>
     <div id="commentsApp" 
     data-user="{$user->getId()}" 
     data-apiKey="{$apiKey}" 
@@ -8,7 +8,7 @@
     data-publicationVersion="{$publication->getData('version')}" 
     data-csrfToken="{$csrfToken}">
         <user-comments-block :user-comments="userComments"></user-comments-block>
-        <div>
+        <div class="userCommentForm">
         <h4>Submit a comment</h4>
         {if $user}
         You are logged in as {$user->getFullName()}
@@ -18,5 +18,4 @@
         {/if}
         </div>
     </div>
-</div>
-<!--- e-mail@mieterverein-koeln.de --->
+</section>

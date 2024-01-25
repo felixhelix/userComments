@@ -21,8 +21,8 @@ class UserCommentsHandler extends APIHandler
                     'roles' => $roles
                 ),      
                 array(
-                    'pattern' => $this->getEndpointPattern() . '/update',
-                    'handler' => array($this, 'toggleComment'),
+                    'pattern' => $this->getEndpointPattern() . '/edit',
+                    'handler' => array($this, 'setVisibility'),
                     'roles' => $roles
                 ),                               
             ),
@@ -36,12 +36,7 @@ class UserCommentsHandler extends APIHandler
                     'pattern' => $this->getEndpointPattern() . '/getCommentsByPublication/{publicationId}',
                     'handler' => array($this, 'getCommentsByPublication'),
                     'roles' => $roles
-                ),  
-                array(
-                    'pattern' => $this->getEndpointPattern() . '/getComments',
-                    'handler' => array($this, 'getComments'),
-                    'roles' => $roles
-                ),                               
+                ),                                
             ),            
         );
         parent::__construct();
@@ -105,18 +100,33 @@ class UserCommentsHandler extends APIHandler
     {
         $request = APIHandler::getRequest();
         $requestParams = $slimRequest->getParsedBody();
-        $commentText = $requestParams['commentText'];
-        $publicationId = $requestParams['publicationId'];
-        $foreignCommentId = $requestParams['foreignCommentId'];
         $currentUser = $request->getUser();
         $locale = AppLocale::getLocale();
 
-        error_log("submitted comment: " . $reviewComment);
-        error_log("locale: " . $locale);
-
+        // This probably is not neccessary
         // get submission values
+        // $sanitizedValues = [];
+        // $submissionValues = array(
+        //     'commentText' => 'string',
+        //     'publicationId' => 'integer',
+        //     'foreignCommentId' => 'integer');
+
+        // foreach ($submissionValues as $submissionValue => $type) {
+        //     if (gettype($requestParams[$submissionValue]) == $type) {
+        //         $sanitizedValues [] = $requestParams[$submissionValue];
+        //     }
+        //     else {
+        //         return $response->withJson(
+        //             ['error' => 'wrong type',
+        //         ], 400);
+        //     }
+        // }
+
+        $publicationId = $requestParams['publicationId'];
+        $foreignCommentId = $requestParams['foreignCommentId'];     
         $submissionId = null;
         $publicationVersion = null;
+        $commentText = $requestParams['commentText'];
 
         // Creata a DAO for user comments
         import('plugins.generic.comments.classes.UserCommentDAO');
@@ -125,25 +135,16 @@ class UserCommentsHandler extends APIHandler
             
         // Create the data object
         $UserComment = $UserCommentDao->newDataObject(); 
-        $UserComment->setSubmissionId($submissionId);
-        $UserComment->setPublicationId($publicationId);        
-        $UserComment->setPublicationVersion($publicationVersion);        
-        $UserComment->setForeignCommentId($foreignCommentId);        
         $UserComment->setContextId(1);
         $UserComment->setUserId($currentUser->getId());
-
-        error_log("SubmissionId: " .  $UserComment->getSubmissionId());
-        error_log("SubmissionId: " .   $submissionId);
-
-        // add the author comment
-        // $UserComment->setData('authorReply', $userComment, $locale); // This inserts a serialized (JSON) string in the setting_value field
+        $UserComment->setPublicationId($publicationId);
+        $UserComment->setForeignCommentId($foreignCommentId);        
+        $UserComment->setSubmissionId($submissionId);
+        $UserComment->setPublicationVersion($publicationVersion);
         $UserComment->setCommentText($commentText);
-
-        error_log(json_encode($UserComment));
 
         // Insert the data object
         $commentId = $UserCommentDao->insertObject($UserComment);
-        error_log("comment id: " . $CommentId);
 
         return $response->withJson(
             ['id' => 1,
@@ -155,9 +156,16 @@ class UserCommentsHandler extends APIHandler
     {
         $request = APIHandler::getRequest();
         $requestParams = $slimRequest->getParsedBody();
-        $userCommentId = $requestParams['userCommentId'];
         $currentUser = $request->getUser();
         $locale = AppLocale::getLocale();
+
+        $userCommentId = $requestParams['userCommentId'];
+        // Validate input
+        if ( gettype($userCommentId) != 'integer') {
+            return $response->withJson(
+                ['error' => 'wrong type',
+            ], 400);            
+        }
 
         // Create a DAO for user comments
         import('plugins.generic.comments.classes.UserCommentDAO');
@@ -180,7 +188,7 @@ class UserCommentsHandler extends APIHandler
         ], 200);
     }
 
-    public function toggleComment($slimRequest, $response, $args)
+    public function setVisibility($slimRequest, $response, $args)
     {
         // User comments may not be deleted
         // This changes the visibility of the comment
@@ -200,7 +208,7 @@ class UserCommentsHandler extends APIHandler
         $userComment = $UserCommentDao->getById($userCommentId);    
             
         // Update the data object
-        $userComment->setVisible(!$visible);
+        $userComment->setVisible($visible);
         $UserCommentDao->updateObject($userComment);               
 
         return $response->withJson(

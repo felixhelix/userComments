@@ -43,7 +43,8 @@ class commentsPlugin extends GenericPlugin {
 			$templateMgr->addStyleSheet('comments', $cssUrl);
 			
 			// Use a hook to insert a template on the details page
-			HookRegistry::register('Templates::Preprint::Details', [$this, 'addCommentBlock']);	
+			// HookRegistry::register('Templates::Preprint::Main', [$this, 'addCommentBlock']);	
+			HookRegistry::register('Templates::Preprint::Main', [$this, 'addCommentBlock']);	
 
 			// Add the API handler
 			HookRegistry::register('Dispatcher::dispatch', array($this, 'setupUserCommentsHandler'));	

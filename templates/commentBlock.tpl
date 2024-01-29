@@ -9,9 +9,9 @@
     data-csrfToken="{$csrfToken}">
         <user-comments-block :user-comments="userComments"></user-comments-block>
         <div class="userCommentForm">
-        <h4>Submit a comment</h4>
+        <h4 class="hidden">Submit a comment</h4>
         {if $user}
-        You are logged in as {$user->getFullName()}
+        <span class="hidden">You are logged in as {$user->getFullName()}</span>
         <form-container :userCommentId=null></form-container>
         {else}
         You have to be logged in to post a comment.

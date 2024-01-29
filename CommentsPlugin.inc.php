@@ -33,15 +33,6 @@ class commentsPlugin extends GenericPlugin {
 			$this->UserCommentDao = new UserCommentDAO();
 			DAORegistry::registerDAO('UserCommentDAO', $this->UserCommentDao);
 
-			// Add additional styles and scripts
-			$request = Application::get()->getRequest();
-      		$jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
-			$cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
-      		$templateMgr = TemplateManager::getManager($request);
-			$templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');
-			$templateMgr->addJavaScript('comments', $jsUrl);
-			$templateMgr->addStyleSheet('comments', $cssUrl);
-			
 			// Use a hook to insert a template on the details page
 			// HookRegistry::register('Templates::Preprint::Main', [$this, 'addCommentBlock']);	
 			HookRegistry::register('Templates::Preprint::Main', [$this, 'addCommentBlock']);	
@@ -98,7 +89,15 @@ class commentsPlugin extends GenericPlugin {
 	}
 
     public function addCommentBlock(string $hookName, array $args): bool {
+		// Add additional styles and scripts
 		$request = Application::get()->getRequest();
+		$jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
+		$cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
+		$templateMgr = TemplateManager::getManager($request);
+		$templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');
+		$templateMgr->addJavaScript('comments', $jsUrl);
+		$templateMgr->addStyleSheet('comments', $cssUrl);		
+
 		$user = $request->getUser();
         $smarty = & $args[1];
 		$publication = $smarty->getTemplateVars('currentPublication');

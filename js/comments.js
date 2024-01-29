@@ -213,18 +213,18 @@ App.component('commentForm', {
   props: ['userCommentId'],
   template: `
     <form id="userCommentForm" @submit.prevent="$root.postData($parent, $event)" :data-userCommentId="userCommentId">
-      <label for="commentText">Your comment:</label>
-      <textarea type="text" id="commentText" v-model="$root.commentText" required  class="userCommentFormField"></textarea>
+      <label for="commentText" class="hidden">Your comment:</label>
+      <textarea type="text" id="commentText" v-model="$root.commentText" required  class="block rounded border-2 w-full my-2"></textarea>
       <input id="userCommentId" type="hidden" v-model="userCommentId">
-      <button type="submit">Submit</button>
-      <button @click="$parent.toggleComment()">close</button>
+      <button type="submit" class="rounded border-2 p-1 mr-2  border-green-400">Submit</button>
+      <button @click="$parent.toggleComment()" class="rounded border-2 p-1">close</button>
     </form>`
 });
 
 App.component('formButton', {
   props: ['userCommentId'],
   template: `
-    <button @click="$parent.toggleComment()">comment</button>
+    <button @click="$parent.toggleComment()" class="rounded border-2 p-1">comment</button>
     `
   });
   

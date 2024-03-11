@@ -110,6 +110,7 @@ class commentsPlugin extends GenericPlugin {
 			'version' =>  $publication->getData('version'),
 			'foreignCommentId' => 1,
 			'user' => $user,
+			'userId' => $user ? $user->getId() : null,
 		]);
         $output .= $smarty->fetch($this->getTemplateResource('commentBlock.tpl'));
         return false;

@@ -1,7 +1,7 @@
 <section class="my-4 text-sm">
 	<h2 class="font-semibold">Comments</h2>
     <div id="commentsApp" 
-    data-user="{$user->getId()}" 
+    data-user="{$userId}" 
     data-apiKey="{$apiKey}" 
     data-submissionId="{$submissionId}" 
     data-publicationId="{$publication->getData('id')}"

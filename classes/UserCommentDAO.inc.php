@@ -158,7 +158,7 @@ class UserCommentDAO extends DAO {
 		if ($contextId) $params[] = (int) $contextId;
 
 		$result = $this->retrieve(
-			'SELECT * FROM user_comments WHERE date_flagged IS NOT NULL'
+			'SELECT * FROM user_comments WHERE flagged IS TRUE'
 			. ($contextId?' AND context_id = ?':''),
 			$params
 		);
@@ -214,6 +214,7 @@ class UserCommentDAO extends DAO {
 		$userComment->setForeignCommentId($row['foreign_comment_id']);
 		$userComment->setDateCreated($row['date_created']);
 		$userComment->setDateFlagged($row['date_flagged']);
+		$userComment->setFlagged($row['flagged']);		
 		$userComment->setVisible($row['visible']);
 		$this->getDataObjectSettings('user_comment_settings', 'object_id', $row['object_id'], $userComment);
 

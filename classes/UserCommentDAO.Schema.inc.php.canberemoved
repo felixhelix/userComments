@@ -40,6 +40,7 @@ class UserCommentDAO extends SchemaDAO {
 		'foreignCommentId' => 'foreign_comment_id',
 		'dateCreated' => 'date_created',
 		'dateFlagged' => 'date_flagged',
+		'flagged' => 'flagged',
 		'visible' => 'visible',
 		'publicationVersion' => 'publication_version',
 		'publicationId' => 'publication_id',
@@ -79,7 +80,7 @@ class UserCommentDAO extends SchemaDAO {
 		if ($contextId) $params[] = (int) $contextId;
 
 		$result = $this->retrieve(
-			'SELECT * FROM user_comments WHERE date_flagged IS NOT NULL'
+			'SELECT * FROM user_comments WHERE flagged IS NOT NULL'
 			. ($contextId?' AND context_id = ?':''),
 			$params
 		);

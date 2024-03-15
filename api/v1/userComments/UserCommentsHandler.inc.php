@@ -196,6 +196,8 @@ class UserCommentsHandler extends APIHandler
         $requestParams = $slimRequest->getParsedBody();
         $userCommentId = $requestParams['userCommentId'];
         $visible = $requestParams['visible'];
+        $flagged = $requestParams['flagged'];
+        // error_log("setVisibility: " . $visible . " on " . $userCommentId);
         $currentUser = $request->getUser();
         $locale = AppLocale::getLocale();
 
@@ -208,7 +210,17 @@ class UserCommentsHandler extends APIHandler
         $userComment = $UserCommentDao->getById($userCommentId);    
             
         // Update the data object
-        $userComment->setVisible($visible);
+        // Only possible value for flagged should be false, since once the flag is removed, 
+        // the comment is removed from the list of flagged comments as well
+        $userComment->setFlagged($flagged == 'true' ? true : false);
+        if ($flagged == 'false') {
+            // if the comment is un-flagged, it has to be visible
+            $userComment->setVisible(true);
+        } else {
+            $userComment->setVisible($visible == 'true' ? true : false);
+        }
+        
+
         $UserCommentDao->updateObject($userComment);               
 
         return $response->withJson(

@@ -90,6 +90,7 @@ class commentsPlugin extends GenericPlugin {
 
     public function addCommentBlock(string $hookName, array $args): bool {
 		// Add additional styles and scripts
+		// for the frontend publication details page 
 		$request = Application::get()->getRequest();
 		$jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
 		$cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';

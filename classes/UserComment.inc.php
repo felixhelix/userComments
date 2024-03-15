@@ -166,17 +166,33 @@ class UserComment extends DataObject {
 	}
 
 	/**
-	 * Get flagged.
+	 * Get date flagged.
 	 * @return date
 	 */
 	function getDateFlagged() {
 		return $this->getData('dateFlagged');
 	}
 	
+	/**
+	 * Get flagged.
+	 * @return boolean
+	 */
+	function getFlagged() {
+		return $this->getData('flagged');
+	}
 
 	/**
-	 * Set dateFlagged.
-	 * @param $flagged date
+	 * Set flagged.
+	 * @param $flagged boolean
+	 */
+	function setFlagged($flagged) {
+		return $this->setData('flagged', $flagged);
+	}
+
+
+	/**
+	 * Set date flagged.
+	 * @param $dateFlagged date
 	 */
 	function setDateFlagged($dateFlagged) {
 		return $this->setData('dateFlagged', $dateFlagged);

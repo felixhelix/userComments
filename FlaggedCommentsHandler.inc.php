@@ -160,6 +160,7 @@ class flaggedCommentsHandler extends Handler {
             '$commentDate' =>$userComment->getDateCreated(),
             '$commentText' => $userComment->getCommentText(),
             '$flaggedDate' => $userComment->getDateFlagged(),
+			'$flagged' => $userComment->getFlagged(),
             '$visible' => $userComment->getVisible()
 		);
 
@@ -189,6 +190,7 @@ class flaggedCommentsHandler extends Handler {
             'commentDate' =>$userComment->getDateCreated(),
             'commentText' => $userComment->getCommentText(),
             'flaggedDate' => $userComment->getDateFlagged(),
+			'flagged' => $userComment->getFlagged(),
 			'flaggedByUser' => $flaggedByUser->getFullName(),			
 		]);
 		$templateMgr->setState([

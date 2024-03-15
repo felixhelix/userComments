@@ -32,7 +32,8 @@ class CommentsSchemaMigration extends Migration
             $table->bigInteger('user_id')->nullable();
             $table->bigInteger('foreign_comment_id')->nullable(); // this holds optionally the key of another comment
             $table->datetime('date_created');
-            $table->datetime('date_flagged')->nullable()->default(null);
+            $table->datetime('date_flagged')->nullable()->default(null); // holds the last date flagged
+            $table->boolean('flagged')->default(false);
             $table->boolean('visible')->default(true);
         });
 

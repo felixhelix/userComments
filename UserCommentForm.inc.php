@@ -37,7 +37,6 @@ class UserCommentForm extends FormComponent
 	 */	
 	public function __construct($action, $request, $props)
 	{
-		$this->id = FORM_USER_COMMENT;
 		$this->action = $action;	
 
 		$reviewListUrl = $request->getRouter()->url($request, null, 'FlaggedComments');
@@ -119,17 +118,18 @@ class UserCommentForm extends FormComponent
 			],
 			'description' => 'If visibility is turned off, a replacement text is shown.',
 			'label' => 'Set visibility',
-			'value' => [$props['$visible']]
+			'value' => $props['$visible']
 		]));	
 
-		// $this->addField(new FieldOptions('toggleFlag', [
-		// 	'groupId' => 'default',
-		// 	'options' => [
-		// 		['value' => true, 'label' => 'flagged'],
-		// 	],
-		// 	'label' => 'Toggle flag',
-		// 	'value' => $props['$flaggedDate'] ? true : false
-		// ]));			
+		$this->addField(new FieldOptions('flagged', [
+			'groupId' => 'default',
+			'options' => [
+				['value' => true, 'label' => 'flagged'],
+			],
+			'description' => 'If un-flagged the comment is also set to visible.',
+			'label' => 'Remove flag',
+			'value' => $props['$flagged']
+		]));			
 
 	}
 }

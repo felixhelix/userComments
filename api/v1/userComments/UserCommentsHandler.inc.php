@@ -7,35 +7,36 @@ class UserCommentsHandler extends APIHandler
     public function __construct()
     {
         $this->_handlerPath = 'userComments';
-        $roles = [ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR];
+        $rolesComment = [ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_READER];
+        $rolesEdit = [ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR];
         $this->_endpoints = array(
             'POST' => array(
                 array(
                     'pattern' => $this->getEndpointPattern() . '/submitComment',
                     'handler' => array($this, 'submitComment'),
-                    'roles' => $roles
+                    'roles' => $rolesComment
                 ),
                 array(
                     'pattern' => $this->getEndpointPattern() . '/flagComment',
                     'handler' => array($this, 'flagComment'),
-                    'roles' => $roles
+                    'roles' => $rolesComment
                 ),      
                 array(
                     'pattern' => $this->getEndpointPattern() . '/edit',
                     'handler' => array($this, 'setVisibility'),
-                    'roles' => $roles
+                    'roles' => $rolesEdit
                 ),                               
             ),
             'GET' => array(
                 array(
                     'pattern' => $this->getEndpointPattern() . '/getComment/{commentId}',
                     'handler' => array($this, 'getComment'),
-                    'roles' => $roles
+                    'roles' => $rolesComment
                 ),
                 array(
                     'pattern' => $this->getEndpointPattern() . '/getCommentsByPublication/{publicationId}',
                     'handler' => array($this, 'getCommentsByPublication'),
-                    'roles' => $roles
+                    'roles' => $rolesComment
                 ),                                
             ),            
         );

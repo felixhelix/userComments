@@ -164,14 +164,6 @@ class UserComment extends DataObject {
 	function setCommentText($commentText) {
 		return $this->setData('commentText', $commentText);
 	}
-
-	/**
-	 * Get date flagged.
-	 * @return date
-	 */
-	function getDateFlagged() {
-		return $this->getData('dateFlagged');
-	}
 	
 	/**
 	 * Get flagged.
@@ -189,6 +181,13 @@ class UserComment extends DataObject {
 		return $this->setData('flagged', $flagged);
 	}
 
+	/**
+	 * Get date flagged.
+	 * @return date
+	 */
+	function getDateFlagged() {
+		return $this->getData('dateFlagged');
+	}
 
 	/**
 	 * Set date flagged.

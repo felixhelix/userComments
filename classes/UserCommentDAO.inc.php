@@ -123,11 +123,13 @@ class UserCommentDAO extends DAO {
 		$this->update(
 			'UPDATE user_comments 
 			SET visible = ?, 
-			flagged = ? 
+			flagged = ?,
+			date_flagged = ?
 			WHERE object_id = ?',
 			array(
 				(bool) $userComment->getVisible(),
-				(bool) $userComment->getFlagged(),
+				(bool) $userComment->getFlagged(),				
+				$userComment->getDateFlagged(),
 				(int) $userComment->getId()
 			)
 		);

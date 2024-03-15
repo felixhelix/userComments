@@ -88,6 +88,7 @@ class UserCommentsHandler extends APIHandler
             'userName' => $user->getFullName(),
             'commentDate' =>$userComment->getDateCreated(),
             'commentText' => $userComment->getCommentText(),
+            'flagged' => $userComment->getFlagged(),            
             'flaggedDate' => $userComment->getDateFlagged(),
             'visible' => $userComment->getVisible(),
             ];
@@ -178,6 +179,7 @@ class UserCommentsHandler extends APIHandler
             
         // Update the data object
         // $commentId = $UserCommentDao->updateFlag($userCommentId);
+        $userComment->setFlagged(true);
         $userComment->setDateFlagged(Now());
         $userComment->setFlaggedBy($currentUser->getId());
         error_log("get commentId: " . $userComment->getId());

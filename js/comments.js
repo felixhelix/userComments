@@ -1,6 +1,7 @@
 const App = Vue.createApp({
   data() {
     return {
+    baseURL: '',
     user: null,
     userComments: [],
     dataFetched: false,
@@ -44,13 +45,12 @@ const App = Vue.createApp({
       button.style.display = "block";
     },  
     fetchData() {
-      this.location = window.location.href;
-      // this.submissionId = this.location.split("/")[this.location.split("/").length -1];
+      this.baseURL = document.getElementById('commentsApp').dataset.baseurl;
       this.publicationId = document.getElementById('commentsApp').dataset.publicationid;
       // An API key is needed for unauthenticated GET requests
       this.apiKey = document.getElementById('commentsApp').dataset.apikey;
       // Make a GET request to the API
-      fetch('http://localhost/ops3/index.php/socios/api/v1/userComments/getCommentsByPublication/' + this.publicationId + "?" + new URLSearchParams({
+      fetch(this.baseURL + '/index.php/socios/api/v1/userComments/getCommentsByPublication/' + this.publicationId + "?" + new URLSearchParams({
         'apiToken': this.apiKey
       }))
         .then(response => response.json())
@@ -67,7 +67,7 @@ const App = Vue.createApp({
     },
     postData(parentComponent, submitEvent) {
       // Make a POST request to the API
-      fetch('http://localhost/ops3/index.php/socios/api/v1/userComments/submitComment', {
+      fetch(this.$root.baseURL + '/index.php/socios/api/v1/userComments/submitComment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ const App = Vue.createApp({
                 // console.log(JSON.stringify(childnodes));   
             }
         };
-        return {id: item.id, foreignCommentId: item.foreignCommentId, userName: item.userName, commentDate: item.commentDate, commentText: item.commentText, flaggedDate: item.flaggedDate, visible: item.visible, children: childnodes};
+        return {id: item.id, foreignCommentId: item.foreignCommentId, userName: item.userName, commentDate: item.commentDate, commentText: item.commentText, flaggedDate: item.flaggedDate, flagged: item.flagged, visible: item.visible, children: childnodes};
     }, 
   }
 });
@@ -136,7 +136,7 @@ App.component('userCommentsBlock', {
   methods: {
     flagComment(userCommentId) {
       // Make a POST request to the API
-      fetch('http://localhost/ops3/index.php/socios/api/v1/userComments/flagComment', {
+      fetch(this.$root.baseURL + '/index.php/socios/api/v1/userComments/flagComment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -172,8 +172,8 @@ App.component('userCommentsBlock', {
     <template v-if="userComment.visible != '0'">
       <div class="bg-gray-100 p-2 rounded-lg my-1" :id="userComment.id">
         {{ userComment.commentText }}
-        <span class="block font-semibold pt-1">{{ userComment.userName }} {{ userComment.commentDate }}</span>
-        <button v-if="$root.user && userComment.flagged == false" @click="flagComment(userComment.id)">
+        <span class="block font-semibold pt-1">{{ userComment.userName }} {{ userComment.commentDate }} ORCID</span>
+        <button v-if="$root.user && userComment.flagged != true" @click="flagComment(userComment.id)">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" role="img" aria-label="[title]">
             <title>flag this comment</title>
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
@@ -181,10 +181,9 @@ App.component('userCommentsBlock', {
         </button>
         <div v-if="userComment.flagged == true">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6" role="img" aria-label="[title]">
-            <title>this comment is flagged</title>
+            <title>comment has been flagged {{ userComment.flaggedDate}}</title>
             <path fill-rule="evenodd" d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z" clip-rule="evenodd" />
           </svg>
-          {{ userComment.flaggedDate}}
         </div>
         <form-container :userCommentId=userComment.id></form-container>
       </div>     

@@ -105,6 +105,7 @@ class commentsPlugin extends GenericPlugin {
         $output = & $args[2];	
 		// Insert the comment template
 		$smarty->assign([
+			'baseURL' => $request->getBaseURL(),
 			'csrfToken' => $request->getSession()->getCSRFToken(),
 			'apiKey' => $this->getSetting($request->getContext()->getId(), 'apiKey'),
 			'submissionId' => $publication->getData('submissionId'), 

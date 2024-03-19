@@ -64,16 +64,14 @@ class UserCommentsHandler extends APIHandler
     public function getCommentsByPublication($slimRequest, $response, $args)
     {
         $params = $slimRequest->getQueryParams(); // ['searchPhrase' => 'barnes']
-        // array_pop(explode('/', $slimRequest->getRequestPath()))
-        // var_dump($slimRequest);
-        // error_log("get comments by submission: " . json_encode(explode('/', $slimRequest->getRequestPath())));
-        // error_log("get comments by submission: " . json_encode($args));
+        $request = $this->getRequest();
         $publicationId = (int) $args['publicationId'];
+        // $request = $this->getRequest();
+        // $baseURL = $request->getBaseURL();
 
 		$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
         $userDao = DAORegistry::getDAO('UserDAO'); 	
         $queryResults = $userCommentDao->getByPublicationId($publicationId);
-		// $userComments = $queryResults->toArray();
 
         $userComments = [];
 

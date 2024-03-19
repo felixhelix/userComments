@@ -121,7 +121,16 @@ const App = Vue.createApp({
                 // console.log(JSON.stringify(childnodes));   
             }
         };
-        return {id: item.id, foreignCommentId: item.foreignCommentId, userName: item.userName, commentDate: item.commentDate, commentText: item.commentText, flaggedDate: item.flaggedDate, flagged: item.flagged, visible: item.visible, children: childnodes};
+        return {id: item.id, 
+          foreignCommentId: item.foreignCommentId, 
+          userName: item.userName, 
+          userOrcid: item.userOrcid,
+          commentDate: item.commentDate, 
+          commentText: item.commentText, 
+          flaggedDate: item.flaggedDate, 
+          flagged: item.flagged, 
+          visible: item.visible, 
+          children: childnodes};
     }, 
   }
 });
@@ -169,30 +178,36 @@ App.component('userCommentsBlock', {
   template: `
   <ul class="rounded-lg" v-if="userComments && userComments.length">
   <li v-for="userComment in userComments" :key="userComment.id">
-    <template v-if="userComment.visible != '0'">
       <div class="bg-gray-100 p-2 rounded-lg my-1" :id="userComment.id">
-        {{ userComment.commentText }}
-        <span class="block font-semibold pt-1">{{ userComment.userName }} {{ userComment.commentDate }} ORCID</span>
-        <button v-if="$root.user && userComment.flagged != true" @click="flagComment(userComment.id)">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" role="img" aria-label="[title]">
-            <title>flag this comment</title>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
-          </svg>
-        </button>
-        <div v-if="userComment.flagged == true">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6" role="img" aria-label="[title]">
-            <title>comment has been flagged {{ userComment.flaggedDate}}</title>
-            <path fill-rule="evenodd" d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z" clip-rule="evenodd" />
-          </svg>
+        <template v-if="userComment.visible != '0'">
+          {{ userComment.commentText }}
+        </template>          
+        <template v-else>
+          <i>This comment has been unpublished due to violation of our code of conduct.</i>
+        </template>          
+        <span class="block text-gray-400">{{ userComment.commentDate }}</span>
+        <div class="flex justify-between w-full text-gray-400">
+          <div class="flex font-semibold">
+            {{ userComment.userName }}
+            <a class="pl-1 font-normal" :href="userComment.userOrcid">{{ userComment.userOrcid }}</a>
+          </div>
+          <div class="flex">
+            <button v-if="$root.user && userComment.flagged != true" @click="flagComment(userComment.id)">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" role="img" aria-label="[title]">
+                <title>flag this comment</title>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
+              </svg>
+            </button>
+          </div>
+          <div class="flex" v-if="userComment.flagged == true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6" role="img" aria-label="[title]">
+              <title>comment has been flagged {{ userComment.flaggedDate}}</title>
+              <path fill-rule="evenodd" d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z" clip-rule="evenodd" />
+            </svg>
+          </div>
         </div>
-        <form-container :userCommentId=userComment.id></form-container>
+        <form-container v-if="userComment.visible != '0'" :userCommentId=userComment.id></form-container>
       </div>     
-    </template>
-    <template v-else>
-      <div class="bg-gray-100 p-1 rounded-lg" :id="userComment.id">
-        <i>This comment has been unpublished due to violation of our code of conduct.</i>
-      </div>
-    </template>
     <div class="pl-3" v-if="userComment.children && userComment.children.length">
       <user-comments-block :user-comments="userComment.children"></user-comments-block>
     </div>

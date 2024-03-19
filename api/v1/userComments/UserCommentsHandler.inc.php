@@ -84,6 +84,7 @@ class UserCommentsHandler extends APIHandler
             'submissionId' => $userComment->getSubmissionId(),
             'foreignCommentId' => $userComment->getForeignCommentId(),
             'userName' => $user->getFullName(),
+            'userOrcid' => $user->getData('orcid'),
             'commentDate' =>$userComment->getDateCreated(),
             'commentText' => $userComment->getCommentText(),
             'flagged' => $userComment->getFlagged(),            

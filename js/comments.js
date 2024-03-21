@@ -11,7 +11,7 @@ const App = Vue.createApp({
     publicationId: '',
     csrfToken: '',
     foreignCommentId: null,
-    commentAction: 'formButton' //'commentForm'
+    commentAction: 'formButton'
     }
   },
   mounted() {     
@@ -24,27 +24,6 @@ const App = Vue.createApp({
     this.fetchData();
   },
   methods: {
-    moveForm2(userCommentId, event) {
-      // replace the button with the form component
-      commentAction = 'commentForm';
-    },
-    moveForm(userCommentId, event) {
-      // remove form from current parent node
-      formNode = document.getElementById("userCommentForm");
-      oldParentNode = formNode.parentNode;
-      oldParentNode.removeChild(formNode);
-      // get the new parent node
-      newParentNode = event.target.parentNode;
-      newParentNode.appendChild(formNode);
-      // set the foreignCommentId to the commentId
-      // formNode.querySelector('#foreignCommentId').value = userCommentId;
-      this.foreignCommentId = userCommentId
-      // hide the button in the new container
-      event.target.style.display = "none";
-      // show the button in the old container
-      button = oldParentNode.getElementsByTagName('button')[0];
-      button.style.display = "block";
-    },  
     fetchData() {
       this.baseURL = document.getElementById('commentsApp').dataset.baseurl;
       this.publicationId = document.getElementById('commentsApp').dataset.publicationid;
@@ -85,7 +64,6 @@ const App = Vue.createApp({
         .then(data => {
           // Handle the response if needed
           console.log('Data posted successfully:', data);
-
           // Fetch data again to update the displayed list
           this.fetchData();
           // close the comment field
@@ -111,15 +89,13 @@ const App = Vue.createApp({
         return tree;
     },
     returnChildnodes(item, nodes, childnodes = []) 
-    {
-        // console.log(item.id);    
+    {   
         var childnodes_ = nodes.filter((node) => node.foreignCommentId == item.id );
         if (childnodes_.length == 0) { return item }
         else {
             childnodes = [];        
             for (const childnode of childnodes_) {
                 childnodes.push(this.returnChildnodes(childnode, nodes, childnodes));
-                // console.log(JSON.stringify(childnodes));   
             }
         };
         return {id: item.id, 
@@ -145,36 +121,37 @@ App.component('userCommentsBlock', {
   },
   methods: {
     flagComment(userCommentId) {
-      // Make a POST request to the API
-      fetch(this.$root.baseURL + '/index.php/socios/api/v1/userComments/flagComment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Csrf-Token': this.$root.csrfToken,          
-        },
-        body: JSON.stringify({
-          userCommentId: userCommentId,
-          publicationId: Number(this.$root.publicationId),
-          completed: false
-        }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          // Handle the response if needed
-          console.log('Data posted successfully:', data);
-
-          // Change look of button to reflect flagging
-          // ...
-
-          // Fetch data again to update the displayed list
-          this.$root.fetchData();
+      if (confirm("Do you want to flag this post?") == true) {
+        // Make a POST request to the API
+        fetch(this.$root.baseURL + '/index.php/socios/api/v1/userComments/flagComment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Csrf-Token': this.$root.csrfToken,          
+          },
+          body: JSON.stringify({
+            userCommentId: userCommentId,
+            publicationId: Number(this.$root.publicationId),
+            completed: false
+          }),
         })
-        .catch(error => {
-          console.error('Error posting data:', error);
-        });      
+          .then(response => response.json())
+          .then(data => {
+            // Handle the response if needed
+            console.log('Data posted successfully:', data);
+            // Fetch data again to update the displayed list
+            this.$root.fetchData();
+          })
+          .catch(error => {
+            console.error('Error posting data:', error);
+          });      
+      }
     }, 
     toggleComment() {
       this.commentAction = (this.commentAction == 'formButton' ? 'commentForm' : 'formButton');
+    },
+    confirmFlagging() {
+
     }
   },
   template: `
@@ -221,6 +198,7 @@ App.component('formContainer', {
   props: ['userCommentId'],
   data() {
     return {
+      // If this is the root element, display the input form (commentForm), else display a toggle button (formButton)
       commentAction:  (this.userCommentId == null ? 'commentForm' : 'formButton')
     }
   },  
@@ -236,6 +214,7 @@ App.component('formContainer', {
   });
   
 App.component('commentForm', {
+  // display the input form
   props: ['userCommentId'],
   data() {
     return {
@@ -253,6 +232,7 @@ App.component('commentForm', {
 });
 
 App.component('formButton', {
+  // display a toggle button
   props: ['userCommentId'], 
   data() {
     return {
@@ -263,5 +243,5 @@ App.component('formButton', {
     <button @click="$parent.toggleComment()" class="rounded border-2 p-1" v-text=buttonText />
     `
   });
-  
+
 App.mount('#commentsApp')

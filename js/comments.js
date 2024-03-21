@@ -19,6 +19,7 @@ const App = Vue.createApp({
     this.apiKey = this.$el.parentNode.dataset.apikey;
     this.csrfToken = this.$el.parentNode.dataset.csrftoken;   
     this.user = this.$el.parentNode.dataset.user;   
+    this.publicationId = this.$el.parentNode.dataset.publicationid;  
     // Fetch data from the API when the component is mounted
     this.fetchData();
   },
@@ -153,6 +154,7 @@ App.component('userCommentsBlock', {
         },
         body: JSON.stringify({
           userCommentId: userCommentId,
+          publicationId: Number(this.$root.publicationId),
           completed: false
         }),
       })

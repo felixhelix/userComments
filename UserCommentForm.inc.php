@@ -103,13 +103,19 @@ class UserCommentForm extends FormComponent
 		// 	'value' => $props['$visible']
 		// ]));
 
+		$this->addField(new FieldText('publicationId', [
+			'groupId' => 'default',
+			'isRequired' => false,
+			'inputType' => 'hidden',
+			'value' => $props['$publicationId']
+		]));	
+
 		$this->addField(new FieldText('userCommentId', [
 			'groupId' => 'default',
 			'isRequired' => false,
 			'inputType' => 'hidden',
 			'value' => $props['$commentId']
 		]));	
-		
 		
 		$this->addField(new FieldOptions('visible', [
 			'groupId' => 'default',

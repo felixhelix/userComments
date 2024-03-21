@@ -161,12 +161,18 @@ class UserCommentsHandler extends APIHandler
         $locale = AppLocale::getLocale();
 
         $userCommentId = $requestParams['userCommentId'];
+        $publicationId = $requestParams['publicationId'];
         // Validate input
         if ( gettype($userCommentId) != 'integer') {
             return $response->withJson(
                 ['error' => 'wrong type',
             ], 400);            
         }
+        if ( gettype($publicationId) != 'integer') {
+            return $response->withJson(
+                ['error' => 'wrong type',
+            ], 400);            
+        }        
 
         // Create a DAO for user comments
         import('plugins.generic.comments.classes.UserCommentDAO');
@@ -181,8 +187,20 @@ class UserCommentsHandler extends APIHandler
         $userComment->setFlagged(true);
         $userComment->setDateFlagged(Now());
         $userComment->setFlaggedBy($currentUser->getId());
-        error_log("get commentId: " . $userComment->getId());
         $UserCommentDao->updateObject($userComment);        
+
+        // Log the event
+		// Flagging is logged in the event log and is related to the submission
+		$msg = 'comment.event.flagged';
+        import('plugins.generic.comments.classes.log.CommentLog');
+        import('plugins.generic.comments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
+        $logDetails = array(
+            'publicationId' => $publicationId,
+            'commentId' => $userCommentId,
+            'userId' => $currentUser->getId(),            
+        );
+        // $request, $submission, $eventType, $messageKey, $params = array()
+        CommentLog::logEvent($request, $userCommentId, COMMENT_FLAGGED, $msg, $logDetails);
 
         return $response->withJson(
             ['id' => $commentId,
@@ -194,11 +212,14 @@ class UserCommentsHandler extends APIHandler
     {
         // User comments may not be deleted
         // This changes the visibility of the comment
+        // and/or the flagging
         $request = APIHandler::getRequest();
         $requestParams = $slimRequest->getParsedBody();
         $userCommentId = $requestParams['userCommentId'];
+        $publicationId = $requestParams['publicationId'];
         $visible = $requestParams['visible'];
         $flagged = $requestParams['flagged'];
+        $messageKey = '';
         // error_log("setVisibility: " . $visible . " on " . $userCommentId);
         $currentUser = $request->getUser();
         $locale = AppLocale::getLocale();
@@ -210,20 +231,38 @@ class UserCommentsHandler extends APIHandler
 
         // Get the data object
         $userComment = $UserCommentDao->getById($userCommentId);    
-            
+
+        // Import the classes for logging
+        import('plugins.generic.comments.classes.log.CommentLog');
+        import('plugins.generic.comments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
+
         // Update the data object
         // Only possible value for flagged should be false, since once the flag is removed, 
         // the comment is removed from the list of flagged comments as well
-        $userComment->setFlagged($flagged == 'true' ? true : false);
-        if ($flagged == 'false') {
+        $userComment->setFlagged($flagged == 1 ? true : false);
+        if ($flagged != 1) {
             // if the comment is un-flagged, it has to be visible
             $userComment->setVisible(true);
+            // In this cas the logged message relates to this event
+            $messageKey = COMMENT_UNFLAGGED;
+            $msg = 'comment.event.unflag';
         } else {
             $userComment->setVisible($visible == 'true' ? true : false);
+            $messageKey = $visible == 'true' ? COMMENT_VISIBLE : COMMENT_HIDDEN;
+            $msg = $visible == 'true' ? 'comment.event.setvisible' : 'comment.event.hide';
         }
         
-
         $UserCommentDao->updateObject($userComment);               
+
+        // Log the event
+        // Some log details are redundant, but since I'm unsure about the validity of ASSOC_TYPE I will maintain these for now 
+        $logDetails = array(
+            'publicationId' => $publicationId,
+            'commentId' => $userCommentId,
+            'userId' => $currentUser->getId(),
+        );
+        // $request, $commentId, $eventType, $messageKey, $params = array()
+        CommentLog::logEvent($request, $userCommentId, $messageKey, $msg, $logDetails);
 
         return $response->withJson(
             ['id' => $userCommentId,

@@ -125,7 +125,7 @@ class UserCommentsHandler extends APIHandler
 
         $publicationId = $requestParams['publicationId'];
         $foreignCommentId = $requestParams['foreignCommentId'];     
-        $submissionId = null;
+        $submissionId = $requestParams['submissionId'];  
         $publicationVersion = null;
         $commentText = $requestParams['commentText'];
 

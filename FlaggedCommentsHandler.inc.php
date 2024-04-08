@@ -183,6 +183,7 @@ class flaggedCommentsHandler extends Handler {
 			'commentListUrl' => $commentsListUrl,
 			'commentText' => $userComment->getCommentText(),	
 			'commentId' => $commentId,
+			'publicationId' => $userComment->getPublicationId(),			
             'submissionId' => $userComment->getSubmissionId(),
 			'submissionUrl' => $request->getRouter()->url($request, null, 'preprint', 'view', $userComment->getSubmissionId()),
             'foreignCommentId' => $userComment->getForeignCommentId(),

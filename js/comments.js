@@ -20,6 +20,7 @@ const App = Vue.createApp({
     this.csrfToken = this.$el.parentNode.dataset.csrftoken;   
     this.user = this.$el.parentNode.dataset.user;   
     this.publicationId = this.$el.parentNode.dataset.publicationid;  
+    this.submissionId = this.$el.parentNode.dataset.submissionid;  
     // Fetch data from the API when the component is mounted
     this.fetchData();
   },
@@ -56,6 +57,7 @@ const App = Vue.createApp({
         body: JSON.stringify({
           commentText: submitEvent.target.commentText.value,
           publicationId: this.publicationId,
+          submissionId: this.submissionId,
           foreignCommentId: submitEvent.target.dataset.usercommentid,
           completed: false
         }),

@@ -5,7 +5,7 @@
  * Copyright (c) 2003-2023 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * Template for one-page submission form
+ * Template for editing flagged comments
  *}
 {extends file="layouts/backend.tpl"}
 
@@ -16,7 +16,7 @@
 		{{$commentText}}
 	</div>
 	<div>Posted {{$commentDate|date_format:$datetimeFormatLong}} by {{$userName}} ({{$userEmail}})</div>
-	<div><a href="{{$submissionUrl}}">View submission page</a></div>
+	<div><a href="{{url page="preprint" op="view" path=$submissionId|to_array:"version":$publicationId}}">View submission page</a></div>
 	<div><a href="{{$commentListUrl}}">Back to list</a></div>
 </div>
 <pkp-form

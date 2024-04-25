@@ -226,10 +226,10 @@ App.component('commentForm', {
   template: `
     <form id="userCommentForm" @submit.prevent="$root.postData($parent, $event)" :data-userCommentId="userCommentId">
       <label for="commentText" class="hidden">Your comment:</label>
-      <textarea type="text" id="commentText" required  class="block rounded border-2 w-full my-2"></textarea>
+      <textarea type="text" id="commentText" required  class="block rounded border w-full my-2"></textarea>
       <input id="userCommentId" type="hidden" v-model="userCommentId">
-      <button type="submit" class="rounded border-2 p-1 mr-2  border-green-400">Submit</button>
-      <button @click="$parent.toggleComment()" class="rounded border-2 p-1">close</button>
+      <button type="submit" class="rounded-lg border-2 p-1 mr-2 bg-sky-500 text-white border-sky-200 hover:border-sky-700">Submit</button>
+      <button @click="$parent.toggleComment()" class="rounded border p-1 hover:border-black">close</button>
     </form>`
 });
 
@@ -242,7 +242,7 @@ App.component('formButton', {
     }
   }, 
   template: `
-    <button @click="$parent.toggleComment()" class="rounded border-2 p-1" v-text=buttonText />
+    <button @click="$parent.toggleComment()" class="rounded border p-1" v-text=buttonText />
     `
   });
 

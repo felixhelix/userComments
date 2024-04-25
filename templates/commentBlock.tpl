@@ -1,5 +1,5 @@
 <section class="my-4 text-sm">
-	<h2 class="font-semibold">Comments</h2>
+	<h2 class="font-semibold text-sky-500">Comments</h2>
     <div id="commentsApp" 
     data-baseUrl="{$baseURL}" 
     data-user="{$userId}" 
@@ -15,7 +15,7 @@
         <span class="hidden">You are logged in as {$user->getFullName()}</span>
         <form-container :userCommentId=null></form-container>
         {else}
-        You have to be logged in to post a comment.
+        <span>{translate key='plugins.generic.comments.loggedOut' loginPageUrl="login"}</span>
         {/if}
         </div>
     </div>

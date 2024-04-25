@@ -20,6 +20,9 @@ msgstr "Allows registered users to comment on preprints."
 msgid "plugins.generic.comments.descriptionLong"
 msgstr "Allows registered users to comment on preprints."
 
+msgid "plugins.generic.comments.loggedOut"
+msgstr "<a href="{$loginPageUrl}" class="font-semibold text-sky-500 hover:underline">Log in</a> to post your comment."
+
 msgid "plugins.generic.comments.submitComment"
 msgstr "Submit a Comment"
 

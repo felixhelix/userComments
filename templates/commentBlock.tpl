@@ -1,6 +1,7 @@
-<section class="my-4 text-sm">
+<section class="my-4">
 	<h2 class="font-semibold text-sky-500">Comments</h2>
-    <div id="commentsApp" 
+    <div class="text-sm" 
+    id="commentsApp" 
     data-baseUrl="{$baseURL}" 
     data-user="{$userId}" 
     data-apiKey="{$apiKey}" 

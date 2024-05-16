@@ -30,8 +30,8 @@ class commentsPlugin extends GenericPlugin {
 
 			// Creata a DAO for user comments
 			import('plugins.generic.comments.classes.UserCommentDAO');
-			$this->UserCommentDao = new UserCommentDAO();
-			DAORegistry::registerDAO('UserCommentDAO', $this->UserCommentDao);
+			$UserCommentDao = new UserCommentDAO();
+			DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
 
 			// Use a hook to insert a template on the details page
 			// HookRegistry::register('Templates::Preprint::Main', [$this, 'addCommentBlock']);	

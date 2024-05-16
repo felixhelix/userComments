@@ -147,6 +147,19 @@ class UserCommentsHandler extends APIHandler
         // Insert the data object
         $commentId = $UserCommentDao->insertObject($UserComment);
 
+        // Log the event in the event log related to the submission
+		$msg = 'comment.event.posted';
+        import('plugins.generic.comments.classes.log.CommentLog');
+        import('plugins.generic.comments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
+        $logDetails = array(
+            'publicationId' => $publicationId,
+            'commentId' => $commentId,
+            'foreignCommentId' => $foreignCommentId,
+            'userId' => $currentUser->getId(),            
+        );
+        // $request, $submission, $eventType, $messageKey, $params = array()
+        CommentLog::logEvent($request, $commentId, COMMENT_POSTED, $msg, $logDetails);
+
         return $response->withJson(
             ['id' => 1,
             'comment' => $userComment,

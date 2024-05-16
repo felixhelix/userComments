@@ -2,4 +2,4 @@ For the new features to work the user_comment table needs to be altered:
 ALTER TABLE user_comments ADD COLUMN flagged_by int DEFAULT NULL;
 
 1.0.0.0 Added logging of comment posting; Updated version number;
-
+1.0.0.1 Added validation to use real user in event_log entry;

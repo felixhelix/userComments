@@ -1,9 +1,9 @@
 <?php 
 
 import('lib.pkp.classes.form.Form');
-class CommentsPluginSettingsForm extends Form {
+class UserCommentsPluginSettingsForm extends Form {
 
-  /** @var CommentsPlugin  */
+  /** @var UserCommentsPlugin  */
   public $plugin;
 
 	public function __construct($plugin) {

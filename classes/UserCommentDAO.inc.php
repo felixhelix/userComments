@@ -14,7 +14,7 @@
  */
 
 import('lib.pkp.classes.db.DAO');
-import('plugins.generic.comments.classes.UserComment');
+import('plugins.generic.userComments.classes.UserComment');
 
 class UserCommentDAO extends DAO {
 

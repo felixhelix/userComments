@@ -16,6 +16,6 @@
  * @ingroup plugins_generic_authorReplies
  */
 
-require_once('CommentsPlugin.inc.php');
-return new CommentsPlugin();
+require_once('UserCommentsPlugin.inc.php');
+return new UserCommentsPlugin();
 

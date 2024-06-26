@@ -11,29 +11,29 @@ msgstr ""
 "PO-Revision-Date: 2020-01-17T18:13:56+00:00\n"
 "Language: \n"
 
-msgid "plugins.generic.comments.displayName"
-msgstr "Comments Plugin"
+msgid "plugins.generic.userComments.displayName"
+msgstr "User-Comments Plugin"
 
-msgid "plugins.generic.comments.description"
+msgid "plugins.generic.userComments.description"
 msgstr "Allows registered users to comment on preprints."
 
-msgid "plugins.generic.comments.descriptionLong"
+msgid "plugins.generic.userComments.descriptionLong"
 msgstr "Allows registered users to comment on preprints."
 
-msgid "plugins.generic.comments.loggedOut"
+msgid "plugins.generic.userComments.loggedOut"
 msgstr "<a href="{$loginPageUrl}" class="font-semibold text-sky-500 hover:underline">Log in</a> to post your comment."
 
-msgid "plugins.generic.comments.submitComment"
+msgid "plugins.generic.userComments.submitComment"
 msgstr "Submit a Comment"
 
-msgid "plugins.generic.comments.success"
+msgid "plugins.generic.userComments.success"
 msgstr "Comment Added"
 
-msgid "plugins.generic.comments.apiKey"
-msgstr "API key used for displaying comments to unauthenticated users."
+msgid "plugins.generic.userComments.apiKey"
+msgstr "API key used for displaying user comments to unauthenticated users."
 
-msgid "plugins.generic.comments.listFlaggedComments"
-msgstr "List of flagged user comments"
+msgid "plugins.generic.userComments.listFlaggedComments"
+msgstr "List of flagged user user comments"
 
-msgid "plugins.generic.comments.editFlaggedComments"
+msgid "plugins.generic.userComments.editFlaggedComments"
 msgstr "Edit flagged user comment"

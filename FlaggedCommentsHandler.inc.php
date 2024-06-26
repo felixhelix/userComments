@@ -63,7 +63,7 @@ class flaggedCommentsHandler extends Handler {
 	public function index($args, $request) 
     {
 		$this->setupTemplate($request);
-		$plugin = PluginRegistry::getPlugin('generic', 'CommentsPlugin');		
+		$plugin = PluginRegistry::getPlugin('generic', 'UserCommentsPlugin');		
 		$templateMgr = TemplateManager::getManager();
 
 		switch (array_pop($args)) {
@@ -72,7 +72,7 @@ class flaggedCommentsHandler extends Handler {
 				break;
 			default:
 				$templateMgr->assign([
-					'pageTitle' => __('plugins.generic.comments.listFlaggedComments'),
+					'pageTitle' => __('plugins.generic.userComments.listFlaggedComments'),
 				]);
 				$flaggedComments = $this->getFlaggedComments();		
 				$templateMgr->assign([
@@ -131,7 +131,7 @@ class flaggedCommentsHandler extends Handler {
 	public function edit($args, $request) {
 		$this->setupTemplate($request);
 		$context = $request->getContext();
-		$plugin = PluginRegistry::getPlugin('generic', 'CommentsPlugin');
+		$plugin = PluginRegistry::getPlugin('generic', 'UserCommentsPlugin');
 		$templateMgr = TemplateManager::getManager();
 
 		// Get the userComment entity
@@ -179,7 +179,7 @@ class flaggedCommentsHandler extends Handler {
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->assign([
 			'plugin' => $plugin,
-			'pageTitle' => __('plugins.generic.comments.editFlaggedComments'),
+			'pageTitle' => __('plugins.generic.userComments.editFlaggedComments'),
 			'commentListUrl' => $commentsListUrl,
 			'commentText' => $userComment->getCommentText(),	
 			'commentId' => $commentId,

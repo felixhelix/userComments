@@ -6,6 +6,7 @@ const App = Vue.createApp({
     userComments: [],
     dataFetched: false,
     apiKey: '',
+    apiURL: '',
     submissionId: '',
     version: '',
     publicationId: '',
@@ -17,6 +18,7 @@ const App = Vue.createApp({
   mounted() {     
     // Read some props from the root element
     this.apiKey = this.$el.parentNode.dataset.apikey;
+    this.apiURL = this.$el.parentNode.dataset.apiurl;
     this.csrfToken = this.$el.parentNode.dataset.csrftoken;   
     this.user = this.$el.parentNode.dataset.user;   
     this.publicationId = this.$el.parentNode.dataset.publicationid;  
@@ -27,13 +29,15 @@ const App = Vue.createApp({
   methods: {
     fetchData() {
       this.baseURL = document.getElementById('commentsApp').dataset.baseurl;
+      this.apiURL = document.getElementById('commentsApp').dataset.apiurl;
       this.publicationId = document.getElementById('commentsApp').dataset.publicationid;
       // An API key is needed for unauthenticated GET requests
       this.apiKey = document.getElementById('commentsApp').dataset.apikey;
       // Make a GET request to the API
-      fetch(this.baseURL + '/index.php/socios/api/v1/userComments/getCommentsByPublication/' + this.publicationId + "?" + new URLSearchParams({
-        'apiToken': this.apiKey
-      }))
+      // fetch(this.baseURL + '/index.php/socios/api/v1/userComments/getCommentsByPublication/' + this.publicationId + "?" + new URLSearchParams({
+      //  'apiToken': this.apiKey
+      // }))
+      fetch(this.apiURL + 'getCommentsByPublication/' +  this.publicationId + "?" + new URLSearchParams({'apiToken': this.apiKey}))
         .then(response => response.json())
         .then(data => {
           // Set the fetched data to the component state
@@ -47,15 +51,17 @@ const App = Vue.createApp({
         });
     },
     postData(parentComponent, submitEvent) {
+      // get the form value
+      commentTextField =  submitEvent.target[name = 'commentText'];
       // Make a POST request to the API
-      fetch(this.$root.baseURL + '/index.php/socios/api/v1/userComments/submitComment', {
+      fetch(this.$root.apiURL + 'submitComment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Csrf-Token': this.csrfToken,          
         },
         body: JSON.stringify({
-          commentText: submitEvent.target.commentText.value,
+          commentText: commentTextField.value,
           publicationId: this.publicationId,
           submissionId: this.submissionId,
           foreignCommentId: submitEvent.target.dataset.usercommentid,
@@ -125,7 +131,7 @@ App.component('userCommentsBlock', {
     flagComment(userCommentId) {
       if (confirm("Do you want to flag this post?") == true) {
         // Make a POST request to the API
-        fetch(this.$root.baseURL + '/index.php/socios/api/v1/userComments/flagComment', {
+        fetch(this.$root.apiURL + 'flagComment', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -224,10 +230,10 @@ App.component('commentForm', {
     }
   }, 
   template: `
-    <form id="userCommentForm" @submit.prevent="$root.postData($parent, $event)" :data-userCommentId="userCommentId">
-      <label for="commentText" class="hidden">Your comment:</label>
-      <textarea type="text" id="commentText" required  class="block rounded border w-full my-2"></textarea>
-      <input id="userCommentId" type="hidden" v-model="userCommentId">
+    <form @submit.prevent="$root.postData($parent, $event)" :data-userCommentId="userCommentId">
+      <label>Your comment:
+        <textarea type="text" name="commentText" required  class="block rounded border w-full my-2"></textarea>
+      </label>
       <button type="submit" class="rounded-lg border-2 p-1 mr-2 bg-sky-500 text-white border-sky-200 hover:border-sky-700">Submit</button>
       <button @click="$parent.toggleComment()" class="rounded border p-1 hover:border-black">close</button>
     </form>`

@@ -3,6 +3,7 @@
     <div class="text-sm" 
     id="commentsApp" 
     data-baseUrl="{$baseURL}" 
+    data-apiUrl="{$apiURL}" 
     data-user="{$userId}" 
     data-apiKey="{$apiKey}" 
     data-submissionId="{$submissionId}" 
@@ -16,7 +17,7 @@
         <span class="hidden">You are logged in as {$user->getFullName()}</span>
         <form-container :userCommentId=null></form-container>
         {else}
-        <span>{translate key='plugins.generic.comments.loggedOut' loginPageUrl="login"}</span>
+        <span>{translate key='plugins.generic.userComments.loggedOut' loginPageUrl="login"}</span>
         {/if}
         </div>
     </div>

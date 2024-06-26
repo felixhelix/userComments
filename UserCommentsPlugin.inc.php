@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins/generic/comments/CommentsPlugin.inc.php
+ * @file plugins/generic/userComments/UserCommentsPlugin.inc.php
  *
  * Copyright (c) 2013-2023 Simon Fraser University
  * Copyright (c) 2003-2023 John Willinsky
@@ -17,7 +17,7 @@
 import('lib.pkp.classes.plugins.GenericPlugin');
 
 
-class commentsPlugin extends GenericPlugin {
+class userCommentsPlugin extends GenericPlugin {
 
 	/**
 	 * @copydoc Plugin::register()
@@ -29,7 +29,7 @@ class commentsPlugin extends GenericPlugin {
 		if ($success && $this->getEnabled($mainContextId)) {	
 
 			// Creata a DAO for user comments
-			import('plugins.generic.comments.classes.UserCommentDAO');
+			import('plugins.generic.userComments.classes.UserCommentDAO');
 			$UserCommentDao = new UserCommentDAO();
 			DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
 
@@ -62,8 +62,8 @@ class commentsPlugin extends GenericPlugin {
 	 * @copydoc Plugin::getInstallMigration()
 	 */
 	function getInstallMigration() {
-		$this->import('CommentsSchemaMigration');
-		return new CommentsSchemaMigration();
+		$this->import('UserCommentsSchemaMigration');
+		return new UserCommentsSchemaMigration();
 	}
 
 
@@ -71,27 +71,28 @@ class commentsPlugin extends GenericPlugin {
 	 * @copydoc Plugin::getName()
 	 */
 	public function getName() {
-		return 'CommentsPlugin';
+		return 'UserCommentsPlugin';
 	}
 
 	/**
 	 * @copydoc Plugin::getDisplayName()
 	 */
 	public function getDisplayName() {
-		return __('plugins.generic.comments.displayName');
+		return __('plugins.generic.userComments.displayName');
 	}
 
 	/**
 	 * @copydoc Plugin::getDescription()
 	 */
 	public function getDescription() {
-		return __('plugins.generic.comments.description');
+		return __('plugins.generic.userComments.description');
 	}
 
     public function addCommentBlock(string $hookName, array $args): bool {
 		// Add additional styles and scripts
 		// for the frontend publication details page 
 		$request = Application::get()->getRequest();
+		$context = $request->getContext();
 		$jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
 		$cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
 		$templateMgr = TemplateManager::getManager($request);
@@ -103,9 +104,11 @@ class commentsPlugin extends GenericPlugin {
         $smarty = & $args[1];
 		$publication = $smarty->getTemplateVars('currentPublication');
         $output = & $args[2];	
+		
 		// Insert the comment template
 		$smarty->assign([
 			'baseURL' => $request->getBaseURL(),
+			'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'userComments/'),
 			'csrfToken' => $request->getSession()->getCSRFToken(),
 			'apiKey' => $this->getSetting($request->getContext()->getId(), 'apiKey'),
 			'submissionId' => $publication->getData('submissionId'), 
@@ -185,8 +188,8 @@ class commentsPlugin extends GenericPlugin {
 			case 'settings':
 
 				// Load the custom form
-				$this->import('CommentsPluginSettingsForm');
-				$form = new CommentsPluginSettingsForm($this);
+				$this->import('UserCommentsPluginSettingsForm');
+				$form = new UserCommentsPluginSettingsForm($this);
 
 				// Fetch the form the first time it loads, before
 				// the user has tried to save it
@@ -229,7 +232,7 @@ class commentsPlugin extends GenericPlugin {
 		$menu = & $templateMgr->getState('menu');
 		$menu['flaggedComments'] = [
 			'name' => 'Flagged Comments',
-			'url' => $router->url($request, 'socios', 'FlaggedComments'),
+			'url' => $router->url($request, $context->getData('urlPath'), 'FlaggedComments'),
 			'isCurrent' => $router->getRequestedPage($request) === 'FlaggedComments',
 		];
 		$templateMgr->setState([

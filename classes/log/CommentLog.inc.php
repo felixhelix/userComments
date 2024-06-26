@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins.generic.comments.classes.log.CommentLog.inc.php
+ * @file plugins.generic.userComments.classes.log.CommentLog.inc.php
  *
  * Copyright (c) 2014-2021 Simon Fraser University
  * Copyright (c) 2003-2021 John Willinsky
@@ -26,7 +26,7 @@ class CommentLog {
 	 */
 	static function logEvent($request, $commentId, $eventType, $messageKey, $params = array()) {
 		// Create a new entry object
-		import('plugins.generic.comments.classes.log.CommentEventLogDAO');
+		import('plugins.generic.userComments.classes.log.CommentEventLogDAO');
 		$CommentEventLogDao = new CommentEventLogDAO();
 		DAORegistry::registerDAO('CommentEventLogDAO', $CommentEventLogDAO);
 		$entry = $CommentEventLogDao->newDataObject();

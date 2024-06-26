@@ -130,7 +130,7 @@ class UserCommentsHandler extends APIHandler
         $commentText = $requestParams['commentText'];
 
         // Creata a DAO for user comments
-        import('plugins.generic.comments.classes.UserCommentDAO');
+        import('plugins.generic.userComments.classes.UserCommentDAO');
         $UserCommentDao = new UserCommentDAO();
         DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
             
@@ -149,8 +149,8 @@ class UserCommentsHandler extends APIHandler
 
         // Log the event in the event log related to the submission
 		$msg = 'comment.event.posted';
-        import('plugins.generic.comments.classes.log.CommentLog');
-        import('plugins.generic.comments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
+        import('plugins.generic.userComments.classes.log.CommentLog');
+        import('plugins.generic.userComments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
         $logDetails = array(
             'publicationId' => $publicationId,
             'commentId' => $commentId,
@@ -188,7 +188,7 @@ class UserCommentsHandler extends APIHandler
         }        
 
         // Create a DAO for user comments
-        import('plugins.generic.comments.classes.UserCommentDAO');
+        import('plugins.generic.userComments.classes.UserCommentDAO');
         $UserCommentDao = new UserCommentDAO();
         DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
 
@@ -205,8 +205,8 @@ class UserCommentsHandler extends APIHandler
         // Log the event
 		// Flagging is logged in the event log and is related to the submission
 		$msg = 'comment.event.flagged';
-        import('plugins.generic.comments.classes.log.CommentLog');
-        import('plugins.generic.comments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
+        import('plugins.generic.userComments.classes.log.CommentLog');
+        import('plugins.generic.userComments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
         $logDetails = array(
             'publicationId' => $publicationId,
             'commentId' => $userCommentId,
@@ -238,7 +238,7 @@ class UserCommentsHandler extends APIHandler
         $locale = AppLocale::getLocale();
 
         // Create a DAO for user comments
-        import('plugins.generic.comments.classes.UserCommentDAO');
+        import('plugins.generic.userComments.classes.UserCommentDAO');
         $UserCommentDao = new UserCommentDAO();
         DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
 
@@ -246,8 +246,8 @@ class UserCommentsHandler extends APIHandler
         $userComment = $UserCommentDao->getById($userCommentId);    
 
         // Import the classes for logging
-        import('plugins.generic.comments.classes.log.CommentLog');
-        import('plugins.generic.comments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
+        import('plugins.generic.userComments.classes.log.CommentLog');
+        import('plugins.generic.userComments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
 
         // Update the data object
         // Only possible value for flagged should be false, since once the flag is removed, 

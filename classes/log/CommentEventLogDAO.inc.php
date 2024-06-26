@@ -15,7 +15,7 @@
  */
 
 import('lib.pkp.classes.log.EventLogDAO');
-import('plugins.generic.comments.classes.log.CommentEventLogEntry');
+import('plugins.generic.userComments.classes.log.CommentEventLogEntry');
 
 class CommentEventLogDAO extends EventLogDAO {
 

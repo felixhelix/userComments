@@ -20,7 +20,7 @@
                  type="text"
                 id="apiKey"
                 value=$apiKey
-                label="plugins.generic.comments.apiKey"
+                label="plugins.generic.userComments.apiKey"
             }
 		{/fbvFormSection}
     {/fbvFormArea}

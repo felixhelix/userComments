@@ -11,7 +11,7 @@
     data-publicationVersion="{$publication->getData('version')}" 
     data-csrfToken="{$csrfToken}">
         <user-comments-block :user-comments="userComments"></user-comments-block>
-        <div class="userCommentForm">
+        <div>
         <h4 class="hidden">Submit a comment</h4>
         {if $user}
         <span class="hidden">You are logged in as {$user->getFullName()}</span>

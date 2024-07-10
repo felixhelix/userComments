@@ -24,12 +24,12 @@ class UserCommentsSchemaMigration extends Migration
     public function up()
     {
         Capsule::schema()->create('user_comments', function (Blueprint $table) {
-            $table->bigInteger('object_id')->autoIncrement();
+            $table->bigInteger('comment_id')->autoIncrement();
+            $table->bigInteger('user_id')->nullable();            
+            $table->bigInteger('context_id');            
             $table->bigInteger('submission_id')->nullable();
             $table->bigInteger('publication_id')->nullable();            
             $table->bigInteger('publication_version')->nullable();
-            $table->bigInteger('context_id');
-            $table->bigInteger('user_id')->nullable();
             $table->bigInteger('foreign_comment_id')->nullable(); // this holds optionally the key of another comment
             $table->datetime('date_created');
             $table->datetime('date_flagged')->nullable()->default(null); // holds the last date flagged
@@ -39,14 +39,15 @@ class UserCommentsSchemaMigration extends Migration
         });
 
         Capsule::schema()->create('user_comment_settings', function (Blueprint $table) {
-            $table->bigInteger('object_id');
+            $table->bigInteger('comment_setting_id')->autoIncrement();
+            $table->bigInteger('comment_id');
             $table->string('locale', 14)->default('en_US');
             $table->string('setting_name', 255);
             $table->longText('setting_value')->nullable();
             $table->string('setting_type', 6)->comment('(bool|int|float|string|object)');
-            $table->index(['object_id'], 'user_comments_settings_id');
-            $table->unique(['object_id', 'locale', 'setting_name'], 'user_comments_settings_pkey');
-        });
+            // $table->index(['object_id'], 'user_comments_settings_id');
+            // $table->unique(['object_id', 'locale', 'setting_name'], 'user_comments_settings_pkey');
+        });        
     }
 
 }

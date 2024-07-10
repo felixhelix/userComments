@@ -17,7 +17,7 @@
 import('lib.pkp.classes.plugins.GenericPlugin');
 
 
-class userCommentsPlugin extends GenericPlugin {
+class UserCommentsPlugin extends GenericPlugin {
 
 	/**
 	 * @copydoc Plugin::register()

@@ -27,7 +27,7 @@ class UserCommentDAO extends DAO {
 		$params = [(int) $objectId];
 
 		$result = $this->retrieve(
-			'SELECT * FROM user_comments WHERE object_id = ?'
+			'SELECT * FROM user_comments WHERE comment_id = ?'
 			. ($submissionId?' AND submission_id = ?':''),
 			$params
 		);
@@ -125,7 +125,7 @@ class UserCommentDAO extends DAO {
 			SET visible = ?, 
 			flagged = ?,
 			date_flagged = ?
-			WHERE object_id = ?',
+			WHERE comment_id = ?',
 			array(
 				(bool) $userComment->getVisible(),
 				(bool) $userComment->getFlagged(),				
@@ -144,7 +144,7 @@ class UserCommentDAO extends DAO {
 		$this->update(
 			'UPDATE	user_comments
 			SET	date_flagged = NOW()
-			WHERE object_id = ?',
+			WHERE comment_id = ?',
 		array(
 			$objectId
 			)	
@@ -175,12 +175,12 @@ class UserCommentDAO extends DAO {
 	 */
 	function deleteById($objectId) {
 		$this->update(
-			'DELETE FROM user_comments WHERE object_id = ?',
+			'DELETE FROM user_comments WHERE comment_id = ?',
 			[(int) $objectId]
 		);
 
 		$this->update(
-			'DELETE FROM user_comment_settings WHERE object_id = ?',
+			'DELETE FROM user_comment_settings WHERE comment_id = ?',
 			[(int) $objectId]
 		);
 	}
@@ -207,7 +207,7 @@ class UserCommentDAO extends DAO {
 	 */
 	function _fromRow($row) {
 		$userComment = $this->newDataObject();
-		$userComment->setId($row['object_id']);
+		$userComment->setId($row['comment_id']);
 		$userComment->setContextId($row['context_id']);
 		$userComment->setUserId($row['user_id']);
 		$userComment->setSubmissionId($row['submission_id']);
@@ -218,7 +218,7 @@ class UserCommentDAO extends DAO {
 		$userComment->setDateFlagged($row['date_flagged']);
 		$userComment->setFlagged($row['flagged']);		
 		$userComment->setVisible($row['visible']);
-		$this->getDataObjectSettings('user_comment_settings', 'object_id', $row['object_id'], $userComment);
+		$this->getDataObjectSettings('user_comment_settings', 'comment_id', $row['comment_id'], $userComment);
 
 		return $userComment;
 	}
@@ -228,7 +228,7 @@ class UserCommentDAO extends DAO {
 	 * @return int
 	 */
 	function getInsertId() {
-		return $this->_getInsertId('user_comments', 'object_id');
+		return $this->_getInsertId('user_comments', 'comment_id');
 	}
 
 	/**
@@ -244,7 +244,7 @@ class UserCommentDAO extends DAO {
 	 * @param $userComment object
 	 */
 	function updateLocaleFields($userComment) {
-		$this->updateDataObjectSettings('user_comment_settings', $userComment, array('object_id' => (int) $userComment->getId()));
+		$this->updateDataObjectSettings('user_comment_settings', $userComment, array('comment_id' => (int) $userComment->getId()));
 	}
 
 	/**

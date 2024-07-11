@@ -124,7 +124,11 @@ class UserCommentsHandler extends APIHandler
         // }
 
         $publicationId = $requestParams['publicationId'];
-        $foreignCommentId = $requestParams['foreignCommentId'];     
+        // get the DOI of the reviewed publication to increase portability
+		$PublicationDao = DAORegistry::getDAO('PublicationDAO');
+		$Publication = $PublicationDao->getById($publicationId);
+        $publicationPID = $Publication->getStoredPubId('doi');
+        $foreignCommentId = $requestParams['foreignCommentId'];
         $submissionId = $requestParams['submissionId'];  
         $publicationVersion = null;
         $commentText = $requestParams['commentText'];
@@ -138,7 +142,10 @@ class UserCommentsHandler extends APIHandler
         $UserComment = $UserCommentDao->newDataObject(); 
         $UserComment->setContextId(1);
         $UserComment->setUserId($currentUser->getId());
+        $UserComment->setUserPID($currentUser->getOrcid());
+        error_log("ORCID: " . $currentUser->getOrcid());
         $UserComment->setPublicationId($publicationId);
+        $UserComment->setPublicationPID($publicationPID);
         $UserComment->setForeignCommentId($foreignCommentId);        
         $UserComment->setSubmissionId($submissionId);
         $UserComment->setPublicationVersion($publicationVersion);
@@ -196,7 +203,6 @@ class UserCommentsHandler extends APIHandler
         $userComment = $UserCommentDao->getById($userCommentId);
             
         // Update the data object
-        // $commentId = $UserCommentDao->updateFlag($userCommentId);
         $userComment->setFlagged(true);
         $userComment->setDateFlagged(Now());
         $userComment->setFlaggedBy($currentUser->getId());

@@ -124,33 +124,19 @@ class UserCommentDAO extends DAO {
 			'UPDATE user_comments 
 			SET visible = ?, 
 			flagged = ?,
-			date_flagged = ?
+			date_flagged = ?,
+			flagged_by = ?
 			WHERE comment_id = ?',
 			array(
 				(bool) $userComment->getVisible(),
 				(bool) $userComment->getFlagged(),				
 				$userComment->getDateFlagged(),
+				$userComment->getFlaggedBy(),
 				(int) $userComment->getId()
 			)
 		);
 		$this->updateLocaleFields($userComment);
 	}
-
-	/**
-	 * Update the database with a userComment object
-	 * @param $objectId objectId
-	 */
-	function updateFlag($objectId) {
-		$this->update(
-			'UPDATE	user_comments
-			SET	date_flagged = NOW()
-			WHERE comment_id = ?',
-		array(
-			$objectId
-			)	
-		);
-		return $objectId;
-	}	
 
 	/**
 	 * Get a object for UserComments by submission ID
@@ -217,6 +203,7 @@ class UserCommentDAO extends DAO {
 		$userComment->setDateCreated($row['date_created']);
 		$userComment->setDateFlagged($row['date_flagged']);
 		$userComment->setFlagged($row['flagged']);		
+		$userComment->setFlaggedBy($row['flagged_by']);		
 		$userComment->setVisible($row['visible']);
 		$this->getDataObjectSettings('user_comment_settings', 'comment_id', $row['comment_id'], $userComment);
 
@@ -236,7 +223,7 @@ class UserCommentDAO extends DAO {
 	 * @return array
 	 */
 	function getAdditionalFieldNames() {
-		return array('commentText','flaggedBy');
+		return array('commentText','publication_pid::doi','user_pid::orcid');
 	}
 
 	/**

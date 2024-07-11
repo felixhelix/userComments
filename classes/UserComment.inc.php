@@ -69,6 +69,23 @@ class UserComment extends DataObject {
 	}
 
 	/**
+	 * Get Publication PID.
+	 * @return int
+	 */
+	function getPublicationPID(){
+		return $this->getData('publication_pid::doi');
+	}
+
+	/**
+	 * Set Publication PID.
+	 * @return int
+	 * @param $publicationId int	 * 
+	 */
+	function setPublicationPID($publicationPID){
+		return $this->setData('publication_pid::doi', $publicationPID);
+	}	
+
+	/**
 	 * Get Publication version.
 	 * @return int
 	 */
@@ -116,6 +133,22 @@ class UserComment extends DataObject {
 	function setUserId($userId) {
 		return $this->setData('userId', $userId);
 	}	
+
+	/**
+	 * Get user PID.
+	 * @return int
+	 */
+	function getUserPID(){
+		return $this->getData('user_pid::orcid');
+	}
+
+	/**
+	 * Set user PID.
+	 * @param $userId
+	 */
+	function setUserPID($userPID) {
+		return $this->setData('user_pid::orcid', $userPID);
+	}		
 
 	/**
 	 * Get objectId.
@@ -199,9 +232,9 @@ class UserComment extends DataObject {
 
 	/**
 	 * Set flaggedBy.
-	 * @param $flaggedBy id
+	 * @param $flaggedBy id^or null
 	 */
-	function setFlaggedBy(int $flaggedBy) {
+	function setFlaggedBy($flaggedBy) {
 		return $this->setData('flaggedBy', $flaggedBy);
 	}		
 
@@ -210,7 +243,7 @@ class UserComment extends DataObject {
 	 * @param $flaggedBy id
 	 */
 	function getFlaggedBy() {
-		return $this->getData('flaggedBy', $flaggedBy);
+		return $this->getData('flaggedBy');
 	}
 
 	/**

@@ -4,10 +4,11 @@
 
 describe('addUserComment', () => {
     beforeEach(() => {
-        // cy.visit('/index.php/preprints/preprint/view/1')
-        cy.login('annauthor','annauthor','preprints');
+        // cy.visit('/index.php/publicknowledge/preprint/view/1')
+        cy.login('annauthor','annauthor','publicknowledge');
+        cy.wait(500); // give some time to finish loading the backend page
         // Load a preprint page
-        cy.visit('/index.php/preprints/preprint/view/1');
+        cy.visit('/index.php/publicknowledge/preprint/view/1');
     })
 
     it('writes a comment in the last textarea field and submit the comment', () => {

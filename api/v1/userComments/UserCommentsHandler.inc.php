@@ -1,6 +1,8 @@
 <?php
 
 import('lib.pkp.classes.handler.APIHandler');
+import('lib.pkp.classes.mail.MailTemplate');
+import('plugins.generic.userComments.classes.UserCommentDAO');
 
 class UserCommentsHandler extends APIHandler
 {
@@ -134,7 +136,7 @@ class UserCommentsHandler extends APIHandler
         $commentText = $requestParams['commentText'];
 
         // Creata a DAO for user comments
-        import('plugins.generic.userComments.classes.UserCommentDAO');
+        // import('plugins.generic.userComments.classes.UserCommentDAO');
         $UserCommentDao = new UserCommentDAO();
         DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
             
@@ -195,7 +197,7 @@ class UserCommentsHandler extends APIHandler
         }        
 
         // Create a DAO for user comments
-        import('plugins.generic.userComments.classes.UserCommentDAO');
+        // import('plugins.generic.userComments.classes.UserCommentDAO');
         $UserCommentDao = new UserCommentDAO();
         DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
 
@@ -221,6 +223,9 @@ class UserCommentsHandler extends APIHandler
         // $request, $submission, $eventType, $messageKey, $params = array()
         CommentLog::logEvent($request, $userCommentId, COMMENT_FLAGGED, $msg, $logDetails);
 
+        // Send Email to admin
+        $this->sendUserCommentFlaggedEmail($userCommentId, $publicationId);
+
         return $response->withJson(
             ['id' => $commentId,
             'comment' => 'comment was flagged',
@@ -244,7 +249,7 @@ class UserCommentsHandler extends APIHandler
         $locale = AppLocale::getLocale();
 
         // Create a DAO for user comments
-        import('plugins.generic.userComments.classes.UserCommentDAO');
+        // import('plugins.generic.userComments.classes.UserCommentDAO');
         $UserCommentDao = new UserCommentDAO();
         DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
 
@@ -289,5 +294,85 @@ class UserCommentsHandler extends APIHandler
         ], 200);        
 
     }
+
+    private function sendUserCommentFlaggedEmail($userCommentId, $publicationId)
+    {
+        $request = $this->getRequest();
+        $context = $request->getContext();
+        $publication = Services::get('publication')->get($publicationId);        
+
+        $emailTemplate = 'COMMENTFLAGGED_NOTIFICATION';
+
+        // Get the flagged comment
+        $UserCommentDao = new UserCommentDAO();
+        $userComment = $UserCommentDao->getById($userCommentId);   
+
+        // Get the submissionId to create the links
+        $submissionId = $publication->getData('submissionId');
+
+        // Get the managers assigned to that publication to send the email to        
+        $managers = $this->getManagersAssigned($publication);
+        $params = [
+            'submissionTitle' => htmlspecialchars($publication->getLocalizedFullTitle()),
+            'userCommentText' => $userComment->getCommentText(),
+            'linkToEditForm' => $request->getDispatcher()->url($request, ROUTE_PAGE, $context->getPath(), 'FlaggedComments', 'edit', $userCommentId),
+            'linkToPreprint' => $request->getDispatcher()->url($request, ROUTE_PAGE, $context->getPath(), 'preprint', 'view', [$submissionId , 'version', $publicationId]),
+            'userCommentId' => $userCommentId
+        ];
+
+        $this->sendEmailTemplate($emailTemplate, $managers, $params);
+    }
+
+    private function getManagersAssigned($publication): array
+    {
+        $stageAssignmentDao = DAORegistry::getDAO('StageAssignmentDAO');
+        $userDao = DAORegistry::getDAO('UserDAO');
+        $allAssignments = $stageAssignmentDao->getBySubmissionAndStageId($publication->getData('submissionId'), WORKFLOW_STAGE_ID_PRODUCTION);
+        $managers = array();
+
+        while ($assignment = $allAssignments->next()) {
+            $userId = $assignment->getUserId();
+
+            if($this->userIsManager($userId)) {
+                $manager = $userDao->getById($userId);
+                $managers[] = [
+                    'email' => $manager->getEmail(),
+                    'name' => $manager->getFullName()
+                ];
+            }
+        }
+
+        return $managers;
+    }    
+
+    private function userIsManager($userId): bool
+    {
+        $userGroupDao = DAORegistry::getDAO('UserGroupDAO');
+        $userGroupsOfUser = $userGroupDao->getByUserId($userId);
+        $managerGroupName = 'preprint server manager';
+
+        while($userGroup = $userGroupsOfUser->next()) {
+            if(strtolower($userGroup->getName('en_US')) == $managerGroupName) {
+                return true;
+            }
+        }
+
+        return false;
+    }    
+
+    private function sendEmailTemplate(string $key, array $recipients, array $params)
+    {
+        $request = $this->getRequest();
+        $context = $request->getContext();
+
+        $email = new MailTemplate($key, null, $context, false);
+        $email->setFrom($context->getData('contactEmail'), $context->getData('contactName'));
+
+        foreach($recipients as $recipient) {
+            $email->addRecipient($recipient['email'], $recipient['name']);
+        }
+
+        $email->sendWithParams($params);
+    }    
 
 }

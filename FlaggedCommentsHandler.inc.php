@@ -200,7 +200,6 @@ class flaggedCommentsHandler extends Handler {
 				FORM_USER_COMMENT => $form->getConfig(),
 			],
 		]);
-		error_log("Template: " . $plugin->getTemplateResource('userCommentForm.tpl'));
 		return $templateMgr->display($plugin->getTemplateResource('userCommentForm.tpl'));				
 
 	}	

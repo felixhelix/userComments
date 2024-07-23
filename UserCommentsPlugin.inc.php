@@ -88,6 +88,11 @@ class UserCommentsPlugin extends GenericPlugin {
 		return __('plugins.generic.userComments.description');
 	}
 
+    public function getInstallEmailTemplatesFile()
+    {
+        return $this->getPluginPath() . '/emailTemplates.xml';
+    }	
+
     public function addCommentBlock(string $hookName, array $args): bool {
 		// Add additional styles and scripts
 		// for the frontend publication details page 
@@ -229,7 +234,7 @@ class UserCommentsPlugin extends GenericPlugin {
 			return false;
 		}
 
-		$menu = & $templateMgr->getState('menu');
+		$menu = $templateMgr->getState('menu');
 		$menu['flaggedComments'] = [
 			'name' => 'Flagged Comments',
 			'url' => $router->url($request, $context->getData('urlPath'), 'FlaggedComments'),

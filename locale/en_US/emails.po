@@ -1,0 +1,16 @@
+msgid "emails.commentflagged.subject"
+msgstr "A user comment has been flagged"
+
+msgid "emails.commentflagged.body"
+msgstr ""
+"The comment \"{$userCommentId}\" has been flagged by a user.<br>\n"
+"<br>\n"
+"Submission Title: \"{$submissionTitle}\"<br>\n"
+"Comment Text: \"{$userCommentText}\"<br>\n"
+"<br>\n"
+"<a href=\"{$linkToPreprint}\">Link to preprint</a><br>\n"
+"<a href=\"{$linkToEditForm}\">Link to edit form</a><br>\n"
+
+msgid "emails.commentflagged.description"
+msgstr ""
+"Email template used to notify moderators that a comment has been flagged"

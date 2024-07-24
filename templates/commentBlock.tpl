@@ -17,7 +17,7 @@
         <span class="hidden">You are logged in as {$user->getFullName()}</span>
         <form-container :userCommentId=null></form-container>
         {else}
-        <span>{translate key='plugins.generic.userComments.loggedOut' loginPageUrl="login"}</span>
+        <span>{translate key='plugins.generic.userComments.loggedOut' loginPageUrl="{$loginPageUrl}"}</span>
         {/if}
         </div>
     </div>

@@ -114,6 +114,7 @@ class UserCommentsPlugin extends GenericPlugin {
 		$smarty->assign([
 			'baseURL' => $request->getBaseURL(),
 			'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'userComments/'),
+			'loginPageUrl' => $request->getDispatcher()->url($request, ROUTE_PAGE, $context->getData('urlPath'), 'login'),
 			'csrfToken' => $request->getSession()->getCSRFToken(),
 			'apiKey' => $this->getSetting($request->getContext()->getId(), 'apiKey'),
 			'submissionId' => $publication->getData('submissionId'), 

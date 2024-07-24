@@ -28,10 +28,16 @@ class UserCommentsPlugin extends GenericPlugin {
 		
 		if ($success && $this->getEnabled($mainContextId)) {	
 
-			// Creata a DAO for user comments
+			// Register the DAO for user comments
 			import('plugins.generic.userComments.classes.UserCommentDAO');
 			$UserCommentDao = new UserCommentDAO();
 			DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
+
+
+			// Register the DAO to log user comments
+			import('plugins.generic.userComments.classes.log.CommentEventLogDAO');
+			$CommentEventLogDao = new CommentEventLogDAO();
+			DAORegistry::registerDAO('CommentEventLogDAO', $CommentEventLogDao);			
 
 			// Use a hook to insert a template on the details page
 			// HookRegistry::register('Templates::Preprint::Main', [$this, 'addCommentBlock']);	
@@ -49,10 +55,6 @@ class UserCommentsPlugin extends GenericPlugin {
 
 			// Add link to flagged comments list on admin page
 			HookRegistry::register('Templates::Admin::Index::AdminFunctions', array($this, 'addAdminItem'));
-
-			// Install database tables
-			// $migration = $this->getInstallMigration();
-			// $migration->up();
 		}
 
 		return $success;

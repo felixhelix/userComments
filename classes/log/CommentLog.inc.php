@@ -26,9 +26,7 @@ class CommentLog {
 	 */
 	static function logEvent($request, $commentId, $eventType, $messageKey, $params = array()) {
 		// Create a new entry object
-		import('plugins.generic.userComments.classes.log.CommentEventLogDAO');
-		$CommentEventLogDao = new CommentEventLogDAO();
-		DAORegistry::registerDAO('CommentEventLogDAO', $CommentEventLogDAO);
+		$CommentEventLogDao = DAORegistry::getDAO('CommentEventLogDAO');
 		$entry = $CommentEventLogDao->newDataObject();
 
 		// Set implicit parts of the log entry

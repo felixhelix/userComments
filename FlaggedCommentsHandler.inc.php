@@ -27,17 +27,6 @@ class flaggedCommentsHandler extends Handler {
 			[ROLE_ID_MANAGER],
 			['index','edit']
 		);		
-		
-		// Add additional styles and scripts
-		// Does not work in backend?
-		// $request = Application::get()->getRequest();
-		// $plugin = PluginRegistry::getPlugin('generic', 'CommentsPlugin');		
-		// $cssUrl = $request->getBaseUrl() . '/' . $plugin->getPluginPath() . '/css/comments.css';
-		// $jsUrl = $request->getBaseUrl() . '/' . $plugin->getPluginPath() . '/js/comments.js';
-		// $templateMgr = TemplateManager::getManager($request);
-		// $templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');
-		// $templateMgr->addJavaScript('comments', $jsUrl);
-		// $templateMgr->addStyleSheet('comments', $cssUrl);
 	}
     
 	/**
@@ -91,7 +80,6 @@ class flaggedCommentsHandler extends Handler {
 		$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
         $userDao = DAORegistry::getDAO('UserDAO'); 	
         $queryResults = $userCommentDao->getFlagged($context->getId());
-		// $userComments = $queryResults->toArray();
 
         $userComments = [];
 
@@ -114,7 +102,6 @@ class flaggedCommentsHandler extends Handler {
         };
 
 		return $userComments;
-		// var_dump("getFlaggedComments: " . json_encode($userComments));
 	}
 
 	public function getComment($commentId)
@@ -168,11 +155,6 @@ class flaggedCommentsHandler extends Handler {
 		// The URL where the form will be submitted		
 		$dispatcher = $request->getDispatcher();
 		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'userComments/edit');
-
-		// $actionNames = array(
-		// 	'toggleVisibility' => 'Toggle visibility',
-		// 	'unFlag' => 'Un-flag comment',
-		// );
 
 		$form = new UserCommentForm($apiUrl, $request, $props); // the parameters for the __construct function are variable
 		//  Compile all of the required props and pass them to the template’s component state

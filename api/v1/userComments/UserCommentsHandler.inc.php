@@ -135,17 +135,14 @@ class UserCommentsHandler extends APIHandler
         $publicationVersion = null;
         $commentText = $requestParams['commentText'];
 
-        // Creata a DAO for user comments
-        // import('plugins.generic.userComments.classes.UserCommentDAO');
-        $UserCommentDao = new UserCommentDAO();
-        DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
+        // Get the DAO for user comments
+        $UserCommentDao = DAORegistry::getDAO('UserCommentDAO');
             
         // Create the data object
         $UserComment = $UserCommentDao->newDataObject(); 
         $UserComment->setContextId(1);
         $UserComment->setUserId($currentUser->getId());
         $UserComment->setUserPID($currentUser->getOrcid());
-        error_log("ORCID: " . $currentUser->getOrcid());
         $UserComment->setPublicationId($publicationId);
         $UserComment->setPublicationPID($publicationPID);
         $UserComment->setForeignCommentId($foreignCommentId);        
@@ -166,12 +163,11 @@ class UserCommentsHandler extends APIHandler
             'foreignCommentId' => $foreignCommentId,
             'userId' => $currentUser->getId(),            
         );
-        // $request, $submission, $eventType, $messageKey, $params = array()
         CommentLog::logEvent($request, $commentId, COMMENT_POSTED, $msg, $logDetails);
 
         return $response->withJson(
             ['id' => 1,
-            'comment' => $userComment,
+            'comment' => $commentText,
         ], 200);
     }
 
@@ -196,10 +192,8 @@ class UserCommentsHandler extends APIHandler
             ], 400);            
         }        
 
-        // Create a DAO for user comments
-        // import('plugins.generic.userComments.classes.UserCommentDAO');
-        $UserCommentDao = new UserCommentDAO();
-        DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
+        // Get the user comments DAO
+        $UserCommentDao = DAORegistry::getDAO('UserCommentDAO');
 
         // Get the data object
         $userComment = $UserCommentDao->getById($userCommentId);
@@ -244,14 +238,11 @@ class UserCommentsHandler extends APIHandler
         $visible = $requestParams['visible'];
         $flagged = $requestParams['flagged'];
         $messageKey = '';
-        // error_log("setVisibility: " . $visible . " on " . $userCommentId);
         $currentUser = $request->getUser();
         $locale = AppLocale::getLocale();
 
-        // Create a DAO for user comments
-        // import('plugins.generic.userComments.classes.UserCommentDAO');
-        $UserCommentDao = new UserCommentDAO();
-        DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
+        // Get the user comments DAO
+        $UserCommentDao = DAORegistry::getDAO('UserCommentDAO');
 
         // Get the data object
         $userComment = $UserCommentDao->getById($userCommentId);    

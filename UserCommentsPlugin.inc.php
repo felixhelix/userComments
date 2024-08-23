@@ -40,8 +40,8 @@ class UserCommentsPlugin extends GenericPlugin {
 			DAORegistry::registerDAO('CommentEventLogDAO', $CommentEventLogDao);			
 
 			// Use a hook to insert a template on the details page
+			HookRegistry::register('Templates::Preprint::Details', [$this, 'addCommentBlock'], HOOK_SEQUENCE_LAST);	
 			// HookRegistry::register('Templates::Preprint::Main', [$this, 'addCommentBlock']);	
-			HookRegistry::register('Templates::Preprint::Main', [$this, 'addCommentBlock']);	
 
 			// Add the API handler
 			HookRegistry::register('Dispatcher::dispatch', array($this, 'setupUserCommentsHandler'));	
@@ -117,6 +117,7 @@ class UserCommentsPlugin extends GenericPlugin {
 			'baseURL' => $request->getBaseURL(),
 			'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'userComments/'),
 			'loginPageUrl' => $request->getDispatcher()->url($request, ROUTE_PAGE, $context->getData('urlPath'), 'login'),
+			'source' => $request->getCompleteUrl(),
 			'csrfToken' => $request->getSession()->getCSRFToken(),
 			'apiKey' => $this->getSetting($request->getContext()->getId(), 'apiKey'),
 			'submissionId' => $publication->getData('submissionId'), 
@@ -232,7 +233,7 @@ class UserCommentsPlugin extends GenericPlugin {
 
 		// user has to be in moderator group
 		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
-		error_log($userGroupDao->userInGroup($user->getId(), $managerGroupId));
+		// error_log($userGroupDao->userInGroup($user->getId(), $managerGroupId));
 		if(!$userGroupDao->userInGroup($user->getId(), $managerGroupId)) {
 			return false;
 		}
@@ -252,7 +253,7 @@ class UserCommentsPlugin extends GenericPlugin {
 
 	public function addAdminItem($hookName, $params) {
 		// alternatively show the link on the admin page
-		error_log("addAdminItem");
+		// error_log("addAdminItem");
 		return "<li>Flagged Comments</li>";
 	}	
 

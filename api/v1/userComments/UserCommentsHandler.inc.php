@@ -55,8 +55,6 @@ class UserCommentsHandler extends APIHandler
     {
         $params = $slimRequest->getQueryParams(); // ['searchPhrase' => 'barnes']
 
-        error_log("get comment");
-
         return $response->withJson(
             ['id' => 1,
             'comment' => "get comment",

@@ -174,9 +174,9 @@ App.component('userCommentsBlock', {
         </template>          
         <span class="block text-gray-400">{{ userComment.commentDate }}</span>
         <div class="flex justify-between w-full text-gray-400">
-          <div class="flex font-semibold">
+          <div class="font-semibold">
             {{ userComment.userName }}
-            <a class="pl-1 font-normal" :href="userComment.userOrcid">{{ userComment.userOrcid }}</a>
+            <a class="font-normal block" :href="userComment.userOrcid">{{ userComment.userOrcid }}</a>
           </div>
           <div class="flex">
             <button name="flagComment" v-if="$root.user && userComment.flagged != true" @click="flagComment(userComment.id)">

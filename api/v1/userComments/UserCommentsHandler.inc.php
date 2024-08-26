@@ -53,8 +53,8 @@ class UserCommentsHandler extends APIHandler
 
     public function getComment($slimRequest, $response, $args)
     {
-        $params = $slimRequest->getQueryParams(); // ['searchPhrase' => 'barnes']
-
+        // This is just a stub: so far we do not need to return a single comment 
+        $params = $slimRequest->getQueryParams();
         return $response->withJson(
             ['id' => 1,
             'comment' => "get comment",
@@ -63,11 +63,10 @@ class UserCommentsHandler extends APIHandler
 
     public function getCommentsByPublication($slimRequest, $response, $args)
     {
-        $params = $slimRequest->getQueryParams(); // ['searchPhrase' => 'barnes']
+        // This is for the public interface: we don't want disabled comment text to be returned
+        $params = $slimRequest->getQueryParams();
         $request = $this->getRequest();
         $publicationId = (int) $args['publicationId'];
-        // $request = $this->getRequest();
-        // $baseURL = $request->getBaseURL();
 
 		$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
         $userDao = DAORegistry::getDAO('UserDAO'); 	
@@ -77,6 +76,7 @@ class UserCommentsHandler extends APIHandler
 
         while ($userComment = $queryResults->next()) {  
             $user = $userDao->getById($userComment->getUserId());
+            $visible = $userComment->getVisible();
             $userComments[] = [
             'id' => $userComment->getId(),
             'publicationId' => $userComment->getPublicationId(),
@@ -86,10 +86,10 @@ class UserCommentsHandler extends APIHandler
             'userName' => $user->getFullName(),
             'userOrcid' => $user->getData('orcid'),
             'commentDate' =>$userComment->getDateCreated(),
-            'commentText' => $userComment->getCommentText(),
+            'commentText' => $visible ? $userComment->getCommentText() : '',
             'flagged' => $userComment->getFlagged(),            
             'flaggedDate' => $userComment->getDateFlagged(),
-            'visible' => $userComment->getVisible(),
+            'visible' => $visible,
             ];
         };
 

@@ -37,25 +37,6 @@ class UserCommentDAO extends DAO {
 	}
 
 	/**
-	 * Get UserComments objects by submission ID
-	 * @param $submissionId int Submission ID
-	 * @param $publicationVersion int Publication version number
-	 * @param $contextId int (optional) context ID
-	 */
-	function getBySubmissionId($submissionId, $publicationVersion = 1, $contextId = null) {
-		$params = [(int) $submissionId, (int) $version];
-		if ($contextId) $params[] = (int) $contextId;
-
-		$result = $this->retrieve(
-			'SELECT * FROM user_comments WHERE submission_id = ? AND publication_version = ?'
-			. ($contextId?' AND context_id = ?':''),
-			$params
-		);
-
-		return new DAOResultFactory($result, $this, '_fromRow');
-	}
-
-	/**
 	 * Get UserComments objects by publication ID
 	 * @param $publicationId int Publication ID
 	 * @param $contextId int (optional) context ID
@@ -172,14 +153,6 @@ class UserCommentDAO extends DAO {
 	}
 
 	/**
-	 * Delete a userComment object.
-	 * @param $userComment userComment
-	 */
-	function deleteObject($userComment) {
-		$this->deleteById($userComment->getId());
-	}
-
-	/**
 	 * Generate a new funder object.
 	 * @return userComment
 	 */
@@ -233,45 +206,6 @@ class UserCommentDAO extends DAO {
 	function updateLocaleFields($userComment) {
 		$this->updateDataObjectSettings('user_comment_settings', $userComment, array('comment_id' => (int) $userComment->getId()));
 	}
-
-	/**
-	 * A helper function to compile the key/value set for the primary table
-	 *
-	 * @param DataObject
-	 * @return array
-	 */
-	private function _getPrimaryDbProps($object) {
-		$schema = Services::get('schema')->get($this->schemaName);
-		$sanitizedProps = Services::get('schema')->sanitize($this->schemaName, $object->_data);
-
-		$primaryDbProps = [];
-		foreach ($this->primaryTableColumns as $propName => $columnName) {
-			if ($propName !== 'id' && array_key_exists($propName, $sanitizedProps)) {
-				// If the value is null and the prop is nullable, leave it null
-				if (is_null($sanitizedProps[$propName])
-						&& isset($schema->properties->{$propName}->validation)
-						&& in_array('nullable', $schema->properties->{$propName}->validation)) {
-					$primaryDbProps[$columnName] = null;
-
-				// Convert empty string values for DATETIME columns into null values
-				// because an empty string can not be saved to a DATETIME column
-				} elseif (array_key_exists($columnName, $sanitizedProps)
-						&& $sanitizedProps[$columnName] === ''
-						&& isset($schema->properties->{$propName}->validation)
-						&& (
-							in_array('date_format:Y-m-d H:i:s', $schema->properties->{$propName}->validation)
-							|| in_array('date_format:Y-m-d', $schema->properties->{$propName}->validation)
-						)
-				) {
-					$primaryDbProps[$columnName] = null;
-				} else {
-					$primaryDbProps[$columnName] = $this->convertToDB($sanitizedProps[$propName], $schema->properties->{$propName}->type);
-				}
-			}
-		}
-
-		return $primaryDbProps;
-	}	
 
 }
 

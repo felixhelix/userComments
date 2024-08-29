@@ -185,27 +185,5 @@ class flaggedCommentsHandler extends Handler {
 		return $templateMgr->display($plugin->getTemplateResource('userCommentForm.tpl'));				
 
 	}	
-
-
-
-	/**
-	 * Extend the {url ...} for smarty to support this plugin.
-	 */
-	function smartyPluginUrl($params, $smarty) {
-		$plugin = PluginRegistry::getPlugin('generic', 'AuthorRepliesPlugin');		
-		$path = array('plugin', $plugin->getName());
-		if (is_array($params['path'])) {
-			$params['path'] = array_merge($path, $params['path']);
-		} elseif (!empty($params['path'])) {
-			$params['path'] = array_merge($path, array($params['path']));
-		} else {
-			$params['path'] = $path;
-		}
-
-		if (!empty($params['id'])) {
-			$params['path'] = array_merge($params['path'], array($params['id']));
-			unset($params['id']);
-		}
-		return $smarty->smartyUrl($params, $smarty);
-	}		
+		
 }  

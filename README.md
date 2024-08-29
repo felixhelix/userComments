@@ -16,9 +16,7 @@ That said, the plugin is not overly complicated and one should be able to adapt 
 
 ## Compatibility
 
-The latest release of this plugin is compatible with the following PKP applications:
-
-* OPS 3.3.0
+The ops_3-3 branch works only with OPS 3.3.0. However, it should work with OJS if the hook to display the comments on the frontend page is changed from Templates::Preprint::Details to Templates::Article::Main.
 
 ## Installation
 

@@ -12,9 +12,7 @@
     data-csrfToken="{$csrfToken}">
         <user-comments-block :user-comments="userComments"></user-comments-block>
         <div>
-        <h4 class="hidden">Submit a comment</h4>
         {if $user}
-        <span class="hidden">You are logged in as {$user->getFullName()}</span>
         <form-container :userCommentId=null></form-container>
         {else}
         <span>{translate key='plugins.generic.userComments.loggedOut' loginPageUrl="{$loginPageUrl}?source={$source|escape:'url'}"}</span>

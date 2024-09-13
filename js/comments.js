@@ -235,7 +235,7 @@ App.component('commentForm', {
         <textarea type="text" name="commentText" required  class="block rounded border w-full my-2"></textarea>
       </label>
       <button type="submit" class="rounded-lg border-2 p-1 mr-2 bg-sky-500 text-white border-sky-200 hover:border-sky-700">Submit</button>
-      <button @click="$parent.toggleComment()" class="rounded border p-1 hover:border-black">close</button>
+      <button v-if="userCommentId" @click="$parent.toggleComment()" class="rounded border p-1 hover:border-black">close</button>
     </form>`
 });
 

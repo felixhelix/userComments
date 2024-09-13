@@ -74,8 +74,14 @@ const App = Vue.createApp({
           console.log('Data posted successfully:', data);
           // Fetch data again to update the displayed list
           this.fetchData();
-          // close the comment field
-          parentComponent.toggleComment();
+          if (submitEvent.target.dataset.usercommentid != null) {
+            // close the comment field if this is a reply
+            parentComponent.toggleComment();
+          }
+          else {
+            // need to reset the form value
+            submitEvent.target[name = 'commentText'].value = "";
+          };
         })
         .catch(error => {
           console.error('Error posting data:', error);
@@ -226,13 +232,14 @@ App.component('commentForm', {
   props: ['userCommentId'],
   data() {
     return {
-      userCommentFieldId:  ("userComment_" + this.userCommentId) // use v-bind:id="userCommentFieldId"
+      userCommentFieldId:  ("userComment_" + this.userCommentId), // use v-bind:id="userCommentFieldId"
+      comment: ""
     }
   }, 
   template: `
     <form @submit.prevent="$root.postData($parent, $event)" :data-userCommentId="userCommentId">
-      <label>Your comment:
-        <textarea type="text" name="commentText" required  class="block rounded border w-full my-2"></textarea>
+      <label>
+        <textarea v-model="comment" type="text" name="commentText" required  class="block rounded border w-full my-2" placeholder="write your comment here"></textarea>
       </label>
       <button type="submit" class="rounded-lg border-2 p-1 mr-2 bg-sky-500 text-white border-sky-200 hover:border-sky-700">Submit</button>
       <button v-if="userCommentId" @click="$parent.toggleComment()" class="rounded border p-1 hover:border-black">close</button>

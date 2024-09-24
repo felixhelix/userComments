@@ -46,9 +46,18 @@ class UserCommentsHandler extends APIHandler
     }
 
 	function authorize($request, &$args, $roleAssignments) {
-		import('lib.pkp.classes.security.authorization.ContextAccessPolicy');
-		$this->addPolicy(new ContextAccessPolicy($request, $roleAssignments));
-		return parent::authorize($request, $args, $roleAssignments);
+        // Role based authorization via api key does not always work, 
+        // so I changed the function to allow get access in general while restricting all other methods
+        // to certain roles
+        $slimMethod = $this->getSlimRequest()->getMethod();
+		if ($slimMethod == 'GET') {
+            return true;
+		} else {
+            import('lib.pkp.classes.security.authorization.ContextAccessPolicy');
+            $this->addPolicy(new ContextAccessPolicy($request, $roleAssignments));
+            return parent::authorize($request, $args, $roleAssignments);
+        }
+
 	}
 
     public function getComment($slimRequest, $response, $args)

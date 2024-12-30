@@ -1,0 +1,93 @@
+{
+	"title": "User Comment",
+	"description": "A comment from a user related to an article or another comment.",
+	"required": [
+		"assocType",
+        "assocId",
+		"id",
+        "userId",
+        "dateCreated"
+	],
+	"properties": {
+		"assocId": {
+			"type": "integer",
+			"description": "The id of the publication the comment is related to.",
+			"apiSummary": true
+		},
+		"assocType": {
+			"type": "integer",
+			"description": "The assoc object. This should always be `ASSOC_TYPE_PUBLICATION`.",
+			"apiSummary": true
+		},
+		"dateCreated": {
+			"type": "string",
+			"description": "The date that this comment was posted.",
+			"apiSummary": true,
+			"validation": [
+				"date_format:Y-m-d"
+			]
+		},
+		"dateFlagged": {
+			"type": "string",
+			"description": "The date this comment has been flagged.",
+			"apiSummary": true,
+			"validation": [
+				"nullable",
+				"date_format:Y-m-d H:i:s"
+			]
+		},
+		"commentText": {
+			"type": "string",
+			"description": "The text of the comment.",
+			"multilingual": true,
+			"apiSummary": true,
+			"validation": [
+				"nullable"
+			]
+		},
+		"userId": {
+			"type": "integer",
+			"description": "The id of the user who posted the comment.",
+			"multilingual": false,
+			"apiSummary": true
+		},
+		"id": {
+			"type": "integer",
+			"readOnly": true,
+			"apiSummary": true
+		},
+		"foreignCommentId": {
+			"type": "integer",
+			"description": "(Optional) id of the comment this comment replies to.",
+			"apiSummary": true,
+			"validation": [
+				"nullable"
+			]
+		},
+		"flagged": {
+			"type": "boolean",
+			"description": "If this comment is flagged.",
+			"apiSummary": true
+		},   
+		"publicationVersion": {
+			"type": "integer",
+			"description": "Version number of the publication this comment refers to.",
+			"apiSummary": true
+		},
+		"submissionId": {
+			"type": "integer",
+			"description": "Id of the submission this comment refers to.",
+			"apiSummary": true
+		},
+		"contextId": {
+			"type": "integer",
+			"description": "Id of the context this comment belongs to.",
+			"apiSummary": true
+		},
+		"publicationDOI": {
+			"type": "string",
+			"description": "DOI of the publication this comment refers to.",
+			"apiSummary": true
+		}
+	}
+}

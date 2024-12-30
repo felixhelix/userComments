@@ -1,0 +1,27 @@
+For the plugin to work, two tables have to be created:
+
+
+create table user_comments(
+    comment_id bigint auto_increment, 
+    user_id bigint not null, 
+    context_id int not null, 
+    submission_id bigint not null, 
+    submission_version int not null, 
+    publication_id int not null, 
+    foreign_comment_id int, 
+    date_created date, 
+    date_flagged date, 
+    flagged bool default false, 
+    flagged_by bigint, 
+    visible bool default true, 
+    primary key(comment_id)
+);
+
+create table user_comment_settings(
+    comment_setting_id bigint auto_increment,
+    comment_id bigint not null, 
+    locale varchar(28) default 'en', 
+    setting_name varchar(255),
+    setting_value text,
+    primary key(comment_setting_id)
+);

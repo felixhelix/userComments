@@ -1,0 +1,39 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2020-01-17T18:13:56+00:00\n"
+"PO-Revision-Date: 2020-01-17T18:13:56+00:00\n"
+"Language: \n"
+
+msgid "plugins.generic.userComments.displayName"
+msgstr "User-Comments Plugin"
+
+msgid "plugins.generic.userComments.description"
+msgstr "Allows registered users to comment on preprints."
+
+msgid "plugins.generic.userComments.descriptionLong"
+msgstr "Allows registered users to comment on preprints."
+
+msgid "plugins.generic.userComments.loggedOut"
+msgstr "<a href="{$loginPageUrl}" class="font-semibold text-sky-500 hover:underline">Log in</a> to post your comment."
+
+msgid "plugins.generic.userComments.submitComment"
+msgstr "Submit a Comment"
+
+msgid "plugins.generic.userComments.success"
+msgstr "Comment Added"
+
+msgid "plugins.generic.userComments.apiKey"
+msgstr "API key used for displaying user comments to unauthenticated users."
+
+msgid "plugins.generic.userComments.listFlaggedComments"
+msgstr "List of flagged user comments"
+
+msgid "plugins.generic.userComments.editFlaggedComments"
+msgstr "Edit flagged user comment"

@@ -13,7 +13,7 @@
 namespace APP\plugins\generic\userComments\classes\Settings;
 
 use APP\core\Application;
-use PKP\notification\Notification;
+use APP\notification\Notification;
 use APP\notification\NotificationManager;
 use APP\plugins\generic\userComments\classes\Constants;
 use APP\plugins\generic\userComments\UserCommentsPlugin;

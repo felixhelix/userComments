@@ -53,6 +53,7 @@
 		},
 		"id": {
 			"type": "integer",
+			"description": "The id of the comment.",
 			"readOnly": true,
 			"apiSummary": true
 		},

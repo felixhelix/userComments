@@ -41,7 +41,7 @@ use APP\plugins\generic\userComments\CommentsSchemaMigration;
 use APP\plugins\generic\userComments\classes\UserCommentDAO;
 use APP\plugins\generic\userComments\classes\Settings\Actions;
 use APP\plugins\generic\userComments\classes\Settings\Manage;
-// use APP\plugins\generic\userComments\api\v1\userComments\UserCommentsHandler;
+use APP\plugins\generic\userComments\api\v1\userComments\UserCommentsHandler;
 
 
 class UserCommentsPlugin extends GenericPlugin {
@@ -63,10 +63,10 @@ class UserCommentsPlugin extends GenericPlugin {
 			Hook::add('Templates::Preprint::Main', [$this, 'addCommentBlock'], Hook::SEQUENCE_LAST);	
 
 			// Add the API handler
-			// Hook::add('Dispatcher::dispatch', array($this, 'setupUserCommentsHandler'), Hook::SEQUENCE_LAST);	
+			Hook::add('Dispatcher::dispatch', array($this, 'setupUserCommentsHandler'), Hook::SEQUENCE_LAST);	
 
 			// add/inject new routes/endpoints to an existing collection/list of api end points
-			$this->addRoute();
+			// $this->addRoute(); // this is for 4.5 already
 
 			// Use a hook to add a menu item in the backend
 			Hook::add('TemplateManager::display', array($this, 'addMenuItem'), Hook::SEQUENCE_LAST);
@@ -74,6 +74,15 @@ class UserCommentsPlugin extends GenericPlugin {
 			Hook::add('Template::Settings::website', array($this, 'addWebsiteSettingsTab'), Hook::SEQUENCE_LAST);
 
             Hook::add('LoadHandler', $this->setPageHandler(...));
+
+            // This allows themes to override the plugins templates
+            $this->_registerTemplateResource();
+
+            // Add the custom style sheet
+            $request = Application::get()->getRequest();
+            $url = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
+            $templateMgr = TemplateManager::getManager($request);
+            $templateMgr->addStyleSheet('commentStyles', $url);        
 			
 		}
 
@@ -133,7 +142,7 @@ class UserCommentsPlugin extends GenericPlugin {
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');
 		$templateMgr->addJavaScript('comments', $jsUrl);
-		$templateMgr->addStyleSheet('comments', $cssUrl);		
+		$templateMgr->addStyleSheet('commentstyle', $cssUrl);		
 
 		$user = $request->getUser();
         $smarty = & $args[1];
@@ -143,8 +152,9 @@ class UserCommentsPlugin extends GenericPlugin {
 		// Insert the comment template
 		$smarty->assign([
 			'baseURL' => $request->getBaseURL(),
-			'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'submissions/usercomments/'),
-			'csrfToken' => $request->getSession()->token(),
+			// 'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'submissions/usercomments/'),
+            'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'userComments/'),
+			'csrfToken' => $request->getSession()->getCSRFToken(),
 			'apiKey' => $this->getSetting($request->getContext()->getId(), 'apiKey'),
 			'submissionId' => $publication->getData('submissionId'), 
 			'version' =>  $publication->getData('version'),
@@ -209,6 +219,7 @@ class UserCommentsPlugin extends GenericPlugin {
         }
 		
         $router->setHandler($handler);	
+        $handler->getApp()->run();	
         exit;
     }	
     /**

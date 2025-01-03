@@ -9,49 +9,56 @@ use PKP\handler\APIHandler;
 use PKP\core\PKPBaseController;
 use PKP\db\DAORegistry;
 use PKP\security\authorization\ContextAccessPolicy;
+use PKP\security\Role;
 use PKP\facades\Locale;
 use APP\plugins\generic\userComments\classes\UserCommentDAO;
+use APP\facades\Repo;
 
 
 class UserCommentsHandler extends APIHandler
 {
+    /**
+     * Constructor
+     */    
     public function __construct()
     {
         $this->_handlerPath = 'userComments';
-        $rolesComment = [ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_AUTHOR, ROLE_ID_READER];
-        $rolesEdit = [ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR];
-        $this->_endpoints = array(
-            'POST' => array(
-                array(
-                    'pattern' => $this->getEndpointPattern() . '/submitComment',
-                    'handler' => array($this, 'submitComment'),
+        $rolesComment = [Role::ROLE_ID_MANAGER, Role::ROLE_ID_SUB_EDITOR, Role::ROLE_ID_AUTHOR, Role::ROLE_ID_READER];
+        $rolesEdit = [Role::ROLE_ID_MANAGER, Role::ROLE_ID_SUB_EDITOR];
+        $this->_endpoints = [
+            'POST' => [
+                [
+                    'pattern' => $this->getEndpointPattern() . '/add',
+                    'handler' => [$this, 'submitComment'],
                     'roles' => $rolesComment
-                ),
-                array(
-                    'pattern' => $this->getEndpointPattern() . '/flagComment',
-                    'handler' => array($this, 'flagComment'),
+                ],
+                [
+                    'pattern' => $this->getEndpointPattern() . '/flag',
+                    'handler' => [$this, 'flagComment'],
                     'roles' => $rolesComment
-                ),      
-                array(
+                ],      
+                [
                     'pattern' => $this->getEndpointPattern() . '/edit',
-                    'handler' => array($this, 'setVisibility'),
+                    'handler' => [$this, 'setVisibility'],
                     'roles' => $rolesEdit
-                ),                               
-            ),
-            'GET' => array(
-                array(
+                ],                               
+            ],
+            'GET' => [
+                [
                     'pattern' => $this->getEndpointPattern() . '/getComment/{commentId}',
-                    'handler' => array($this, 'getComment'),
+                    'handler' => [$this, 'getComment'],
                     'roles' => $rolesComment
-                ),
-                array(
-                    'pattern' => $this->getEndpointPattern() . '/getCommentsByPublication/{publicationId}',
-                    'handler' => array($this, 'getCommentsByPublication')
-                ),                                
-            ),            
-        );
+                ],
+                [
+                    'pattern' => $this->getEndpointPattern() . '/getbypublication/{publicationId}',
+                    'handler' => [$this, 'getCommentsByPublication'],   
+                    'roles' => $rolesComment                    
+                ],                                
+            ],            
+        ];
 
-        // error_log($this->getEndpointPattern() . '/getCommentsByPublication/{publicationId}');
+        // error_log("UserCommentsHandler called: " . $this->getEndpointPattern()); // . '/getCommentsByPublication/{publicationId}');
+        parent::__construct();
         // parent::__construct($controller);
     }
 
@@ -93,13 +100,12 @@ class UserCommentsHandler extends APIHandler
         // $baseURL = $request->getBaseURL();
 
 		$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
-        $userDao = DAORegistry::getDAO('UserDAO'); 	
         $queryResults = $userCommentDao->getByPublicationId($publicationId);
 
         $userComments = ['none yet :/'];
 
         while ($userComment = $queryResults->next()) {  
-            $user = $userDao->getById($userComment->getUserId());
+            $user = Repo::user()->get((int) $userComment->getUserId());      
             $userComments[] = [
             'id' => $userComment->getId(),
             'publicationId' => $userComment->getPublicationId(),
@@ -120,12 +126,17 @@ class UserCommentsHandler extends APIHandler
             $userComments, 200);
     }      
 
-    public function submitComment($slimRequest, $response, $args)
+    /**
+     * @throws \Exception
+     */
+    public function submitComment(SlimRequest $slimRequest, APIResponse $response, array $args): \Slim\Http\Response
     {
         $request = APIHandler::getRequest();
         $requestParams = $slimRequest->getParsedBody();
         $currentUser = $request->getUser();
         $locale = Locale::getLocale();
+
+        error_log("submitComment called");
 
         // This probably is not neccessary
         // get submission values
@@ -182,9 +193,9 @@ class UserCommentsHandler extends APIHandler
         // $request, $submission, $eventType, $messageKey, $params = array()
         // CommentLog::logEvent($request, $commentId, COMMENT_POSTED, $msg, $logDetails);
 
-        return $response->withJson(
-            ['id' => 1,
-            'comment' => $userComment,
+        return $response->withJson([
+            'id' => $commentId,
+            'comment' => $commentText,
         ], 200);
     }
 

@@ -29,8 +29,20 @@ msgstr "What do you think about the article? <a href="{$loginPageUrl}" class="fo
 msgid "plugins.generic.userComments.submitComment"
 msgstr "Submit a Comment"
 
+msgid "plugins.generic.userComments.label"
+msgstr "Your comment:"
+
 msgid "plugins.generic.userComments.placeholder"
 msgstr "What do you think about the article? Type your comments here."
+
+msgid "plugins.generic.userComments.submit"
+msgstr "Submit"
+
+msgid "plugins.generic.userComments.reply"
+msgstr "Reply"
+
+msgid "plugins.generic.userComments.close"
+msgstr "Close"
 
 msgid "plugins.generic.userComments.success"
 msgstr "Comment Added"

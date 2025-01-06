@@ -3,16 +3,17 @@
     margin-left: 2rem;
 }
 
-.userComments {
+ul.userComments {
     display: inline;
     list-style: none outside;
     padding: 0;
     margin: 0;
+    line-height: 1.25rem;
 }
 
 .userComment {
     background-color: #f3f3f3;
-    padding: 0.5rem;
+    padding: 1.5rem;
     border-radius: 0.5rem;
     margin: 1rem 1rem 1rem 0;
 }
@@ -33,11 +34,16 @@
     text-align: left;
 }
  
+.secondary {
+    display: block;
+    color: #bbbbbb;
+}
+
 .commentTextArea {
     display: block;
     width: 100%;
     border: 1px solid gray;
-    border-radius: 0.5rem;
+    border-radius: 3px;
     padding: 0.5rem;
     margin: 1rem 1rem 1rem 0;      
 }
@@ -58,7 +64,7 @@
 
 .userCommentForm {
     border: 1px solid gray;
-    border-radius: 0.5rem;
+    border-radius: 3px;
     padding: 0.5rem;
     margin: 1rem 1rem 1rem 0;    
 }
@@ -67,4 +73,27 @@
     display: block;
     border: 1px solid gray;
     width: 100%;
+}
+
+.cmp_form .buttons button.submit {
+    cursor: pointer;
+}
+
+.buttons.linkbuttons {
+    /* border-top: 1px solid #006798; */
+    padding-top: 1.5rem;
+}
+
+.buttons a.linkbutton {
+    cursor: pointer;
+}
+
+.authorBlock {
+    padding-top: 1.5rem;
+}
+
+.authorName, .authorOrcid {
+    display: block;
+    color: inherit;
+    text-decoration: none;
 }

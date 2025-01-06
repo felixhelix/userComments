@@ -203,14 +203,15 @@ App.component('formButton', {
       default: null,
     }
   },
-  data() {
-    return {
-      buttonText:  (this.usercommentid === null ? "comment" : "reply") // use v-bind:id="userCommentFieldId"
-    }
-  }, 
-  template: `
-    <button @click="$parent.toggleComment()" class="rounded border p-1" v-text=buttonText />
-    `
+  // data() {
+  //   return {
+  //     buttonText:  (this.usercommentid === null ? "comment" : "reply") // use v-bind:id="userCommentFieldId"
+  //   }
+  // }, 
+  // template: `
+  //   <button @click="$parent.toggleComment()" class="rounded border p-1" v-text=buttonText />
+  //   `
+  template: '#userCommentsToggle'
   });
 
 App.mount('#commentsApp')

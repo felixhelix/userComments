@@ -51,10 +51,12 @@
                     <path fill-rule="evenodd" d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z" clip-rule="evenodd" />
                     </svg>
                 </div> 
+
             </div>                     
             <div class="authorBlock">
                 <span class="authorName">{{ userComment.userName }}</span>
                 <a class="authorOrcid" :href="userComment.userOrcid">{{ userComment.userOrcid }}</a>
+                <span class="authorAffiliation">{{ userComment.userAffiliation }}</span>
             </div>
             <form-container v-if="userComment.visible != '0'" :usercommentid=userComment.id></form-container>    
         </div>
@@ -66,8 +68,10 @@
 </template>
 
 <template id="userCommentsForm">
-<form @submit.prevent="$root.postData($parent, $event)" :data-usercommentid="usercommentid">
-    <label class="sr-only" for="commentTextArea">Your comment:</label>
+<form @submit.prevent="$root.postData($parent, $event)" 
+    :data-usercommentid="usercommentid"
+    class="cmp_form">
+    <label class="sr-only" for="commentTextArea">{translate key='plugins.generic.userComments.label'}</label>
     <textarea 
         type="text"
         name="commentText" 
@@ -75,7 +79,15 @@
         class="commentTextArea" 
         placeholder="{translate key='plugins.generic.userComments.placeholder'}"
         required></textarea>
-    <button type="submit" class="rounded-lg border-2 p-1 mr-2 bg-sky-500 text-white border-sky-200 hover:border-sky-700">Submit</button>
-    <button @click="$parent.toggleComment()" class="rounded border p-1 hover:border-black">close</button>
+    <div class="buttons">
+        <button type="submit" class="submit">{translate key='plugins.generic.userComments.submit'}</button>
+        <a v-if="this.usercommentid !== null" @click="$parent.toggleComment()" class="linkbutton">{translate key='plugins.generic.userComments.close'}</a>
+    </div>
 </form>
+</template>
+
+<template id="userCommentsToggle">
+<div class="buttons linkbuttons">
+    <a @click="$parent.toggleComment()" class="linkbutton">{translate key='plugins.generic.userComments.reply'}</a>
+</div>
 </template>

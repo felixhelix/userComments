@@ -1,3 +1,8 @@
+/* comments list */
+.replies {
+    margin-left: 2rem;
+}
+
 .userComments {
     display: inline;
     list-style: none outside;
@@ -6,15 +11,49 @@
 }
 
 .userComment {
-    background-color: lightgrey;
+    background-color: #f3f3f3;
     padding: 0.5rem;
     border-radius: 0.5rem;
     margin: 1rem 1rem 1rem 0;
 }
 
-.commentMeta {
+.commentBlock {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.commentBlock>div {
+    flex: 1;
+    text-align: right;
+}
+
+.commentBlock>div:first-child {
+    flex: 6;
+    text-align: left;
+}
+ 
+.commentTextArea {
     display: block;
-    font-weight: 600;
+    width: 100%;
+    border: 1px solid gray;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    margin: 1rem 1rem 1rem 0;      
+}
+
+.commentTextArea::placeholder {
+    color: gray;
+}
+
+.flagComment {
+    width: 20px;
+    height: 20px;
+}
+
+.secondary {
+    display: block;
+    color: #bbbbbb;
 }
 
 .userCommentForm {

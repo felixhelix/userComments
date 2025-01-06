@@ -78,11 +78,14 @@ class UserCommentsPlugin extends GenericPlugin {
             // This allows themes to override the plugins templates
             $this->_registerTemplateResource();
 
-            // Add the custom style sheet
+            // Add the custom style sheet and js
             $request = Application::get()->getRequest();
-            $url = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
             $templateMgr = TemplateManager::getManager($request);
-            $templateMgr->addStyleSheet('commentStyles', $url);        
+            $jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
+            $cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
+            $templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');
+            $templateMgr->addJavaScript('comments', $jsUrl);            
+            $templateMgr->addStyleSheet('comments', $cssUrl);                
 			
 		}
 
@@ -133,16 +136,8 @@ class UserCommentsPlugin extends GenericPlugin {
 	}
 
     public function addCommentBlock(string $hookName, array $args): bool {
-		// Add additional styles and scripts
-		// for the frontend publication details page 
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
-		$jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
-		$cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
-		$templateMgr = TemplateManager::getManager($request);
-		$templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');
-		$templateMgr->addJavaScript('comments', $jsUrl);
-		$templateMgr->addStyleSheet('commentstyle', $cssUrl);		
 
 		$user = $request->getUser();
         $smarty = & $args[1];
@@ -155,7 +150,7 @@ class UserCommentsPlugin extends GenericPlugin {
 			// 'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'submissions/usercomments/'),
             'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'userComments/'),
 			'csrfToken' => $request->getSession()->getCSRFToken(),
-			'apiKey' => $this->getSetting($request->getContext()->getId(), 'apiKey'),
+			'apiKey' => $this->getSetting($context->getId(), 'apiKey'),
 			'submissionId' => $publication->getData('submissionId'), 
 			'version' =>  $publication->getData('version'),
 			'foreignCommentId' => 1,

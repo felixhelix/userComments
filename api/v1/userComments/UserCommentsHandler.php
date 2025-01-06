@@ -248,7 +248,7 @@ class UserCommentsHandler extends APIHandler
         // CommentLog::logEvent($request, $userCommentId, COMMENT_FLAGGED, $msg, $logDetails);
 
         return $response->withJson(
-            ['id' => $commentId,
+            ['id' => $userCommentId,
             'comment' => 'comment was flagged',
         ], 200);
     }

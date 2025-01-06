@@ -128,7 +128,7 @@ App.component('userCommentsBlock', {
     }
   },
   methods: {
-    flagComment(userCommentId) {
+    flagComment(usercommentid) {
       if (confirm("Do you want to flag this post?") == true) {
         // Make a POST request to the API
         fetch(this.$root.apiURL + 'flag', {
@@ -138,7 +138,7 @@ App.component('userCommentsBlock', {
             'X-Csrf-Token': this.$root.csrfToken,          
           },
           body: JSON.stringify({
-            userCommentId: userCommentId,
+            usercommentid: usercommentid,
             publicationId: Number(this.$root.publicationId),
             completed: false
           }),
@@ -166,11 +166,11 @@ App.component('userCommentsBlock', {
 });
 
 App.component('formContainer', {
-  props: ['userCommentId'],
+  props: ['usercommentid'],
   data() {
     return {
       // If this is the root element, display the input form (commentForm), else display a toggle button (formButton)
-      commentAction:  (this.userCommentId == null ? 'commentForm' : 'formButton')
+      commentAction:  (this.usercommentid === null ? 'commentForm' : 'formButton')
     }
   },  
   methods: {
@@ -179,17 +179,17 @@ App.component('formContainer', {
     }
   },
   template: `
-    <div v-if="$root.user" :data-commentID=userCommentId>
-      <component :is="commentAction" :userCommentId></component>
+    <div v-if="$root.user" :data-commentID=usercommentid>
+      <component :is="commentAction" :usercommentid></component>
     </div>`
   });
   
 App.component('commentForm', {
   // display the input form
-  props: ['userCommentId'],
+  props: ['usercommentid'],
   data() {
     return {
-      userCommentFieldId:  ("userComment_" + this.userCommentId) // use v-bind:id="userCommentFieldId"
+      userCommentFieldId:  ("userComment_" + this.usercommentid) // use v-bind:id="userCommentFieldId"
     }
   }, 
   template: '#userCommentsForm'
@@ -197,10 +197,15 @@ App.component('commentForm', {
 
 App.component('formButton', {
   // display a toggle button
-  props: ['userCommentId'], 
+  props: {
+    usercommentid: {
+      type: [Number, null],
+      default: null,
+    }
+  },
   data() {
     return {
-      buttonText:  (this.userCommentId != null ? "reply" : "comment") // use v-bind:id="userCommentFieldId"
+      buttonText:  (this.usercommentid === null ? "comment" : "reply") // use v-bind:id="userCommentFieldId"
     }
   }, 
   template: `

@@ -20,14 +20,29 @@ msgstr "Allows registered users to comment on preprints."
 msgid "plugins.generic.userComments.descriptionLong"
 msgstr "Allows registered users to comment on preprints."
 
+msgid "plugins.generic.userComments.sectionheader"
+msgstr "Submit a comment"
+
 msgid "plugins.generic.userComments.loggedOut"
-msgstr "<a href="{$loginPageUrl}" class="font-semibold text-sky-500 hover:underline">Log in</a> to post your comment."
+msgstr "What do you think about the article? <a href="{$loginPageUrl}" class="font-semibold text-sky-500 hover:underline">Log in</a> to post your comment."
 
 msgid "plugins.generic.userComments.submitComment"
 msgstr "Submit a Comment"
 
+msgid "plugins.generic.userComments.placeholder"
+msgstr "What do you think about the article? Type your comments here."
+
 msgid "plugins.generic.userComments.success"
 msgstr "Comment Added"
+
+msgid "plugins.generic.userComments.flag"
+msgstr "flag this comment"
+
+msgid "plugins.generic.userComments.flagged"
+msgstr "comment has been flagged on {$flagdate}"
+
+msgid "plugins.generic.userComments.hidden"
+msgstr "This comment has been unpublished due to violation of our code of conduct."
 
 msgid "plugins.generic.userComments.apiKey"
 msgstr "API key used for displaying user comments to unauthenticated users."

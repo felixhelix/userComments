@@ -180,6 +180,8 @@ class UserCommentsHandler extends APIHandler
 
         // Insert the data object
         $commentId = $UserCommentDao->insertObject($UserComment);
+        // Get the comment entitty
+        $userComment = $UserCommentDao->getById($commentId);
 
         // Log the event in the event log related to the submission
 		$msg = 'comment.event.posted';
@@ -189,7 +191,8 @@ class UserCommentsHandler extends APIHandler
             'publicationId' => $publicationId,
             'commentId' => $commentId,
             'foreignCommentId' => $foreignCommentId,
-            'userId' => $currentUser->getId(),            
+            'userId' => $currentUser->getId(),       
+            'dateCreated' => $userComment->getDateCreated()     
         );
         // $request, $submission, $eventType, $messageKey, $params = array()
         // CommentLog::logEvent($request, $commentId, COMMENT_POSTED, $msg, $logDetails);
@@ -197,6 +200,10 @@ class UserCommentsHandler extends APIHandler
         return $response->withJson([
             'id' => $commentId,
             'comment' => $commentText,
+            'userName' => $currentUser->getFullName(),
+            'userOrcid' => $currentUser->getData('orcid'),
+            'userAffiliation' => $currentUser->getLocalizedAffiliation(),
+            'commentDate' => $userComment->getDateCreated(),
         ], 200);
     }
 

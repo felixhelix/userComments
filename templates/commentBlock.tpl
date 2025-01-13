@@ -1,7 +1,6 @@
 <section class="item">
-	<h2 class="font-semibold text-sky-500">Comments</h2>
-    <div class="text-sm" 
-    id="commentsApp" 
+	<h2>Comments</h2>
+    <div id="commentsApp" 
     data-baseUrl="{$baseURL}" 
     data-apiUrl="{$apiURL}" 
     data-user="{$userId}" 
@@ -18,14 +17,20 @@
         <span>{translate key='plugins.generic.userComments.loggedOut' loginPageUrl="login"}</span>
         {/if}
         </div>
-        <user-comments-block :user-comments="userComments"></user-comments-block>
+        <user-comments-block :user-comments="userComments" :usercommentid=null :comments-ref="commentsRef"></user-comments-block>
     </div>
 </section>
 
 <template id="userCommentsBlock">
-<ul data-title="userComments" class="userComments" v-if="userComments && userComments.length">
-    <li v-for="userComment in userComments" :key="userComment.id">
-        <div class="userComment" :id="userComment.id">
+<ul data-title="userComments" 
+    class="userComments" 
+    :id="`commentList${ usercommentid }`"
+    :ref="(el) => (commentsRef[`commentList${ usercommentid }`] = el)"
+    v-if="userComments && userComments.length">
+    <li v-for="userComment in userComments" 
+        :key="userComment.id"
+        :ref="`commentBlock${ usercommentid }`">
+        <div class="userComment" :id="`comment${ userComment.id }`" :ref="(el) => (commentsRef[userComment.id] = el)">
             <div class="commentBlock">
                 <div>
                     <template v-if="userComment.visible != '0'">
@@ -61,7 +66,10 @@
             <form-container v-if="userComment.visible != '0'" :usercommentid=userComment.id></form-container>    
         </div>
         <div class="replies" v-if="userComment.children && userComment.children.length">
-            <user-comments-block :user-comments="userComment.children"></user-comments-block>
+            <user-comments-block 
+                :user-comments="userComment.children" 
+                :usercommentid=userComment.id
+                :comments-ref="commentsRef"></user-comments-block>
         </div>
   </li>
 </ul>

@@ -12,7 +12,8 @@ const App = Vue.createApp({
     publicationId: '',
     csrfToken: '',
     foreignCommentId: null,
-    commentAction: 'formButton'
+    commentAction: 'formButton',
+    commentsRef: Vue.ref({})
     }
   },
   mounted() {     
@@ -27,7 +28,7 @@ const App = Vue.createApp({
     this.fetchData();
   },
   methods: {
-    fetchData() {
+    fetchData(callback = null) {
       this.baseURL = document.getElementById('commentsApp').dataset.baseurl;
       this.apiURL = document.getElementById('commentsApp').dataset.apiurl;
       this.publicationId = document.getElementById('commentsApp').dataset.publicationid;
@@ -40,7 +41,8 @@ const App = Vue.createApp({
       fetch(this.apiURL + 'getbypublication/' +  this.publicationId + "?" + new URLSearchParams({'apiToken': this.apiKey}))
         .then(response => response.json())
         .then(data => {
-          // Set the fetched data to the component state
+          // Set the fetched data to the component state:
+          // Since the list is bound, vue updates the display as well
           this.userComments = this.buildTree(data).children;
           this.dataFetched = true;
           // Clear the input fields
@@ -49,10 +51,14 @@ const App = Vue.createApp({
         .catch(error => {
           console.error('Error fetching data:', error);
         });
+        if (callback) {
+          Vue.nextTick(callback());
+        }
     },
     postData(parentComponent, submitEvent) {
       // get the form value
       commentTextField =  submitEvent.target[name = 'commentText'];
+      foreignCommentId = submitEvent.target.dataset.usercommentid ? Number(submitEvent.target.dataset.usercommentid) : null
       // Make a POST request to the API
       fetch(this.$root.apiURL + 'add', {
         method: 'POST',
@@ -64,7 +70,7 @@ const App = Vue.createApp({
           commentText: commentTextField.value,
           publicationId: this.publicationId,
           submissionId: this.submissionId,
-          foreignCommentId: submitEvent.target.dataset.usercommentid ? submitEvent.target.dataset.usercommentid : null,
+          foreignCommentId: foreignCommentId,
           completed: false
         }),
       })
@@ -72,19 +78,54 @@ const App = Vue.createApp({
         .then(data => {
           // Handle the response if needed
           console.log('Data posted successfully:', data);
-          // Fetch data again to update the displayed list
-          this.fetchData();
-          // close the comment field
-          parentComponent.toggleComment();
+          // OBSOLETE: Fetch data again to update the displayed list 
+          // this.fetchData();
+          // Add new comment to list
+          newComment = {"id":data.id,
+            "foreignCommentId":foreignCommentId,
+            "userName":data.userName,
+            "userOrcid":data.userOrcid,
+            "userAffiliation":data.userAffiliation,
+            "commentDate":data.commentDate,
+            "commentText":commentTextField.value,
+            "flaggedDate":null,
+            "flagged":0,
+            "visible":1,
+            "children":Array()};
+          if (foreignCommentId == null) {
+            this.userComments.push(newComment);
+          } else {
+            //parentComment = this.userComments.flat(Infinity).find((element) => element.id == foreignCommentId);
+            parentComment = this.searchTree(this.userComments, foreignCommentId)
+            console.log(parentComment);
+            parentComment.children.push(newComment);
+          }
+          // close the comment field if this is a reply
+          if (foreignCommentId !== null) {
+            parentComponent.toggleComment();
+          } else {
+            // just clear the textfield
+            commentTextField.value = "";
+          }
+          // Vue.nextTick(this.highlightNewElement.bind(null, data.id));
         })
         .catch(error => {
           console.error('Error posting data:', error);
         });
     },
+    searchTree(elements, id) {
+      found = null;
+      elements.forEach((element) => {   
+        if (Number(element.id) == Number(id)) { 
+          found = element; } 
+        else {found =  this.searchTree(element.children, id)}
+      });
+      return found; 
+    },
     buildTree(nodes) {
       tree = {
         id: null,
-        children: []
+        children: Array()
       };
       for (const item of nodes) 
         {
@@ -96,16 +137,16 @@ const App = Vue.createApp({
         }
         return tree;
     },
-    returnChildnodes(item, nodes, childnodes = []) 
+    returnChildnodes(item, nodes, childnodes = Array()) 
     {   
-        var childnodes_ = nodes.filter((node) => node.foreignCommentId == item.id );
-        if (childnodes_.length == 0) { return item }
-        else {
-            childnodes = [];        
-            for (const childnode of childnodes_) {
-                childnodes.push(this.returnChildnodes(childnode, nodes, childnodes));
-            }
-        };
+        // item is a comment node
+        // nodes is a flat array of all comments
+        // childnodes are nodes for which foreignCommentId == item.id 
+        console.log(item.id);
+        childnodes_ = nodes.filter((node) => node.foreignCommentId == item.id );
+        for (childnode of childnodes_) {
+          childnodes.push(this.returnChildnodes(childnode, nodes));
+        }
         return {id: item.id, 
           foreignCommentId: item.foreignCommentId, 
           userName: item.userName, 
@@ -121,7 +162,9 @@ const App = Vue.createApp({
 });
 
 App.component('userCommentsBlock', {
-  props: ['userComments'],
+  // This displays the comment text, meta data, flag or flagging button,
+  // and is a container for either the form or the toggle button and replies
+  props: ['userComments','usercommentid','commentsRef'],
   data() {
     return {
       commentAction: 'formButton'
@@ -166,6 +209,8 @@ App.component('userCommentsBlock', {
 });
 
 App.component('formContainer', {
+  // this is a placeholder for either the form for or the toggle button
+  // only visible if the parent comment is not disabled
   props: ['usercommentid'],
   data() {
     return {

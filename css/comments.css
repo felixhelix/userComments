@@ -1,4 +1,10 @@
 /* comments list */
+
+@keyframes blink {
+    0%, 100% {opacity: 1;}
+    50% {opacity: 0;}
+  }
+
 .replies {
     margin-left: 2rem;
 }
@@ -36,16 +42,18 @@ ul.userComments {
  
 .secondary {
     display: block;
-    color: #bbbbbb;
+    color: gray;
 }
 
-.commentTextArea {
+.cmp_form .commentTextArea {
     display: block;
     width: 100%;
     border: 1px solid gray;
     border-radius: 3px;
     padding: 0.5rem;
-    margin: 1rem 1rem 1rem 0;      
+    margin: 1rem 1rem 1rem 0;    
+    line-height: 1.25rem;  
+    color: gray;
 }
 
 .commentTextArea::placeholder {
@@ -55,11 +63,6 @@ ul.userComments {
 .flagComment {
     width: 20px;
     height: 20px;
-}
-
-.secondary {
-    display: block;
-    color: #bbbbbb;
 }
 
 .userCommentForm {
@@ -79,6 +82,10 @@ ul.userComments {
     cursor: pointer;
 }
 
+.cmp_form .buttons button.submit:active {
+    box-shadow: inset 0 -1em 1em rgba(0,0,0,0.2);
+}
+
 .buttons.linkbuttons {
     /* border-top: 1px solid #006798; */
     padding-top: 1.5rem;
@@ -90,10 +97,15 @@ ul.userComments {
 
 .authorBlock {
     padding-top: 1.5rem;
+    color: gray;
 }
 
 .authorName, .authorOrcid {
     display: block;
     color: inherit;
     text-decoration: none;
+}
+
+.highlight {
+    animation: blink 1s linear infinite;
 }

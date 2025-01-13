@@ -81,9 +81,11 @@ class UserCommentsPlugin extends GenericPlugin {
             // Add the custom style sheet and js
             $request = Application::get()->getRequest();
             $templateMgr = TemplateManager::getManager($request);
+            $jsImportsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/imports.js';            
             $jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
             $cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
             $templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');
+            //$templateMgr->addJavaScript('imports', $jsUrl);                  
             $templateMgr->addJavaScript('comments', $jsUrl);            
             $templateMgr->addStyleSheet('comments', $cssUrl);                
 			

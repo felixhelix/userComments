@@ -95,9 +95,7 @@ const App = Vue.createApp({
           if (foreignCommentId == null) {
             this.userComments.push(newComment);
           } else {
-            //parentComment = this.userComments.flat(Infinity).find((element) => element.id == foreignCommentId);
             parentComment = this.searchTree(this.userComments, foreignCommentId)
-            console.log(parentComment);
             parentComment.children.push(newComment);
           }
           // close the comment field if this is a reply
@@ -116,9 +114,13 @@ const App = Vue.createApp({
     searchTree(elements, id) {
       found = null;
       elements.forEach((element) => {   
+        if (found != null) { return found }
         if (Number(element.id) == Number(id)) { 
-          found = element; } 
-        else {found =  this.searchTree(element.children, id)}
+          found = element;
+        } 
+        else {
+          found = this.searchTree(element.children, id)
+        }
       });
       return found; 
     },
@@ -131,7 +133,6 @@ const App = Vue.createApp({
         {
             if (item.foreignCommentId === null) {
                 // we only need the top level nodes
-                // console.log("root: " + item.id);    
                 tree.children.push(this.returnChildnodes(item, nodes));
             }
         }
@@ -142,7 +143,6 @@ const App = Vue.createApp({
         // item is a comment node
         // nodes is a flat array of all comments
         // childnodes are nodes for which foreignCommentId == item.id 
-        console.log(item.id);
         childnodes_ = nodes.filter((node) => node.foreignCommentId == item.id );
         for (childnode of childnodes_) {
           childnodes.push(this.returnChildnodes(childnode, nodes));
@@ -181,7 +181,7 @@ App.component('userCommentsBlock', {
             'X-Csrf-Token': this.$root.csrfToken,          
           },
           body: JSON.stringify({
-            usercommentid: usercommentid,
+            userCommentId: usercommentid,
             publicationId: Number(this.$root.publicationId),
             completed: false
           }),
@@ -191,7 +191,11 @@ App.component('userCommentsBlock', {
             // Handle the response if needed
             console.log('Data posted successfully:', data);
             // Fetch data again to update the displayed list
-            this.$root.fetchData();
+            // this.$root.fetchData();
+            // Find the comment and apply the flag
+            flaggedComment = this.$root.searchTree(this.userComments, data.id);
+            flaggedComment.flagged = true;
+            flaggedComment.flaggedDate = data.date;
           })
           .catch(error => {
             console.error('Error posting data:', error);

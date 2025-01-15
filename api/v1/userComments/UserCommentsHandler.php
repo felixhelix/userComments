@@ -258,6 +258,7 @@ class UserCommentsHandler extends APIHandler
         return $response->withJson(
             ['id' => $userCommentId,
             'comment' => 'comment was flagged',
+            'date' => $userComment->getDateFlagged()->format('Y-m-d H:i:s'),
         ], 200);
     }
 

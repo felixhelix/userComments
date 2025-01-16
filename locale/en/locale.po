@@ -42,13 +42,16 @@ msgid "plugins.generic.userComments.reply"
 msgstr "Reply"
 
 msgid "plugins.generic.userComments.close"
-msgstr "Close"
+msgstr "Cancel"
 
 msgid "plugins.generic.userComments.success"
 msgstr "Comment Added"
 
 msgid "plugins.generic.userComments.flag"
 msgstr "flag this comment"
+
+msgid "plugins.generic.flagText.placeholder"
+msgstr "Why do you flag this comment? Please help us by providing a short reasoning."
 
 msgid "plugins.generic.userComments.flagged"
 msgstr "comment has been flagged on {$flagdate}"

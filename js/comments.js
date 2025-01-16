@@ -90,6 +90,7 @@ const App = Vue.createApp({
             "commentText":commentTextField.value,
             "flaggedDate":null,
             "flagged":0,
+            "showFlagForm": false,
             "visible":1,
             "children":Array()};
           if (foreignCommentId == null) {
@@ -167,49 +168,58 @@ App.component('userCommentsBlock', {
   props: ['userComments','usercommentid','commentsRef'],
   data() {
     return {
-      commentAction: 'formButton'
+      commentAction: 'formButton',
+      editComment: false,
     }
   },
   methods: {
-    flagComment(usercommentid) {
-      if (confirm("Do you want to flag this post?") == true) {
-        // Make a POST request to the API
-        fetch(this.$root.apiURL + 'flag', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Csrf-Token': this.$root.csrfToken,          
-          },
-          body: JSON.stringify({
-            userCommentId: usercommentid,
-            publicationId: Number(this.$root.publicationId),
-            completed: false
-          }),
-        })
-          .then(response => response.json())
-          .then(data => {
-            // Handle the response if needed
-            console.log('Data posted successfully:', data);
-            // Fetch data again to update the displayed list
-            // this.$root.fetchData();
-            // Find the comment and apply the flag
-            flaggedComment = this.$root.searchTree(this.userComments, data.id);
-            flaggedComment.flagged = true;
-            flaggedComment.flaggedDate = data.date;
-          })
-          .catch(error => {
-            console.error('Error posting data:', error);
-          });      
-      }
-    }, 
     toggleComment() {
-      this.commentAction = (this.commentAction == 'formButton' ? 'commentForm' : 'formButton');
+      this.commentAction = (this.commentAction == 'formButton' ? 'userCommentForm' : 'formButton');
     },
-    confirmFlagging() {
-
-    }
   },
   template: '#userCommentsBlock'
+});
+
+App.component('flagModal', {
+  props: ['usercommentid', 'usercomment'],  
+  methods: {
+    cancelflag() {
+      this.usercomment.showFlagForm = false;
+    }, 
+    submitflag(parentComponent, submitEvent) {
+      // get the form value
+      flagTextField =  submitEvent.target[name = 'flagtext'];
+      userCommentId = submitEvent.target.dataset.usercommentid ? Number(submitEvent.target.dataset.usercommentid) : null      
+      // Make a POST request to the API
+      fetch(this.$root.apiURL + 'flag', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Csrf-Token': this.$root.csrfToken,          
+        },
+        body: JSON.stringify({
+          userCommentId: userCommentId,
+          publicationId: Number(this.$root.publicationId),
+          flagText: flagTextField.value,
+          completed: false
+        }),
+      })
+        .then(this.cancelflag())
+        .then(response => response.json())
+        .then(data => {
+          // Handle the response if needed
+          console.log('Comment flagged successfully:', data);
+          // Find the comment and apply the flag
+          flaggedComment = this.$root.searchTree(this.$root.userComments, data.id);
+          flaggedComment.flagged = true;
+          flaggedComment.flaggedDate = data.date;
+        })
+        .catch(error => {
+          console.error('Error posting data:', error);
+        });      
+    },
+  },        
+  template: '#flagModal'
 });
 
 App.component('formContainer', {
@@ -219,12 +229,12 @@ App.component('formContainer', {
   data() {
     return {
       // If this is the root element, display the input form (commentForm), else display a toggle button (formButton)
-      commentAction:  (this.usercommentid === null ? 'commentForm' : 'formButton')
+      commentAction:  (this.usercommentid === null ? 'userCommentForm' : 'formButton')
     }
   },  
   methods: {
     toggleComment() {
-      this.commentAction = (this.commentAction == 'formButton' ? 'commentForm' : 'formButton');
+      this.commentAction = (this.commentAction == 'formButton' ? 'userCommentForm' : 'formButton');
     }
   },
   template: `
@@ -233,7 +243,7 @@ App.component('formContainer', {
     </div>`
   });
   
-App.component('commentForm', {
+App.component('userCommentForm', {
   // display the input form
   props: ['usercommentid'],
   data() {
@@ -241,7 +251,7 @@ App.component('commentForm', {
       userCommentFieldId:  ("userComment_" + this.usercommentid) // use v-bind:id="userCommentFieldId"
     }
   }, 
-  template: '#userCommentsForm'
+  template: '#userCommentForm'
 });
 
 App.component('formButton', {
@@ -264,3 +274,12 @@ App.component('formButton', {
   });
 
 App.mount('#commentsApp')
+
+// Register a global custom directive called `v-focus`
+App.directive('focus', (el, binding) => {
+  // When the bound element is mounted into the DOM...
+  // Focus the element
+  if (binding.value != null) {
+    el.focus();
+  };
+})

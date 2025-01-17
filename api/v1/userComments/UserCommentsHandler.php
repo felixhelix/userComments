@@ -2,15 +2,18 @@
 
 namespace APP\plugins\generic\userComments\api\v1\userComments;
 
-use PKP\core\APIResponse;
 use Slim\Http\Request as SlimRequest;
-use PKP\handler\APIHandler;
-
+use PKP\core\Core;
+use PKP\core\APIResponse;
 use PKP\core\PKPBaseController;
+use PKP\handler\APIHandler;
 use PKP\db\DAORegistry;
 use PKP\security\authorization\ContextAccessPolicy;
 use PKP\security\Role;
+use PKP\security\Validation;
 use PKP\facades\Locale;
+use PKP\log\event\EventLogEntry;
+use APP\core\Application;
 use APP\plugins\generic\userComments\classes\UserCommentDAO;
 use APP\facades\Repo;
 
@@ -187,15 +190,26 @@ class UserCommentsHandler extends APIHandler
 		$msg = 'comment.event.posted';
         // import('plugins.generic.userComments.classes.log.CommentLog');
         // import('plugins.generic.userComments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
-        $logDetails = array(
-            'publicationId' => $publicationId,
-            'commentId' => $commentId,
-            'foreignCommentId' => $foreignCommentId,
-            'userId' => $currentUser->getId(),       
-            'dateCreated' => $userComment->getDateCreated()     
-        );
+        // $logDetails = array(
+        //     'publicationId' => $publicationId,
+        //     'commentId' => $commentId,
+        //     'foreignCommentId' => $foreignCommentId,
+        //     'userId' => $currentUser->getId(),       
+        //     'dateCreated' => $userComment->getDateCreated()     
+        // );
         // $request, $submission, $eventType, $messageKey, $params = array()
         // CommentLog::logEvent($request, $commentId, COMMENT_POSTED, $msg, $logDetails);
+
+        $eventLog = Repo::eventLog()->newDataObject([
+            'assocType' => Application::ASSOC_TYPE_SUBMISSION,
+            'assocId' => $submissionId,
+            'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
+            'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
+            'message' => $msg,
+            'isTranslated' => false,
+            'dateLogged' => Core::getCurrentDate()
+        ]);
+        Repo::eventLog()->add($eventLog);        
 
         return $response->withJson([
             'id' => $commentId,
@@ -249,13 +263,24 @@ class UserCommentsHandler extends APIHandler
 		$msg = 'comment.event.flagged';
         // import('plugins.generic.userComments.classes.log.CommentLog');
         // import('plugins.generic.userComments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
-        $logDetails = array(
-            'publicationId' => $publicationId,
-            'commentId' => $userCommentId,
-            'userId' => $currentUser->getId(),            
-        );
+        // $logDetails = array(
+        //     'publicationId' => $publicationId,
+        //     'commentId' => $userCommentId,
+        //     'userId' => $currentUser->getId(),            
+        // );
         // $request, $submission, $eventType, $messageKey, $params = array()
         // CommentLog::logEvent($request, $userCommentId, COMMENT_FLAGGED, $msg, $logDetails);
+
+        $eventLog = Repo::eventLog()->newDataObject([
+            'assocType' => Application::ASSOC_TYPE_SUBMISSION,
+            'assocId' => $submissionId,
+            'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
+            'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
+            'message' => $msg,
+            'isTranslated' => false,
+            'dateLogged' => Core::getCurrentDate()
+        ]);
+        Repo::eventLog()->add($eventLog);             
 
         return $response->withJson(
             ['id' => $userCommentId,
@@ -311,14 +336,25 @@ class UserCommentsHandler extends APIHandler
 
         // Log the event
         // Some log details are redundant, but since I'm unsure about the validity of ASSOC_TYPE I will maintain these for now 
-        $logDetails = array(
-            'publicationId' => $publicationId,
-            'commentId' => $userCommentId,
-            'userId' => $currentUser->getId(),
-        );
+        // $logDetails = array(
+        //     'publicationId' => $publicationId,
+        //     'commentId' => $userCommentId,
+        //     'userId' => $currentUser->getId(),
+        // );
         // $request, $commentId, $eventType, $messageKey, $params = array()
         // CommentLog::logEvent($request, $userCommentId, $messageKey, $msg, $logDetails);
 
+        $eventLog = Repo::eventLog()->newDataObject([
+            'assocType' => Application::ASSOC_TYPE_SUBMISSION,
+            'assocId' => $submissionId,
+            'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
+            'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
+            'message' => $msg,
+            'isTranslated' => false,
+            'dateLogged' => Core::getCurrentDate()
+        ]);
+        Repo::eventLog()->add($eventLog); 
+        
         return $response->withJson(
             ['id' => $userCommentId,
             'comment' => 'comment visibilty was changed',

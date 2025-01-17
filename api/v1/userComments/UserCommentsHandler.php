@@ -216,6 +216,7 @@ class UserCommentsHandler extends APIHandler
 
         $userCommentId = $requestParams['userCommentId'];
         $publicationId = $requestParams['publicationId'];
+        $flagText = $requestParams['flagText'];
         // Validate input
         if ( gettype($userCommentId) != 'integer') {
             return $response->withJson(
@@ -240,6 +241,7 @@ class UserCommentsHandler extends APIHandler
         $userComment->setFlagged(true);
         $userComment->setDateFlagged(Now());
         $userComment->setFlaggedBy($currentUser->getId());
+        $userComment->setData('flagText', $flagText);
         $UserCommentDao->updateObject($userComment);        
 
         // Log the event

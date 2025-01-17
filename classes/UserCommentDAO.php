@@ -238,7 +238,7 @@ class UserCommentDAO extends DAO {
 	 * @return array
 	 */
 	function getAdditionalFieldNames(): array {
-		return array('commentText','flaggedBy');
+		return array('commentText','flaggedBy','flagText');
 	}
 
 	/**

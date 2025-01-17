@@ -24,6 +24,7 @@ use APP\plugins\generic\userComments\UserCommentsPlugin;
 use PKP\core\PKPApplication;
 use PKP\db\DAORegistry;
 use PKP\plugins\PluginRegistry;
+use PKP\security\Role;
 use PKP\security\authorization\PolicySet;
 use PKP\security\authorization\RoleBasedHandlerOperationPolicy;
 
@@ -42,7 +43,7 @@ class flaggedCommentsHandler extends Handler {
 		$this->plugin = $plugin;
 
 		$this->addRoleAssignment(
-			[ROLE_ID_MANAGER],
+			[Role::ROLE_ID_MANAGER],
 			['index','edit']
 		);		
 		
@@ -78,7 +79,6 @@ class flaggedCommentsHandler extends Handler {
 	public function index($args, $request) 
     {
 		$this->setupTemplate($request);
-		// $plugin = PluginRegistry::getPlugin('generic', 'UserCommentsPlugin');		
 		$templateMgr = TemplateManager::getManager($request);
 
 		switch (array_pop($args)) {
@@ -98,19 +98,18 @@ class flaggedCommentsHandler extends Handler {
 		}
 	}  
 
+	/**
+	 * 	Return an array of all flagged comments
+	 */
 	public function getFlaggedComments()
 	{
 		$request = PKPApplication::get()->getRequest();
 		$context = $request->getContext();
 
 		$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
-        // $userDao = DAORegistry::getDAO('UserDAO'); 
-		// $userDao = new DAO;	
-
         $queryResults = $userCommentDao->getFlagged($context->getId());
-		// $userComments = $queryResults->toArray();
 
-        $userComments = [];
+		$userComments = [];
 
         while ($userComment = $queryResults->next()) {  
             $user = Repo::user()->get($userComment->getUserId());
@@ -131,9 +130,11 @@ class flaggedCommentsHandler extends Handler {
         };
 
 		return $userComments;
-		// var_dump("getFlaggedComments: " . json_encode($userComments));
 	}
 
+	/**
+	 * return a single comment entity by id
+	 */
 	public function getComment($commentId)
 	{
 		$request = PKPApplication::get()->getRequest();
@@ -145,11 +146,14 @@ class flaggedCommentsHandler extends Handler {
 		return $userComment;
 	}
 
+	/**
+	 * Display a form to edit flagged comments
+	 */
 	public function edit($args, $request) {
 		$this->setupTemplate($request);
 		$context = $request->getContext();
 		$plugin = PluginRegistry::getPlugin('generic', 'UserCommentsPlugin');
-		$templateMgr = TemplateManager::getManager();
+		$templateMgr = TemplateManager::getManager($request);
 
 		// Get the userComment entity
 		$commentId = array_pop($args);
@@ -162,39 +166,9 @@ class flaggedCommentsHandler extends Handler {
 		$flaggedByUser = Repo::user()->get($userComment->getFlaggedBy());
 
 		// The list of flagged comments URL
-		$commentsListUrl = $request->getRouter()->url($request, null, 'flaggedComments');		
+		$commentsListUrl = $request->getRouter()->url($request, null, 'management','settings','website', null, 'flaggedUserComments');		
 
-		// Create an instance of the comment form
-		// $plugin->import('UserCommentForm');
-		$props = array(
-			'$commentsListUrl' => $commentsListUrl,
-			'$commentId' => $commentId,
-            '$submissionId' => $userComment->getSubmissionId(),
-			'$publicationId' => $userComment->getPublicationId(),
-            '$foreignCommentId' => $userComment->getForeignCommentId(),
-            '$userName' => $user->getFullName(),
-			'$userEmail' => $user->getEmail(),
-            '$commentDate' =>$userComment->getDateCreated(),
-            '$commentText' => $userComment->getCommentText(),
-            '$flaggedDate' => $userComment->getDateFlagged(),
-			'$flagged' => $userComment->getFlagged(),
-            '$visible' => $userComment->getVisible()
-		);
-
-		error_log(json_encode($props));
-
-		// The URL where the form will be submitted		
-		$dispatcher = $request->getDispatcher();
-		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'submissions/usercomments/edit');
-
-		// $actionNames = array(
-		// 	'toggleVisibility' => 'Toggle visibility',
-		// 	'unFlag' => 'Un-flag comment',
-		// );
-
-		$form = new UserCommentForm($apiUrl, $request, $props); // the parameters for the __construct function are variable
-		//  Compile all of the required props and pass them to the template’s component state
-		$templateMgr = TemplateManager::getManager($request);
+		// Assign the values to be displayed on the edit page
 		$templateMgr->assign([
 			'plugin' => $plugin,
 			'pageTitle' => __('plugins.generic.userComments.editFlaggedComments'),
@@ -211,16 +185,40 @@ class flaggedCommentsHandler extends Handler {
             'commentText' => $userComment->getCommentText(),
             'flaggedDate' => $userComment->getDateFlagged(),
 			'flagged' => $userComment->getFlagged(),
-			'flaggedByUser' => $flaggedByUser->getFullName(),			
+			'flaggedByUser' => $flaggedByUser->getFullName(),	
+			'flagText' => $userComment->getFlagText(),					
 		]);
+
+		// Create an instance of the comment form
+		$props = array(
+			'$commentsListUrl' => $commentsListUrl,
+			'$commentId' => $commentId,
+            '$submissionId' => $userComment->getSubmissionId(),
+			'$publicationId' => $userComment->getPublicationId(),
+            '$foreignCommentId' => $userComment->getForeignCommentId(),
+            '$userName' => $user->getFullName(),
+			'$userEmail' => $user->getEmail(),
+            '$commentDate' =>$userComment->getDateCreated(),
+            '$commentText' => $userComment->getCommentText(),
+            '$flaggedDate' => $userComment->getDateFlagged(),
+			'$flagged' => $userComment->getFlagged(),
+			'$flagText' => $userComment->getFlagText(),				
+            '$visible' => $userComment->getVisible()
+		);
+		// The URL where the form will be submitted		
+		$dispatcher = $request->getDispatcher();
+		// new for 3.5
+		// $apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'submissions/usercomments/edit');
+		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'userComments/edit');
+		$form = new UserCommentForm($apiUrl, $request, $props); // the parameters for the __construct function are variable
+		//  Compile all of the required props and pass them to the template’s component state
 		$templateMgr->setState([
 			'components' => [
 				FORM_USER_COMMENT => $form->getConfig(),
 			],
 		]);
-		error_log("Template: " . $plugin->getTemplateResource('userCommentForm.tpl'));
-		return $templateMgr->display($plugin->getTemplateResource('userCommentForm.tpl'));				
 
+		return $templateMgr->display($plugin->getTemplateResource('userCommentForm.tpl'));				
 	}	
 
 

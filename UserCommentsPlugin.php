@@ -17,26 +17,27 @@ namespace APP\plugins\generic\userComments;
 
 use Illuminate\Database\Migrations\Migration;
 
-use APP\core\Application;
+use Illuminate\Http\Request as IlluminateRequest;
+use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
+
+use PKP\security\Role;
 use PKP\core\JSONMessage;
 use PKP\core\PKPBaseController;
-use APP\template\TemplateManager;
-use APP\facades\Repo;
+use PKP\core\PKPApplication;
 use PKP\db\DAORegistry;
 use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
+use PKP\handler\APIHandler;
+
+use APP\core\Application;
+use APP\template\TemplateManager;
+use APP\facades\Repo;
 
 use APP\plugins\generic\userComments\pages\FlaggedCommentsHandler;
-
-use PKP\handler\APIHandler;
 use APP\plugins\generic\userComments\api\v1\submissions\PKPOverriddenSubmissionController;
-use Illuminate\Http\Request as IlluminateRequest;
-use Illuminate\Http\Response;
-use Illuminate\Http\JsonResponse;
-use PKP\security\Role;
-
 use APP\plugins\generic\userComments\CommentsSchemaMigration;
 use APP\plugins\generic\userComments\classes\UserCommentDAO;
 use APP\plugins\generic\userComments\classes\Settings\Actions;
@@ -69,7 +70,7 @@ class UserCommentsPlugin extends GenericPlugin {
 			// $this->addRoute(); // this is for 4.5 already
 
 			// Use a hook to add a menu item in the backend
-			Hook::add('TemplateManager::display', array($this, 'addMenuItem'), Hook::SEQUENCE_LAST);
+			// Hook::add('TemplateManager::display', array($this, 'addMenuItem'), Hook::SEQUENCE_LAST);
 
 			Hook::add('Template::Settings::website', array($this, 'addWebsiteSettingsTab'), Hook::SEQUENCE_LAST);
 
@@ -277,9 +278,16 @@ class UserCommentsPlugin extends GenericPlugin {
 	}	
 
 	public function addWebsiteSettingsTab($hookName, $params) {
-		// alternatively show the link on the admin page
-		echo('<tab id="flaggedUserComments" label="Flagged Comments">Flagged Comments</tab>');
-		return false;
+		// alternatively show the link on the admin 
+        $request = Application::get()->getRequest();
+        $templateMgr = TemplateManager::getManager($request);        
+        $flaggedComments = $this->getFlaggedComments();
+        $templateMgr->assign([
+            'items' => $flaggedComments,
+        ]);
+        return $templateMgr->display($this->getTemplateResource('listFlaggedComments.tpl'));				
+		// echo('<tab id="flaggedUserComments" label="Flagged Comments">Flagged Comments</tab>');
+		// return false;
 	}	
 
     public function setPageHandler(string $hookName, array $params): bool
@@ -303,6 +311,42 @@ class UserCommentsPlugin extends GenericPlugin {
 	// 	}
 	// 	return false;
 	// }	
+
+	public function getFlaggedComments()
+	{
+		$request = PKPApplication::get()->getRequest();
+		$context = $request->getContext();
+
+		$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
+        // $userDao = DAORegistry::getDAO('UserDAO'); 
+		// $userDao = new DAO;	
+
+        $queryResults = $userCommentDao->getFlagged($context->getId());
+		// $userComments = $queryResults->toArray();
+
+        $userComments = [];
+
+        while ($userComment = $queryResults->next()) {  
+            $user = Repo::user()->get($userComment->getUserId());
+            $userComments[] = [
+            'id' => $userComment->getId(),
+            'submissionId' => $userComment->getSubmissionId(),
+			'publicationId' => $userComment->getPublicationId(),			
+			'publicationVersion' => $userComment->getPublicationVersion(),						
+            'foreignCommentId' => $userComment->getForeignCommentId(),
+            'userName' => $user->getFullName(),
+			'userEmail' => $user->getEmail(),
+            'commentDate' =>$userComment->getDateCreated(),
+            'commentText' => $userComment->getCommentText(),
+            'flaggedDate' => $userComment->getDateFlagged(),
+            'visible' => $userComment->getVisible(),
+			'commentUrl' => $request->getRouter()->url($request, null, 'flaggedComments', 'edit', array($userComment->getId())),
+            ];
+        };
+
+		return $userComments;
+		// var_dump("getFlaggedComments: " . json_encode($userComments));
+	}    
 
 }
 

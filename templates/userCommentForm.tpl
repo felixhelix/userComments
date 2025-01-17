@@ -6,13 +6,17 @@
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * Template for editing flagged comments
+ * Holds the form component
  *}
 {extends file="layouts/backend.tpl"}
 
 {block name="page"}
 <div class="pkpFormGroup">
-	<div class="pkpNotification pkpNotification--warning">Flagged {{$flaggedDate|date_format:$datetimeFormatLong}} by {{$flaggedByUser}}</div>
-	<div style="background-color: white; margin-top: 1rem; padding: 0.5rem; border-radius: 0.5rem;">
+	<div class="pkpNotification pkpNotification--warning">Flagged {{$flaggedDate|date_format:$datetimeFormatLong}} by {{$flaggedByUser}}
+	<span style="display: block">Reason given: {{$flagText}}</span>
+	</div>
+	<div style="margin-top: 1rem;">Comment Text:</div>
+	<div style="background-color: white; padding: 0.5rem; border-radius: 0.5rem;">
 		{{$commentText}}
 	</div>
 	<div>Posted {{$commentDate|date_format:$datetimeFormatLong}} by {{$userName}} ({{$userEmail}})</div>

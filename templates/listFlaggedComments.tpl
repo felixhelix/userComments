@@ -1,10 +1,8 @@
-{extends file="layouts/backend.tpl"}
-
-{block name="page"}
+<tab id="flaggedUserComments" label="Flagged Comments">
 
 <div class="listPanel__header">
     <div class="pkpHeader -isOneLine">
-        <span class="pkpHeader__title"><h2>{$pageTitle}</h2></span>
+        <span class="pkpHeader__title"><h2>Flagged Comments</h2></span>
     </div>
 </div>
 
@@ -59,4 +57,4 @@
 </div>
 
 
-{/block}
+</tab>

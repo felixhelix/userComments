@@ -211,10 +211,24 @@ class UserComment extends DataObject {
 
 	/**
 	 * Get flaggedBy.
-	 * @param $flaggedBy id
 	 */
 	function getFlaggedBy() {
 		return $this->getData('flaggedBy');
+	}
+
+	/**
+	 * Set flagText.
+	 * @param $flagText string
+	 */
+	function setFlagText(str $flagText) {
+		return $this->setData('flagText', $flagText);
+	}		
+
+	/**
+	 * Get flagText.
+	 */
+	function getFlagText() {
+		return $this->getData('flagText');
 	}
 
 	/**

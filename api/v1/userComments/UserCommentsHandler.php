@@ -4,6 +4,7 @@ namespace APP\plugins\generic\userComments\api\v1\userComments;
 
 use Slim\Http\Request as SlimRequest;
 use PKP\core\Core;
+use PKP\core\PKPApplication;
 use PKP\core\APIResponse;
 use PKP\core\PKPBaseController;
 use PKP\handler\APIHandler;
@@ -17,6 +18,12 @@ use APP\core\Application;
 use APP\plugins\generic\userComments\classes\UserCommentDAO;
 use APP\facades\Repo;
 
+// Comment events
+define('COMMENT_POSTED',		0x80000001);
+define('COMMENT_FLAGGED',		0x80000002);
+define('COMMENT_UNFLAGGED',		0x80000003);
+define('COMMENT_HIDDEN', 		0x80000004);
+define('COMMENT_VISIBLE', 	0x80000005);
 
 class UserCommentsHandler extends APIHandler
 {
@@ -201,7 +208,7 @@ class UserCommentsHandler extends APIHandler
         // CommentLog::logEvent($request, $commentId, COMMENT_POSTED, $msg, $logDetails);
 
         $eventLog = Repo::eventLog()->newDataObject([
-            'assocType' => Application::ASSOC_TYPE_SUBMISSION,
+            'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
             'assocId' => $submissionId,
             'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
             'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
@@ -272,8 +279,8 @@ class UserCommentsHandler extends APIHandler
         // CommentLog::logEvent($request, $userCommentId, COMMENT_FLAGGED, $msg, $logDetails);
 
         $eventLog = Repo::eventLog()->newDataObject([
-            'assocType' => Application::ASSOC_TYPE_SUBMISSION,
-            'assocId' => $submissionId,
+            'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
+            'assocId' => $publicationId,
             'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
             'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
             'message' => $msg,
@@ -319,8 +326,8 @@ class UserCommentsHandler extends APIHandler
         // Update the data object
         // Only possible value for flagged should be false, since once the flag is removed, 
         // the comment is removed from the list of flagged comments as well
-        $userComment->setFlagged($flagged == 1 ? true : false);
-        if ($flagged != 1) {
+        $userComment->setFlagged($flagged == "true" ? true : false);
+        if ($flagged != "true") {
             // if the comment is un-flagged, it has to be visible
             $userComment->setVisible(true);
             // In this cas the logged message relates to this event
@@ -345,8 +352,8 @@ class UserCommentsHandler extends APIHandler
         // CommentLog::logEvent($request, $userCommentId, $messageKey, $msg, $logDetails);
 
         $eventLog = Repo::eventLog()->newDataObject([
-            'assocType' => Application::ASSOC_TYPE_SUBMISSION,
-            'assocId' => $submissionId,
+            'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
+            'assocId' => $publicationId,
             'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
             'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
             'message' => $msg,

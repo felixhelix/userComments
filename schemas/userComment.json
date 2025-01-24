@@ -4,7 +4,7 @@
 	"required": [
 		"assocType",
         "assocId",
-		"id",
+		"commentId",
         "userId",
         "dateCreated"
 	],
@@ -12,28 +12,22 @@
 		"assocId": {
 			"type": "integer",
 			"description": "The id of the publication the comment is related to.",
+			"multilingual": false,
 			"apiSummary": true
 		},
 		"assocType": {
 			"type": "integer",
 			"description": "The assoc object. This should always be `ASSOC_TYPE_PUBLICATION`.",
+			"multilingual": false,			
 			"apiSummary": true
 		},
 		"dateCreated": {
 			"type": "string",
 			"description": "The date that this comment was posted.",
+			"multilingual": false,			
 			"apiSummary": true,
 			"validation": [
 				"date_format:Y-m-d"
-			]
-		},
-		"dateFlagged": {
-			"type": "string",
-			"description": "The date this comment has been flagged.",
-			"apiSummary": true,
-			"validation": [
-				"nullable",
-				"date_format:Y-m-d H:i:s"
 			]
 		},
 		"commentText": {
@@ -51,43 +45,105 @@
 			"multilingual": false,
 			"apiSummary": true
 		},
-		"id": {
+		"userName": {
+			"type": "string",
+			"description": "The name of the user who posted the comment.",
+			"multilingual": false,
+			"apiSummary": true
+		},
+		"userOrcid": {
+			"type": "string",
+			"description": "ORCID of the user who posted the comment.",
+			"multilingual": false,
+			"apiSummary": true
+		},	
+		"userAffiliation": {
+			"type": "string",
+			"description": "ORCID of the user who posted the comment.",
+			"multilingual": false,
+			"apiSummary": true
+		},				
+		"commentId": {
 			"type": "integer",
 			"description": "The id of the comment.",
+			"multilingual": false,			
 			"readOnly": true,
 			"apiSummary": true
 		},
 		"foreignCommentId": {
 			"type": "integer",
 			"description": "(Optional) id of the comment this comment replies to.",
+			"multilingual": false,			
 			"apiSummary": true,
 			"validation": [
 				"nullable"
 			]
 		},
+		"visible": {
+			"type": "boolean",
+			"description": "If this comment is visible.",
+			"multilingual": false,			
+			"apiSummary": true
+		},  		
 		"flagged": {
 			"type": "boolean",
 			"description": "If this comment is flagged.",
+			"multilingual": false,			
 			"apiSummary": true
 		},   
+		"dateFlagged": {
+			"type": "string",
+			"description": "The date this comment has been flagged.",
+			"multilingual": false,
+			"apiSummary": true,
+			"validation": [
+				"nullable",
+				"date_format:Y-m-d H:i:s"
+			]
+		},
+		"flaggedBy": {
+			"type": "integer",
+			"description": "The id of the user who flagged the comment.",
+			"multilingual": false,
+			"apiSummary": true
+		},		
+		"flagText": {
+			"type": "string",
+			"description": "The text of the flag note.",
+			"multilingual": true,
+			"apiSummary": true,
+			"validation": [
+				"nullable"
+			]
+		},		
 		"publicationVersion": {
 			"type": "integer",
 			"description": "Version number of the publication this comment refers to.",
+			"multilingual": false,
 			"apiSummary": true
 		},
 		"submissionId": {
 			"type": "integer",
 			"description": "Id of the submission this comment refers to.",
+			"multilingual": false,
 			"apiSummary": true
 		},
+		"publicationId": {
+			"type": "integer",
+			"description": "Id of the publication this comment refers to.",
+			"multilingual": false,
+			"apiSummary": true
+		},		
 		"contextId": {
 			"type": "integer",
 			"description": "Id of the context this comment belongs to.",
+			"multilingual": false,
 			"apiSummary": true
 		},
 		"publicationDOI": {
 			"type": "string",
 			"description": "DOI of the publication this comment refers to.",
+			"multilingual": false,
 			"apiSummary": true
 		}
 	}

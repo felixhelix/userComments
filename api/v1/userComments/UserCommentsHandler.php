@@ -15,8 +15,10 @@ use PKP\security\Validation;
 use PKP\facades\Locale;
 use PKP\log\event\EventLogEntry;
 use APP\core\Application;
-use APP\plugins\generic\userComments\classes\UserCommentDAO;
-use APP\facades\Repo;
+use APP\core\Services;
+use APP\plugins\generic\userComments\classes\userComment;
+use APP\plugins\generic\userComments\classes\facades\Repo;
+// use APP\facades\Repo;
 
 // Comment events
 define('COMMENT_POSTED',		0x80000001);
@@ -60,6 +62,11 @@ class UserCommentsHandler extends APIHandler
                     'roles' => $rolesComment
                 ],
                 [
+                    'pattern' => $this->getEndpointPattern() . '/getFlaggedComments',
+                    'handler' => [$this, 'getFlaggedComments'],
+                    'roles' => $rolesComment
+                ],                
+                [
                     'pattern' => $this->getEndpointPattern() . '/getbypublication/{publicationId}',
                     'handler' => [$this, 'getCommentsByPublication'],   
                     'roles' => $rolesComment                    
@@ -91,9 +98,6 @@ class UserCommentsHandler extends APIHandler
     public function getComment($slimRequest, $response, $args)
     {
         $params = $slimRequest->getQueryParams(); // ['searchPhrase' => 'barnes']
-
-        error_log("get comment");
-
         return $response->withJson(
             ['id' => 1,
             'comment' => "get comment",
@@ -102,35 +106,46 @@ class UserCommentsHandler extends APIHandler
 
     public function getCommentsByPublication($slimRequest, $response, $args)
     {
-        error_log("getCommentsByPublication called");
         $params = $slimRequest->getQueryParams(); // ['searchPhrase' => 'barnes']
         $request = $this->getRequest();
         $publicationId = (int) $args['publicationId'];
         // $request = $this->getRequest();
         // $baseURL = $request->getBaseURL();
 
-		$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
-        $queryResults = $userCommentDao->getByPublicationId($publicationId);
+		// $userCommentDao = DAORegistry::getDAO('UserCommentDAO');
+        // $queryResults = $userCommentDao->getByPublicationId($publicationId);
 
-        $userComments = ['none yet :/'];
+        $queryResults = Repo::userComment()
+            ->getCollector()
+            ->filterByPublicationIds([$publicationId])
+            ->getMany();
+            // ->remember();
 
-        while ($userComment = $queryResults->next()) {  
-            $user = Repo::user()->get((int) $userComment->getUserId());      
-            $userComments[] = [
-            'id' => $userComment->getId(),
-            'publicationId' => $userComment->getPublicationId(),
-            'publicationVersion' => $userComment->getPublicationVersion(),
-            'submissionId' => $userComment->getSubmissionId(),
-            'foreignCommentId' => $userComment->getForeignCommentId(),
-            'userName' => $user->getFullName(),
-            'userOrcid' => $user->getData('orcid'),
-            'userAffiliation' => $user->getLocalizedAffiliation(),
-            'commentDate' =>$userComment->getDateCreated(),
-            'commentText' => $userComment->getCommentText(),
-            'flagged' => $userComment->getFlagged(),            
-            'flaggedDate' => $userComment->getDateFlagged(),
-            'visible' => $userComment->getVisible(),
-            ];
+        if ($queryResults->isEmpty()) {
+            $userComments = ['none yet :/'];
+        }
+        else { 
+            // foreach ($queryResults as $userComment) {
+            //     $user = Repo::user()->get((int) $userComment->getUserId());   
+            //     $userComments[] = [
+            //     'id' => $userComment->getId(),
+            //     'publicationId' => $userComment->getPublicationId(),                
+            //     'publicationVersion' => $userComment->getPublicationVersion(),
+            //     'submissionId' => $userComment->getSubmissionId(),
+            //     'foreignCommentId' => $userComment->getForeignCommentId(),
+            //     'userName' => $user->getFullName(),
+            //     'userOrcid' => $user->getData('orcid'),
+            //     'userAffiliation' => $user->getLocalizedAffiliation(),
+            //     'commentDate' =>$userComment->getDateCreated(),
+            //     'commentText' => $userComment->getCommentText(),
+            //     'flagged' => $userComment->getFlagged(),            
+            //     'flaggedDate' => $userComment->getDateFlagged(),
+            //     'visible' => $userComment->getVisible(),
+            //     ];
+            // }
+            $userComments = Repo::userComment()
+            ->getSchemaMap()
+            ->mapMany($queryResults->values());
         };
 
         return $response->withJson(
@@ -146,8 +161,6 @@ class UserCommentsHandler extends APIHandler
         $requestParams = $slimRequest->getParsedBody();
         $currentUser = $request->getUser();
         $locale = Locale::getLocale();
-
-        error_log("submitComment called");
 
         // This probably is not neccessary
         // get submission values
@@ -174,8 +187,9 @@ class UserCommentsHandler extends APIHandler
         $publicationVersion = null;
         $commentText = $requestParams['commentText'];
 
-        // Creata a DAO for user comments
-        $UserCommentDao = new UserCommentDAO();
+        // Create a DAO for user comments
+        $schemaService = Services::get('schema');
+        $UserCommentDao = new UserCommentDAO($schemaService);
         DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
             
         // Create the data object
@@ -366,6 +380,20 @@ class UserCommentsHandler extends APIHandler
             ['id' => $userCommentId,
             'comment' => 'comment visibilty was changed',
         ], 200);        
+
+    }
+
+    function getFlaggedComments($slimRequest, $response, $args) {
+        // User comments may not be deleted
+        
+        return $response->withJson(
+            [
+                'items'=> [
+                    [ 'itemTitle' => 'title 1' ],
+                    [ 'itemTitle' => 'title 2' ],
+                ]
+            ],
+        200);        
 
     }
 

@@ -31,6 +31,7 @@ use PKP\plugins\Hook;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
 use PKP\handler\APIHandler;
+use PKP\components\listPanels\ListPanel;
 
 use APP\core\Application;
 use APP\template\TemplateManager;
@@ -44,6 +45,7 @@ use APP\plugins\generic\userComments\classes\Settings\Actions;
 use APP\plugins\generic\userComments\classes\Settings\Manage;
 use APP\plugins\generic\userComments\api\v1\userComments\UserCommentsHandler;
 
+define('FLAGGED_COMMENTS_LIST', 'commentslist');
 
 class UserCommentsPlugin extends GenericPlugin {
 
@@ -57,8 +59,9 @@ class UserCommentsPlugin extends GenericPlugin {
 		if ($success && $this->getEnabled($mainContextId)) {	
 
 			// Creata a DAO for user comments
-			$UserCommentDao = new UserCommentDAO();
-			DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
+			// $UserCommentDao = new UserCommentDAO($schemaService);
+			// DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
+            Hook::add('Schema::get::userComment', [$this, 'addUserCommentsSchema']);
 
 			// Use a hook to insert a template on the details page
 			Hook::add('Templates::Preprint::Main', [$this, 'addCommentBlock'], Hook::SEQUENCE_LAST);	
@@ -71,22 +74,20 @@ class UserCommentsPlugin extends GenericPlugin {
 
 			// Use a hook to add a menu item in the backend
 			// Hook::add('TemplateManager::display', array($this, 'addMenuItem'), Hook::SEQUENCE_LAST);
-
-			Hook::add('Template::Settings::website', array($this, 'addWebsiteSettingsTab'), Hook::SEQUENCE_LAST);
+            // Hook::add('TemplateManager::display', array($this, 'addWebsiteSettingsTabData'));
+			// Hook::add('Template::Settings::website', array($this, 'addWebsiteSettingsTab'), Hook::SEQUENCE_LAST);
 
             Hook::add('LoadHandler', $this->setPageHandler(...));
 
             // This allows themes to override the plugins templates
             $this->_registerTemplateResource();
 
-            // Add the custom style sheet and js
+            // Add the custom js and style sheet
             $request = Application::get()->getRequest();
-            $templateMgr = TemplateManager::getManager($request);
-            $jsImportsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/imports.js';            
+            $templateMgr = TemplateManager::getManager($request);         
             $jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
             $cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
-            $templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');
-            //$templateMgr->addJavaScript('imports', $jsUrl);                  
+            $templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');             
             $templateMgr->addJavaScript('comments', $jsUrl);            
             $templateMgr->addStyleSheet('comments', $cssUrl);                
 			
@@ -277,15 +278,57 @@ class UserCommentsPlugin extends GenericPlugin {
 		return False;
 	}	
 
+    public function addWebsiteSettingsTabData($hookName, $params)
+    {
+        // We need to assign the template data via a different hook
+        $templateMgr = $params[0];
+        $template = $params[1];
+
+        if ($template !== 'management/website.tpl') {
+            return false;
+        }
+
+        $flaggedComments = $this->getFlaggedComments();
+
+        $request = Application::get()->getRequest();
+        $context = $request->getContext();
+        $dispatcher = $request->getDispatcher();
+        // listPanel does not support this :/
+        $apiURL = $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'userComments/getFlaggedComments');
+
+        $flaggedCommentsList = new ListPanel(
+            FLAGGED_COMMENTS_LIST,
+            __('announcement.announcements'),
+            [
+                // 'items' => array(
+                //     ['item' => 'item 1'], 
+                //     ['item' => 'item 2']
+                // ),
+                'apiURL' => $apiURL,
+                'lazyLoad' => true,
+            ]
+        );
+
+        // we don't want to override existing states, so we assign them first and then add the ListPanel        
+        $lists = $templateMgr->getState('components');
+        $listConfig = $flaggedCommentsList->getConfig();
+        $lists[$flaggedCommentsList->id] = $listConfig;
+        $templateMgr->setState(['components' => $lists]);
+        
+        return false;
+    }
+
 	public function addWebsiteSettingsTab($hookName, $params) {
-		// alternatively show the link on the admin 
+		// alternatively show a link on the admin page
         $request = Application::get()->getRequest();
         $templateMgr = TemplateManager::getManager($request);        
         $flaggedComments = $this->getFlaggedComments();
+
         $templateMgr->assign([
             'items' => $flaggedComments,
         ]);
-        return $templateMgr->display($this->getTemplateResource('listFlaggedComments.tpl'));				
+      
+        return $templateMgr->display($this->getTemplateResource('listFlaggedCommentsUI.tpl'));				
 		// echo('<tab id="flaggedUserComments" label="Flagged Comments">Flagged Comments</tab>');
 		// return false;
 	}	
@@ -312,41 +355,69 @@ class UserCommentsPlugin extends GenericPlugin {
 	// 	return false;
 	// }	
 
-	public function getFlaggedComments()
-	{
-		$request = PKPApplication::get()->getRequest();
-		$context = $request->getContext();
+	// public function getFlaggedComments()
+	// {
+	// 	$request = PKPApplication::get()->getRequest();
+	// 	$context = $request->getContext();
 
-		$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
-        // $userDao = DAORegistry::getDAO('UserDAO'); 
-		// $userDao = new DAO;	
+	// 	$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
+    //     // $userDao = DAORegistry::getDAO('UserDAO'); 
+	// 	// $userDao = new DAO;	
 
-        $queryResults = $userCommentDao->getFlagged($context->getId());
-		// $userComments = $queryResults->toArray();
+    //     $queryResults = $userCommentDao->getFlagged($context->getId());
+	// 	// $userComments = $queryResults->toArray();
 
-        $userComments = [];
+    //     $userComments = [];
 
-        while ($userComment = $queryResults->next()) {  
-            $user = Repo::user()->get($userComment->getUserId());
-            $userComments[] = [
-            'id' => $userComment->getId(),
-            'submissionId' => $userComment->getSubmissionId(),
-			'publicationId' => $userComment->getPublicationId(),			
-			'publicationVersion' => $userComment->getPublicationVersion(),						
-            'foreignCommentId' => $userComment->getForeignCommentId(),
-            'userName' => $user->getFullName(),
-			'userEmail' => $user->getEmail(),
-            'commentDate' =>$userComment->getDateCreated(),
-            'commentText' => $userComment->getCommentText(),
-            'flaggedDate' => $userComment->getDateFlagged(),
-            'visible' => $userComment->getVisible(),
-			'commentUrl' => $request->getRouter()->url($request, null, 'flaggedComments', 'edit', array($userComment->getId())),
-            ];
-        };
+    //     while ($userComment = $queryResults->next()) {  
+    //         $user = Repo::user()->get($userComment->getUserId());
+    //         $userComments[] = [
+    //         'id' => $userComment->getId(),
+    //         'submissionId' => $userComment->getSubmissionId(),
+	// 		'publicationId' => $userComment->getPublicationId(),			
+	// 		'publicationVersion' => $userComment->getPublicationVersion(),						
+    //         'foreignCommentId' => $userComment->getForeignCommentId(),
+    //         'userName' => $user->getFullName(),
+	// 		'userEmail' => $user->getEmail(),
+    //         'commentDate' =>$userComment->getDateCreated(),
+    //         'commentText' => $userComment->getCommentText(),
+    //         'flaggedDate' => $userComment->getDateFlagged(),
+    //         'visible' => $userComment->getVisible(),
+	// 		'commentUrl' => $request->getRouter()->url($request, null, 'flaggedComments', 'edit', array($userComment->getId())),
+    //         ];
+    //     };
 
-		return $userComments;
-		// var_dump("getFlaggedComments: " . json_encode($userComments));
-	}    
+	// 	return $userComments;
+	// 	// var_dump("getFlaggedComments: " . json_encode($userComments));
+	// }    
+
+    public function addUserCommentsSchema(string $hookName, array $params): bool
+    {
+        $schema = &$params[0];
+        $schema = $this->getJsonSchema('userComment');
+        return true;
+    }    
+
+    private function getJsonSchema(string $schemaName): ?\stdClass
+    {
+        $schemaFile = sprintf(
+            '%s/plugins/generic/userComments/schemas/%s.json',
+            BASE_SYS_DIR,
+            $schemaName
+        );
+        if (file_exists($schemaFile)) {
+            $schema = json_decode(file_get_contents($schemaFile));
+            if (!$schema) {
+                throw new \Exception(
+                    'Schema failed to decode. This usually means it is invalid JSON. Requested: '
+                    . $schemaFile
+                    . '. Last JSON error: '
+                    . json_last_error()
+                );
+            }
+        }
+        return $schema;
+    }
 
 }
 

@@ -13,7 +13,7 @@
  * Data object representing a userComment.
  */
 
-namespace APP\plugins\generic\userComments\classes;
+namespace APP\plugins\generic\userComments\classes\userComment;
 
 use PKP\core\DataObject;
 
@@ -60,7 +60,7 @@ class UserComment extends DataObject {
 	 * @return int
 	 */
 	function getPublicationId(){
-		return $this->getData('publication_id');
+		return $this->getData('publicationId');
 	}
 
 	/**
@@ -69,7 +69,7 @@ class UserComment extends DataObject {
 	 * @param $publicationId int	 * 
 	 */
 	function setPublicationId($publicationId){
-		return $this->setData('publication_id', $publicationId);
+		return $this->setData('publicationId', $publicationId);
 	}
 
 	/**
@@ -77,7 +77,7 @@ class UserComment extends DataObject {
 	 * @return int
 	 */
 	function getPublicationVersion(){
-		return $this->getData('publication_version');
+		return $this->getData('publicationVersion');
 	}
 
 	/**
@@ -86,7 +86,7 @@ class UserComment extends DataObject {
 	 * @param $publicationVersion int	 * 
 	 */
 	function setPublicationVersion($publicationVersion){
-		return $this->setData('publication_version', $publicationVersion);
+		return $this->setData('publicationVersion', $publicationVersion);
 	}
 
 	/**
@@ -126,7 +126,7 @@ class UserComment extends DataObject {
 	 * @return string
 	 */
 	function getId(): ?int {
-		return $this->getData('objectId');
+		return $this->getData('commentId');
 	}
 
 	/**
@@ -134,7 +134,7 @@ class UserComment extends DataObject {
 	 * @param $objectId string
 	 */ 
 	function setId($objectId) {
-		return $this->setData('objectId', $objectId);
+		return $this->setData('commentId', $objectId);
 	}
 
 	/**
@@ -249,4 +249,7 @@ class UserComment extends DataObject {
 
 }
 
-?>
+if (!PKP_STRICT_MODE) {
+    class_alias('\APP\plugins\generic\userComments\classes\userComment\UserComment', '\UserComment');
+}
+

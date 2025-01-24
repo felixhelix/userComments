@@ -13,13 +13,96 @@
  * Operations for retrieving and modifying userComment objects.
  */
 
-namespace APP\plugins\generic\userComments\classes;
+namespace APP\plugins\generic\userComments\classes\userComment;
 
-use PKP\db\DAO;
-use PKP\db\DAOResultFactory;
-use APP\plugins\generic\userComments\classes\UserComment;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\LazyCollection;
+use PKP\core\EntityDAO;
+use PKP\core\traits\EntityWithParent;
 
-class UserCommentDAO extends DAO {
+class DAO extends EntityDAO {
+
+	// use EntityWithParent;
+
+    public $schema = 'userComment';
+    public $table = 'user_comments';
+    public $settingsTable = 'user_comment_settings';
+    public $primaryKeyColumn = 'comment_id';
+    public $primaryTableColumns = [
+        'commentId' => 'comment_id',
+		'contextId' => 'context_id',
+		'userId' => 'user_id',
+		'submissionId' => 'submission_id',
+		'publicationId' => 'publication_id',
+		'publicationVersion' => 'publication_version',
+		'foreignCommentId' => 'foreign_comment_id',
+		'dateCreated' => 'date_created',
+		'dateFlagged' => 'date_flagged',
+		'visible' => 'visible',
+    ];	
+
+    public function getParentColumn(): string
+    {
+        return 'context_id';
+    }	
+
+	/**
+	 * Generate a new userComment object.
+	 * @return UserComment
+	 */
+	function newDataObject(): UserComment {
+		return app(UserComment::class);
+	}
+
+    // public function getCount(Collector $query): int
+    // {
+    //     return $query
+    //         ->getQueryBuilder()
+    //         ->get('cq.' . $this->primaryKeyColumn)
+    //         ->count();
+    // }
+
+    // public function getIds(Collector $query): Collection
+    // {
+    //     return $query
+    //         ->getQueryBuilder()
+    //         ->select('cq.' . $this->primaryKeyColumn)
+    //         ->pluck('cq.' . $this->primaryKeyColumn);
+    // }
+
+    public function getMany(Collector $query): LazyCollection
+    {
+        $rows = $query
+            ->getQueryBuilder()
+            ->get();
+
+        return LazyCollection::make(function () use ($rows) {
+            foreach ($rows as $row) {
+                yield $row->comment_id => $this->fromRow($row);
+            }
+        });
+    }	
+
+    public function fromRow(object $row): UserComment
+    {
+        return parent::fromRow($row);
+    }	
+
+    public function insert(UserComment $UserComment): int
+    {
+        return parent::_insert($UserComment);
+    }
+
+    public function update(UserComment $UserComment): void
+    {
+        parent::_update($UserComment);
+    }
+
+    public function delete(UserComment $UserComment): void
+    {
+        parent::_delete($UserComment);
+    }
+
 
 	/**
 	 * Get a object for UserComments by ID
@@ -35,7 +118,7 @@ class UserCommentDAO extends DAO {
 		);
 
 		$row = $result->current();
-		return $row ? $this->_fromRow((array) $row) : null;
+		return $row ? $this->fromRow((array) $row) : null;
 	}
 
 	/**
@@ -54,7 +137,7 @@ class UserCommentDAO extends DAO {
 			$params
 		);
 
-		return new DAOResultFactory($result, $this, '_fromRow');
+		return new DAOResultFactory($result, $this, 'fromRow');
 	}
 
 	/**
@@ -72,7 +155,7 @@ class UserCommentDAO extends DAO {
 			$params
 		);
 
-		return new DAOResultFactory($result, $this, '_fromRow');
+		return new DAOResultFactory($result, $this, 'fromRow');
 	}	
 
 	/**
@@ -89,7 +172,7 @@ class UserCommentDAO extends DAO {
 			$params
 		);
 
-		return new DAOResultFactory($result, $this, '_fromRow');
+		return new DAOResultFactory($result, $this, 'fromRow');
 	}
 
 	/**
@@ -99,21 +182,24 @@ class UserCommentDAO extends DAO {
 	 */
 	function insertObject($userComment) {
 
-		$this->update(
-			'INSERT INTO user_comments (submission_id, publication_id, publication_version, context_id, user_id, foreign_comment_id, date_created) VALUES (?, ?, ?, ?, ?, ?, NOW())',
-			array(
-				$userComment->getSubmissionId()  == "NULL" ? null : $userComment->getSubmissionId(),
-				$userComment->getPublicationId(),
-				$userComment->getPublicationVersion()  == "NULL" ? null : $userComment->getPublicationVersion(),
-				(int) $userComment->getContextId(),
-				$userComment->getUserId(),
-				$userComment->getForeignCommentId() == "NULL" ? null : $userComment->getForeignCommentId(),
-			)
-		);
+		// $this->update(
+		// 	'INSERT INTO user_comments (submission_id, publication_id, publication_version, context_id, user_id, foreign_comment_id, date_created) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+		// 	array(
+		// 		$userComment->getSubmissionId()  == "NULL" ? null : $userComment->getSubmissionId(),
+		// 		$userComment->getPublicationId(),
+		// 		$userComment->getPublicationVersion()  == "NULL" ? null : $userComment->getPublicationVersion(),
+		// 		(int) $userComment->getContextId(),
+		// 		$userComment->getUserId(),
+		// 		$userComment->getForeignCommentId() == "NULL" ? null : $userComment->getForeignCommentId(),
+		// 	)
+		// );
 		
-		$userComment->setId($this->getInsertId());
-		$this->updateLocaleFields($userComment);
-		return $userComment->getId();
+		// $userComment->setId($this->getInsertId());
+		// $this->updateLocaleFields($userComment);
+		// return $userComment->getId();
+
+        $id = parent::_insert($userComment);
+        return $id;		
 
 	}
 
@@ -167,7 +253,7 @@ class UserCommentDAO extends DAO {
 			$params
 		);
 
-		return new DAOResultFactory($result, $this, '_fromRow');
+		return new DAOResultFactory($result, $this, 'fromRow');
 	}
 
 
@@ -196,36 +282,6 @@ class UserCommentDAO extends DAO {
 	}
 
 	/**
-	 * Generate a new funder object.
-	 * @return userComment
-	 */
-	function newDataObject() {
-		return new userComment();
-	}
-
-	/**
-	 * Return a new funder object from a given row.
-	 * @return userComment
-	 */
-	function _fromRow($row) {
-		$userComment = $this->newDataObject();
-		$userComment->setId($row['comment_id']);
-		$userComment->setContextId($row['context_id']);
-		$userComment->setUserId($row['user_id']);
-		$userComment->setSubmissionId($row['submission_id']);
-		$userComment->setPublicationId($row['publication_id']);		
-		$userComment->setPublicationVersion($row['publication_version']);		
-		$userComment->setForeignCommentId($row['foreign_comment_id']);
-		$userComment->setDateCreated($row['date_created']);
-		$userComment->setDateFlagged($row['date_flagged']);
-		$userComment->setFlagged($row['flagged']);		
-		$userComment->setVisible($row['visible']);
-		$this->getDataObjectSettings('user_comment_settings', 'comment_id', $row['comment_id'], $userComment);
-
-		return $userComment;
-	}
-
-	/**
 	 * Get the insert ID for the last inserted userComment.
 	 * @return int
 	 */
@@ -248,8 +304,4 @@ class UserCommentDAO extends DAO {
 	function updateLocaleFields($userComment) {
 		$this->updateDataObjectSettings('user_comment_settings', $userComment, array('comment_id' => (int) $userComment->getId()));
 	}
-}
-
-if (!PKP_STRICT_MODE) {
-    class_alias('\APP\plugins\generic\userComments\classes\UserComment', '\UserComment');
 }

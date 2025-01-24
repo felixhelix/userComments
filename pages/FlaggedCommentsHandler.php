@@ -86,14 +86,16 @@ class flaggedCommentsHandler extends Handler {
 				$this->edit($args, $request);
 				break;
 			default:
+				$flaggedComments = $this->getFlaggedComments();					
 				$templateMgr->assign([
 					'pageTitle' => __('plugins.generic.userComments.listFlaggedComments'),
-				]);
-				$flaggedComments = $this->getFlaggedComments();		
-				$templateMgr->assign([
 					'items' => $flaggedComments,
 				]);
-				return $templateMgr->display($this->plugin->getTemplateResource('listFlaggedComments.tpl'));				
+				$templateMgr->setState([
+					'items' => array(1,2,3,4,5),
+					'isPublished' => true,
+				]);				
+				return $templateMgr->display($this->plugin->getTemplateResource('listFlaggedCommentsUI.tpl'));				
 				break;
 		}
 	}  

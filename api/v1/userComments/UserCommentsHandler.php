@@ -158,6 +158,7 @@ class UserCommentsHandler extends APIHandler
     public function submitComment(SlimRequest $slimRequest, APIResponse $response, array $args): \Slim\Http\Response
     {
         $request = APIHandler::getRequest();
+        $context = $request->getContext();        
         $requestParams = $slimRequest->getParsedBody();
         $currentUser = $request->getUser();
         $locale = Locale::getLocale();
@@ -186,26 +187,22 @@ class UserCommentsHandler extends APIHandler
         $submissionId = $requestParams['submissionId'];  
         $publicationVersion = null;
         $commentText = $requestParams['commentText'];
-
-        // Create a DAO for user comments
-        $schemaService = Services::get('schema');
-        $UserCommentDao = new UserCommentDAO($schemaService);
-        DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
             
         // Create the data object
-        $UserComment = $UserCommentDao->newDataObject(); 
-        $UserComment->setContextId(1);
-        $UserComment->setUserId($currentUser->getId());
-        $UserComment->setPublicationId($publicationId);
-        $UserComment->setForeignCommentId($foreignCommentId);        
-        $UserComment->setSubmissionId($submissionId);
-        $UserComment->setPublicationVersion($publicationVersion);
-        $UserComment->setCommentText($commentText);
+        $userComment = Repo::userComment()->newDataObject();
+        $userComment->setDateCreated(Core::getCurrentDate());
+        $userComment->setContextId($context->getId());
+        $userComment->setUserId($currentUser->getId());
+        $userComment->setPublicationId($publicationId);
+        $userComment->setForeignCommentId($foreignCommentId);        
+        $userComment->setSubmissionId($submissionId);
+        $userComment->setPublicationVersion($publicationVersion);
+        $userComment->setCommentText($commentText);
 
         // Insert the data object
-        $commentId = $UserCommentDao->insertObject($UserComment);
+        $userCommentId = Repo::userComment()->add($userComment);
         // Get the comment entitty
-        $userComment = $UserCommentDao->getById($commentId);
+        // $userComment = $UserCommentDao->getById($commentId);
 
         // Log the event in the event log related to the submission
 		$msg = 'comment.event.posted';
@@ -226,6 +223,7 @@ class UserCommentsHandler extends APIHandler
             'assocId' => $submissionId,
             'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
             'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
+            'userCommentId' => $userCommentId,
             'message' => $msg,
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate()
@@ -233,7 +231,7 @@ class UserCommentsHandler extends APIHandler
         Repo::eventLog()->add($eventLog);        
 
         return $response->withJson([
-            'id' => $commentId,
+            'id' => $userCommentId,
             'comment' => $commentText,
             'userName' => $currentUser->getFullName(),
             'userOrcid' => $currentUser->getData('orcid'),
@@ -245,6 +243,7 @@ class UserCommentsHandler extends APIHandler
     public function flagComment($slimRequest, $response, $args)
     {
         $request = APIHandler::getRequest();
+        $context = $request->getContext();  
         $requestParams = $slimRequest->getParsedBody();
         $currentUser = $request->getUser();
         $locale = Locale::getLocale();
@@ -263,21 +262,18 @@ class UserCommentsHandler extends APIHandler
                 ['error' => 'wrong type',
             ], 400);            
         }        
-
-        // Create a DAO for user comments
-        $UserCommentDao = new UserCommentDAO();
-        DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
-
-        // Get the data object
-        $userComment = $UserCommentDao->getById($userCommentId);
             
-        // Update the data object
-        // $commentId = $UserCommentDao->updateFlag($userCommentId);
-        $userComment->setFlagged(true);
-        $userComment->setDateFlagged(Now());
-        $userComment->setFlaggedBy($currentUser->getId());
-        $userComment->setData('flagText', $flagText);
-        $UserCommentDao->updateObject($userComment);        
+        // set the data      
+        $params = [
+            'flagged' => true,
+            'dateFlagged' => Core::getCurrentDate(),
+            'flagText' => $flagText,
+            'flaggedBy' => $currentUser->getId(),
+        ];
+
+        // update the entity
+        $userComment = Repo::userComment()->get($userCommentId, $context->getId());
+        Repo::userComment()->update($userComment, $params);
 
         // Log the event
 		// Flagging is logged in the event log and is related to the submission
@@ -297,6 +293,7 @@ class UserCommentsHandler extends APIHandler
             'assocId' => $publicationId,
             'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
             'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
+            'userCommentId' => $userComment->getId(),
             'message' => $msg,
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate()
@@ -305,8 +302,7 @@ class UserCommentsHandler extends APIHandler
 
         return $response->withJson(
             ['id' => $userCommentId,
-            'comment' => 'comment was flagged',
-            'date' => $userComment->getDateFlagged()->format('Y-m-d H:i:s'),
+            'flagged' => true,
         ], 200);
     }
 
@@ -384,16 +380,33 @@ class UserCommentsHandler extends APIHandler
     }
 
     function getFlaggedComments($slimRequest, $response, $args) {
-        // User comments may not be deleted
-        
+
+        $queryResults = Repo::userComment()
+            ->getCollector()
+            ->filterByFlag(true)
+            ->getMany();
+            // ->remember();
+
+        if ($queryResults->isEmpty()) {
+            $userComments = ['none yet :/'];
+        }
+        else { 
+            $userComments = Repo::userComment()
+            ->getSchemaMap()
+            ->mapMany($queryResults->values());
+        };
+
         return $response->withJson(
-            [
-                'items'=> [
-                    [ 'itemTitle' => 'title 1' ],
-                    [ 'itemTitle' => 'title 2' ],
-                ]
-            ],
-        200);        
+            $userComments, 200);   
+        
+        // return $response->withJson(
+        //     [
+        //         'items'=> [
+        //             [ 'itemTitle' => 'title 1' ],
+        //             [ 'itemTitle' => 'title 2' ],
+        //         ]
+        //     ],
+        // 200);        
 
     }
 

@@ -45,7 +45,7 @@ class UserCommentsSchemaMigration extends Migration
             $table->string('locale', 14)->default('en_US');
             $table->string('setting_name', 255);
             $table->longText('setting_value')->nullable();
-            $table->string('setting_type', 6)->comment('(bool|int|float|string|object)');
+            // $table->string('setting_type', 6)->comment('(bool|int|float|string|object)');
             // $table->index(['object_id'], 'user_comments_settings_id');
             // $table->unique(['object_id', 'locale', 'setting_name'], 'user_comments_settings_pkey');
         });

@@ -13,6 +13,7 @@ class Collector implements CollectorInterface
     public DAO $dao;
     public ?array $contextIds = null;
     public ?array $publicationIds = null;
+    public ?bool $flagged = null;
     public ?int $count = null;
     public ?int $offset = null;
 
@@ -48,6 +49,12 @@ class Collector implements CollectorInterface
         return $this;
     }    
 
+    public function filterByFlag(?bool $flagged): self
+    {
+        $this->flagged = $flagged;
+        return $this;
+    }     
+
     public function limit(?int $count): self
     {
         $this->count = $count;
@@ -63,7 +70,8 @@ class Collector implements CollectorInterface
     public function getQueryBuilder(): Builder
     {
         $uc = DB::table($this->dao->table . ' as uc')
-            ->select(['uc.*']);
+            ->join($this->dao->settingsTable . ' as ucs', 'uc.' . $this->dao->primaryKeyColumn, '=', 'ucs.' . $this->dao->primaryKeyColumn)
+            ->select(['uc.*', 'ucs.*']);
 
         if (isset($this->contextIds)) {
             $uc->whereIn('uc.context_id', $this->contextIds);
@@ -72,6 +80,11 @@ class Collector implements CollectorInterface
         if (isset($this->publicationIds)) {
             $uc->whereIn('uc.publication_id', $this->publicationIds);
         }
+
+        if (isset($this->flagged)) {
+            $uc->where('ucs.setting_name',  'flagged')
+            ->where('ucs.setting_value',  true);
+        }        
 
         if (isset($this->count)) {
             $uc->limit($this->count);

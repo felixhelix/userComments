@@ -15,9 +15,8 @@
 
 namespace APP\plugins\generic\userComments\classes\userComment;
 
-use PKP\core\DataObject;
 
-class UserComment extends DataObject {
+class UserComment extends \PKP\core\DataObject {
 
 	//
 	// Get/set methods

@@ -46,7 +46,7 @@ class Repository
         return $id;
     }
 
-    public function edit(UserComment $UserComment, array $params)
+    public function update(UserComment $UserComment, array $params)
     {
         $newUserComment = clone $UserComment;
         $newUserComment->setAllData(array_merge($newUserComment->_data, $params));

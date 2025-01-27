@@ -22,7 +22,7 @@ use PKP\core\traits\EntityWithParent;
 
 class DAO extends EntityDAO {
 
-	// use EntityWithParent;
+	use EntityWithParent;
 
     public $schema = 'userComment';
     public $table = 'user_comments';
@@ -173,34 +173,6 @@ class DAO extends EntityDAO {
 		);
 
 		return new DAOResultFactory($result, $this, 'fromRow');
-	}
-
-	/**
-	 * Insert a user comment.
-	 * @param $userComment userComment
-	 * @return int Inserted userComment ID
-	 */
-	function insertObject($userComment) {
-
-		// $this->update(
-		// 	'INSERT INTO user_comments (submission_id, publication_id, publication_version, context_id, user_id, foreign_comment_id, date_created) VALUES (?, ?, ?, ?, ?, ?, NOW())',
-		// 	array(
-		// 		$userComment->getSubmissionId()  == "NULL" ? null : $userComment->getSubmissionId(),
-		// 		$userComment->getPublicationId(),
-		// 		$userComment->getPublicationVersion()  == "NULL" ? null : $userComment->getPublicationVersion(),
-		// 		(int) $userComment->getContextId(),
-		// 		$userComment->getUserId(),
-		// 		$userComment->getForeignCommentId() == "NULL" ? null : $userComment->getForeignCommentId(),
-		// 	)
-		// );
-		
-		// $userComment->setId($this->getInsertId());
-		// $this->updateLocaleFields($userComment);
-		// return $userComment->getId();
-
-        $id = parent::_insert($userComment);
-        return $id;		
-
 	}
 
 	/**

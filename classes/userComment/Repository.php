@@ -5,6 +5,7 @@ namespace APP\plugins\generic\userComments\classes\userComment;
 use APP\core\Request;
 use PKP\services\PKPSchemaService;
 use APP\plugins\generic\userComments\classes\maps\Schema;
+use APP\plugins\generic\userComments\classes\maps\ListPanelSchema;
 
 class Repository
 {
@@ -66,10 +67,19 @@ class Repository
 
     /**
      * Get an instance of the map class for mapping
-     * announcements to their schema
+     * userComments to their schema
      */
     public function getSchemaMap(): Schema
     {
         return app('maps')->withExtensions(Schema::class);
     }    
+
+    /**
+     * Get an instance of the map class for mapping
+     * userComments for use in a listPanel
+     */
+    public function getListPanelMap(): ListPanelSchema
+    {
+        return app('maps')->withExtensions(ListPanelSchema::class);
+    }        
 }

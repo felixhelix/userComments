@@ -6,9 +6,14 @@
     </div>
 </div>
 
-<list-panel 
-	v-bind="components.{$smarty.const.FLAGGED_COMMENTS_LIST}"
-	@set="set"
+<!-- v-bind="components.{$smarty.const.FLAGGED_COMMENTS_LIST}"
+@set="set"
+:items="items"
+-->
+
+<list-panel
+    v-bind="components.{$smarty.const.FLAGGED_COMMENTS_LIST}"
+    @set="set"
 ></list-panel>
 
 </tab>

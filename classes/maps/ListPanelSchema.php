@@ -21,7 +21,7 @@ use APP\plugins\generic\userComments\classes\facades\Repo;
 
 
 
-class Schema extends \PKP\core\maps\Schema
+class ListPanelSchema extends \PKP\core\maps\Schema
 {
     public Enumerable $collection;
  
@@ -55,6 +55,8 @@ class Schema extends \PKP\core\maps\Schema
         foreach ($props as $prop) {
 
             $user = Repo::user()->get((int) $item->getUserId()); 
+            $submission = Repo::submission()->get((int) $item->getSubmissionId()); 
+
             
             switch ($prop) {
 
@@ -76,13 +78,13 @@ class Schema extends \PKP\core\maps\Schema
                     $output['id'] = $item->getData($prop);
                     break;  
 
-                case 'dateCreated':
-                    $output['commentDate'] = $item->getData($prop);
-                    break;  
-    
-                case 'dateFlagged':
-                    $output['flaggedDate'] = $item->getData($prop);
-                    break;  
+                case 'submissionId':
+                    $output['title'] = "Submission: " . $submission->getLocalizedTitle();
+                    break;   
+
+                case 'dateFlagged':                    
+                    $output['subtitle'] = "flagged: " . $item->getData($prop);                    
+                    break;                       
 
                 // Get other properties from the DataObject
                 default:

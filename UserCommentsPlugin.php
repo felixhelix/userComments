@@ -35,7 +35,7 @@ use PKP\components\listPanels\ListPanel;
 
 use APP\core\Application;
 use APP\template\TemplateManager;
-use APP\facades\Repo;
+use APP\plugins\generic\userComments\classes\facades\Repo;
 
 use APP\plugins\generic\userComments\pages\FlaggedCommentsHandler;
 use APP\plugins\generic\userComments\api\v1\submissions\PKPOverriddenSubmissionController;
@@ -74,8 +74,8 @@ class UserCommentsPlugin extends GenericPlugin {
 
 			// Use a hook to add a menu item in the backend
 			// Hook::add('TemplateManager::display', array($this, 'addMenuItem'), Hook::SEQUENCE_LAST);
-            // Hook::add('TemplateManager::display', array($this, 'addWebsiteSettingsTabData'));
-			// Hook::add('Template::Settings::website', array($this, 'addWebsiteSettingsTab'), Hook::SEQUENCE_LAST);
+            Hook::add('TemplateManager::display', array($this, 'addWebsiteSettingsTabData'));
+			Hook::add('Template::Settings::website', array($this, 'addWebsiteSettingsTab'), Hook::SEQUENCE_LAST);
 
             Hook::add('LoadHandler', $this->setPageHandler(...));
 
@@ -280,7 +280,7 @@ class UserCommentsPlugin extends GenericPlugin {
 
     public function addWebsiteSettingsTabData($hookName, $params)
     {
-        // We need to assign the template data via a different hook
+        // We need to assign the template data with a hook before we add the template itself
         $templateMgr = $params[0];
         $template = $params[1];
 
@@ -288,13 +288,27 @@ class UserCommentsPlugin extends GenericPlugin {
             return false;
         }
 
-        $flaggedComments = $this->getFlaggedComments();
-
         $request = Application::get()->getRequest();
         $context = $request->getContext();
         $dispatcher = $request->getDispatcher();
         // listPanel does not support this :/
         $apiURL = $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'userComments/getFlaggedComments');
+        
+        $queryResults = Repo::userComment()
+            ->getCollector()
+            ->filterByFlag(true)
+            ->getMany();
+            // ->remember();
+
+        if ($queryResults->isEmpty()) {
+            $userComments = [];
+        }
+        else { 
+            $userComments = Repo::userComment()
+            ->getListPanelMap()
+            ->mapMany($queryResults->values());
+        };
+
 
         $flaggedCommentsList = new ListPanel(
             FLAGGED_COMMENTS_LIST,
@@ -305,6 +319,7 @@ class UserCommentsPlugin extends GenericPlugin {
                 //     ['item' => 'item 2']
                 // ),
                 'apiURL' => $apiURL,
+                'items' => $userComments,
                 'lazyLoad' => true,
             ]
         );
@@ -313,7 +328,10 @@ class UserCommentsPlugin extends GenericPlugin {
         $lists = $templateMgr->getState('components');
         $listConfig = $flaggedCommentsList->getConfig();
         $lists[$flaggedCommentsList->id] = $listConfig;
-        $templateMgr->setState(['components' => $lists]);
+        $templateMgr->setState([
+            'components' => $lists,
+            //'items' => $userComments,
+        ]);
         
         return false;
     }
@@ -322,11 +340,11 @@ class UserCommentsPlugin extends GenericPlugin {
 		// alternatively show a link on the admin page
         $request = Application::get()->getRequest();
         $templateMgr = TemplateManager::getManager($request);        
-        $flaggedComments = $this->getFlaggedComments();
+        // $flaggedComments = $this->getFlaggedComments();
 
-        $templateMgr->assign([
-            'items' => $flaggedComments,
-        ]);
+        // $templateMgr->assign([
+        //     'items' => $flaggedComments,
+        // ]);
       
         return $templateMgr->display($this->getTemplateResource('listFlaggedCommentsUI.tpl'));				
 		// echo('<tab id="flaggedUserComments" label="Flagged Comments">Flagged Comments</tab>');

@@ -70,8 +70,9 @@ class Collector implements CollectorInterface
     public function getQueryBuilder(): Builder
     {
         $uc = DB::table($this->dao->table . ' as uc')
-            ->join($this->dao->settingsTable . ' as ucs', 'uc.' . $this->dao->primaryKeyColumn, '=', 'ucs.' . $this->dao->primaryKeyColumn)
-            ->select(['uc.*', 'ucs.*']);
+            ->leftjoin($this->dao->settingsTable . ' as ucs', 'uc.' . $this->dao->primaryKeyColumn, '=', 'ucs.' . $this->dao->primaryKeyColumn)
+            ->select(['uc.*', 'ucs.*'])
+            ->where('ucs.setting_name',  'commentText');
 
         if (isset($this->contextIds)) {
             $uc->whereIn('uc.context_id', $this->contextIds);
@@ -82,8 +83,7 @@ class Collector implements CollectorInterface
         }
 
         if (isset($this->flagged)) {
-            $uc->where('ucs.setting_name',  'flagged')
-            ->where('ucs.setting_value',  true);
+            $uc->where('uc.flagged',  true);
         }        
 
         if (isset($this->count)) {

@@ -38,12 +38,13 @@ use APP\template\TemplateManager;
 use APP\plugins\generic\userComments\classes\facades\Repo;
 
 use APP\plugins\generic\userComments\pages\FlaggedCommentsHandler;
-use APP\plugins\generic\userComments\api\v1\submissions\PKPOverriddenSubmissionController;
+use APP\plugins\generic\userComments\UserCommentForm;
 use APP\plugins\generic\userComments\CommentsSchemaMigration;
 use APP\plugins\generic\userComments\classes\UserCommentDAO;
 use APP\plugins\generic\userComments\classes\Settings\Actions;
 use APP\plugins\generic\userComments\classes\Settings\Manage;
 use APP\plugins\generic\userComments\api\v1\userComments\UserCommentsHandler;
+use APP\plugins\generic\userComments\api\v1\submissions\PKPOverriddenSubmissionController;
 
 define('FLAGGED_COMMENTS_LIST', 'commentslist');
 
@@ -87,8 +88,21 @@ class UserCommentsPlugin extends GenericPlugin {
             $templateMgr = TemplateManager::getManager($request);         
             $jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
             $cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
+            // Frontend
             $templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');             
-            $templateMgr->addJavaScript('comments', $jsUrl);            
+            $templateMgr->addJavaScript('comments', $jsUrl); 
+            // Backend
+            //$jsListUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/flaggedCommentsList.js';
+            $jsListUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/vue/dist/userComments.iife.js';
+            $templateMgr->addJavaScript(
+                'userComments', 
+                $jsListUrl,
+                [
+                    'inline' => false,
+                    'contexts' => ['backend'],
+                    'priority' => TemplateManager::STYLE_SEQUENCE_LAST
+                ]
+            );            
             $templateMgr->addStyleSheet('comments', $cssUrl);                
 			
 		}
@@ -312,25 +326,45 @@ class UserCommentsPlugin extends GenericPlugin {
 
         $flaggedCommentsList = new ListPanel(
             FLAGGED_COMMENTS_LIST,
-            __('announcement.announcements'),
+            __('plugins.generic.userComments.listFlaggedComments'),
             [
-                // 'items' => array(
-                //     ['item' => 'item 1'], 
-                //     ['item' => 'item 2']
-                // ),
                 'apiURL' => $apiURL,
-                'items' => $userComments,
                 'lazyLoad' => true,
             ]
         );
+
+		// Create an instance of the comment form
+        $props = array(
+		// 	'$commentsListUrl' => $commentsListUrl,
+		    '$commentId' => 1, // $commentId,
+        //     '$submissionId' => $userComment->getSubmissionId(),
+		    '$publicationId' => 1, // $userComment->getPublicationId(),
+        //     '$foreignCommentId' => $userComment->getForeignCommentId(),
+        //     '$userName' => $user->getFullName(),
+		// 	'$userEmail' => $user->getEmail(),
+        //     '$commentDate' =>$userComment->getDateCreated(),
+        //     '$commentText' => $userComment->getCommentText(),
+        //     '$flaggedDate' => $userComment->getDateFlagged(),
+		    '$flagged' => true, // $userComment->getFlagged(),
+		// 	'$flagText' => $userComment->getFlagText(),				
+            '$visible' => true, // $userComment->getVisible()
+		);
+
+		// The URL where the form will be submitted		
+		$dispatcher = $request->getDispatcher();
+		// new for 3.5
+		// $apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'submissions/usercomments/edit');
+		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'userComments/edit');
+		$userCommentForm = new UserCommentForm($apiUrl, $request, $props); // the parameters for the __construct function are variable
 
         // we don't want to override existing states, so we assign them first and then add the ListPanel        
         $lists = $templateMgr->getState('components');
         $listConfig = $flaggedCommentsList->getConfig();
         $lists[$flaggedCommentsList->id] = $listConfig;
+        $lists[$userCommentForm->id] = $listConfig;
         $templateMgr->setState([
             'components' => $lists,
-            //'items' => $userComments,
+            'items' => $userComments,
         ]);
         
         return false;

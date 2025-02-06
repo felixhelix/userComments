@@ -6,14 +6,21 @@
     </div>
 </div>
 
-<!-- v-bind="components.{$smarty.const.FLAGGED_COMMENTS_LIST}"
-@set="set"
-:items="items"
--->
+<div>
+    <row-button class="button">Edit</row-button>
+</div>
 
-<list-panel
+<list-panel 
     v-bind="components.{$smarty.const.FLAGGED_COMMENTS_LIST}"
-    @set="set"
-></list-panel>
+    :items="items"
+>
+
+<!-- list-panel :items="items" -->
+    <template v-slot:item-actions="{ldelim}item{rdelim}">
+        <!-- pkp-button @click="$modal.show('userCommentForm', item)">Edit</pkp-button -->
+        <row-button class="button" :itemid="item.id">Edit</rowbutton>
+    </template>
+</list-panel>
 
 </tab>
+

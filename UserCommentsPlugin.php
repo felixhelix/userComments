@@ -73,11 +73,6 @@ class UserCommentsPlugin extends GenericPlugin {
 			// add/inject new routes/endpoints to an existing collection/list of api end points
 			// $this->addRoute(); // this is for 4.5 already
 
-			// Use a hook to add a menu item in the backend
-			// Hook::add('TemplateManager::display', array($this, 'addMenuItem'), Hook::SEQUENCE_LAST);
-            Hook::add('TemplateManager::display', array($this, 'addWebsiteSettingsTabData'));
-			Hook::add('Template::Settings::website', array($this, 'addWebsiteSettingsTab'), Hook::SEQUENCE_LAST);
-
             Hook::add('LoadHandler', $this->setPageHandler(...));
 
             // This allows themes to override the plugins templates
@@ -92,8 +87,12 @@ class UserCommentsPlugin extends GenericPlugin {
             $templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');             
             $templateMgr->addJavaScript('comments', $jsUrl); 
             // Backend
-            //$jsListUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/flaggedCommentsList.js';
-            $jsListUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/vue/dist/userComments.iife.js';
+			// Use a hook to add a menu item in the backend
+            Hook::add('TemplateManager::display', array($this, 'addWebsiteSettingsTabData'));
+			Hook::add('Template::Settings::website', array($this, 'addWebsiteSettingsTab'), Hook::SEQUENCE_LAST);    
+            // Add the custom components        
+            // $jsListUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/vue/dist/userComments.iife.js';
+            $jsListUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/public/build/userComments.iife.js';
             $templateMgr->addJavaScript(
                 'userComments', 
                 $jsListUrl,
@@ -333,28 +332,11 @@ class UserCommentsPlugin extends GenericPlugin {
             ]
         );
 
-		// Create an instance of the comment form
-        $props = array(
-		// 	'$commentsListUrl' => $commentsListUrl,
-		    '$commentId' => 1, // $commentId,
-        //     '$submissionId' => $userComment->getSubmissionId(),
-		    '$publicationId' => 1, // $userComment->getPublicationId(),
-        //     '$foreignCommentId' => $userComment->getForeignCommentId(),
-        //     '$userName' => $user->getFullName(),
-		// 	'$userEmail' => $user->getEmail(),
-        //     '$commentDate' =>$userComment->getDateCreated(),
-        //     '$commentText' => $userComment->getCommentText(),
-        //     '$flaggedDate' => $userComment->getDateFlagged(),
-		    '$flagged' => true, // $userComment->getFlagged(),
-		// 	'$flagText' => $userComment->getFlagText(),				
-            '$visible' => true, // $userComment->getVisible()
-		);
-
 		// The URL where the form will be submitted		
 		$dispatcher = $request->getDispatcher();
 		// new for 3.5
 		// $apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'submissions/usercomments/edit');
-		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'userComments/edit');
+		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'userComments/');
 		$userCommentForm = new UserCommentForm($apiUrl, $request, $props); // the parameters for the __construct function are variable
 
         // we don't want to override existing states, so we assign them first and then add the ListPanel        
@@ -365,6 +347,7 @@ class UserCommentsPlugin extends GenericPlugin {
         $templateMgr->setState([
             'components' => $lists,
             'items' => $userComments,
+            'apiurl' => $apiUrl,
         ]);
         
         return false;

@@ -97,11 +97,35 @@ class UserCommentsHandler extends APIHandler
 
     public function getComment($slimRequest, $response, $args)
     {
-        $params = $slimRequest->getQueryParams(); // ['searchPhrase' => 'barnes']
+        //$request = APIHandler::getRequest();
+        //$context = $request->getContext();        
+        $commentId = (int) $args['commentId'];
+        $queryResult = Repo::userComment()
+            ->get($commentId);
+
+        // $userComment = ['An error has occured :/'];
+
+        // if ($queryResult->isEmpty()) {
+        //     $userComment = ['There is no comment with this id.'];
+        // }    
+        // else { 
+        //     $userComment = ['There is a comment with this id :)'];
+        //     // Repo::userComment()
+        //     //     ->getSchemaMap()
+        //     //     ->map($queryResult->values());
+        // };
+
+        $userComment = Repo::userComment()
+            ->getSchemaMap()
+            ->map($queryResult);
+
         return $response->withJson(
-            ['id' => 1,
-            'comment' => "get comment",
-        ], 200);
+            $userComment, 200);                
+
+        // return $response->withJson(
+        //     ['id' => $commentId,
+        //     'comment' => $userComment,
+        // ], 200);
     }
 
     public function getCommentsByPublication($slimRequest, $response, $args)

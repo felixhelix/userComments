@@ -71,6 +71,18 @@ class DAO extends EntityDAO {
     //         ->pluck('cq.' . $this->primaryKeyColumn);
     // }
 
+    // /**
+    //  * Get a comment
+    //  */
+    // public function get(int $id, ?int $contextId): ?UserComment
+    // {
+    //     $row = DB::table($this->table)
+    //         ->where($this->primaryKeyColumn, $id)
+    //         ->where($this->parentKeyColumn, $contextId)
+    //         ->first();
+    //     return $row ? $this->fromRow($row) : null;
+    // }
+
     public function getMany(Collector $query): LazyCollection
     {
         $rows = $query

@@ -21,6 +21,7 @@ use Illuminate\Http\Request as IlluminateRequest;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 
+use PKP\facades\Locale;
 use PKP\security\Role;
 use PKP\core\JSONMessage;
 use PKP\core\PKPBaseController;
@@ -296,6 +297,7 @@ class UserCommentsPlugin extends GenericPlugin {
         // We need to assign the template data with a hook before we add the template itself
         $templateMgr = $params[0];
         $template = $params[1];
+        $locale = Locale::getLocale();
 
         if ($template !== 'management/website.tpl') {
             return false;
@@ -306,6 +308,7 @@ class UserCommentsPlugin extends GenericPlugin {
         $dispatcher = $request->getDispatcher();
         // listPanel does not support this :/
         $apiURL = $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'userComments/getFlaggedComments');
+        $csrfToken = $request->getSession()->getCSRFToken();
         
         $queryResults = Repo::userComment()
             ->getCollector()
@@ -323,31 +326,33 @@ class UserCommentsPlugin extends GenericPlugin {
         };
 
 
-        $flaggedCommentsList = new ListPanel(
-            FLAGGED_COMMENTS_LIST,
-            __('plugins.generic.userComments.listFlaggedComments'),
-            [
-                'apiURL' => $apiURL,
-                'lazyLoad' => true,
-            ]
-        );
+        // $flaggedCommentsList = new ListPanel(
+        //     FLAGGED_COMMENTS_LIST,
+        //     __('plugins.generic.userComments.listFlaggedComments'),
+        //     [
+        //         'apiURL' => $apiURL,
+        //         'lazyLoad' => true,
+        //     ]
+        // );
 
 		// The URL where the form will be submitted		
 		$dispatcher = $request->getDispatcher();
 		// new for 3.5
 		// $apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'submissions/usercomments/edit');
 		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'userComments/');
-		$userCommentForm = new UserCommentForm($apiUrl, $request, $props); // the parameters for the __construct function are variable
+		// $userCommentForm = new UserCommentForm($apiUrl, $request, $props); // the parameters for the __construct function are variable
 
         // we don't want to override existing states, so we assign them first and then add the ListPanel        
         $lists = $templateMgr->getState('components');
-        $listConfig = $flaggedCommentsList->getConfig();
-        $lists[$flaggedCommentsList->id] = $listConfig;
-        $lists[$userCommentForm->id] = $listConfig;
+        // $listConfig = $flaggedCommentsList->getConfig();
+        // $lists[$flaggedCommentsList->id] = $listConfig;
+        // $lists[$userCommentForm->id] = $listConfig;
         $templateMgr->setState([
             'components' => $lists,
             'items' => $userComments,
             'apiurl' => $apiUrl,
+            'csrftoken' => $csrfToken,
+            'locale' => $locale
         ]);
         
         return false;

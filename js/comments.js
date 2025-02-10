@@ -77,9 +77,6 @@ const App = Vue.createApp({
         .then(response => response.json())
         .then(data => {
           // Handle the response if needed
-          console.log('Data posted successfully:', data);
-          // OBSOLETE: Fetch data again to update the displayed list 
-          // this.fetchData();
           // Add new comment to list
           newComment = {"id":data.id,
             "foreignCommentId":foreignCommentId,

@@ -27,7 +27,7 @@
 			"multilingual": false,			
 			"apiSummary": true,
 			"validation": [
-				"date_format:Y-m-d"
+				"date_format:Y-m-d H:i:s"
 			]
 		},
 		"commentText": {
@@ -83,14 +83,29 @@
 			"type": "boolean",
 			"description": "If this comment is visible.",
 			"multilingual": false,			
-			"apiSummary": true
+			"apiSummary": true,
+			"validation": [
+				"nullable"
+			]			
 		},  		
 		"flagged": {
 			"type": "boolean",
 			"description": "If this comment is flagged.",
 			"multilingual": false,			
-			"apiSummary": true
+			"apiSummary": true,
+			"validation": [
+				"nullable"
+			]			
 		},   
+		"disabled": {
+			"type": "boolean",
+			"description": "If this comment is disabled.",
+			"multilingual": false,			
+			"apiSummary": true,
+			"validation": [
+				"nullable"
+			]			
+		}, 		
 		"dateFlagged": {
 			"type": "string",
 			"description": "The date this comment has been flagged.",
@@ -98,23 +113,23 @@
 			"apiSummary": true,
 			"validation": [
 				"nullable",
-				"date_format:Y-m-d H:i:s"
+				"date_format:Y-m-d"
 			]
 		},
 		"flaggedBy": {
 			"type": "integer",
 			"description": "The id of the user who flagged the comment.",
 			"multilingual": false,
-			"apiSummary": true
+			"apiSummary": true,
+			"validation": [
+				"nullable"
+			]			
 		},		
 		"flagText": {
 			"type": "string",
 			"description": "The text of the flag note.",
 			"multilingual": true,
-			"apiSummary": true,
-			"validation": [
-				"nullable"
-			]
+			"apiSummary": false
 		},		
 		"publicationVersion": {
 			"type": "integer",

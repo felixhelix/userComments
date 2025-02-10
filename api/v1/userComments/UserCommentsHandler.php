@@ -50,8 +50,9 @@ class UserCommentsHandler extends APIHandler
                     'roles' => $rolesComment
                 ],      
                 [
-                    'pattern' => $this->getEndpointPattern() . '/edit',
-                    'handler' => [$this, 'setVisibility'],
+                    'pattern' => $this->getEndpointPattern() . '/update',
+                    //'handler' => [$this, 'setVisibility'],
+                    'handler' => [$this, 'update'],
                     'roles' => $rolesEdit
                 ],                               
             ],
@@ -221,7 +222,7 @@ class UserCommentsHandler extends APIHandler
         $userComment->setForeignCommentId($foreignCommentId);        
         $userComment->setSubmissionId($submissionId);
         $userComment->setPublicationVersion($publicationVersion);
-        $userComment->setCommentText($commentText);
+        $userComment->setCommentText($commentText, $locale);
 
         // Insert the data object
         $userCommentId = Repo::userComment()->add($userComment);
@@ -291,9 +292,9 @@ class UserCommentsHandler extends APIHandler
         $params = [
             'flagged' => true,
             'dateFlagged' => Core::getCurrentDate(),
-            'flagText' => $flagText,
             'flaggedBy' => $currentUser->getId(),
         ];
+        $params['flagText'][$locale] = $flagText;
 
         // update the entity
         $userComment = Repo::userComment()->get($userCommentId, $context->getId());
@@ -330,6 +331,31 @@ class UserCommentsHandler extends APIHandler
         ], 200);
     }
 
+    public function update($slimRequest, $response, $args)
+    {
+        $request = APIHandler::getRequest();
+        $context = $request->getContext();  
+        $requestParams = $slimRequest->getParsedBody();
+        $currentUser = $request->getUser();
+        $locale = Locale::getLocale();
+
+        // set the data      
+        $userCommentId = $requestParams['userCommentId'];        
+        $params = [
+            'flagged' => true
+        ];
+
+        // update the entity
+        $userComment = Repo::userComment()->get($userCommentId, $context->getId());
+        error_log(json_encode($userComment));
+        Repo::userComment()->update($userComment, $params);        
+
+        return $response->withJson(
+            ['userCommentId' => $userComment->getId(),
+        ], 200);
+
+    }
+    
     public function setVisibility($slimRequest, $response, $args)
     {
         // User comments may not be deleted

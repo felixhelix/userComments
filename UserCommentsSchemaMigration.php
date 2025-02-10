@@ -35,7 +35,6 @@ class UserCommentsSchemaMigration extends Migration
             $table->datetime('date_created');
             $table->datetime('date_flagged')->nullable()->default(null); // holds the last date flagged
             $table->boolean('flagged')->default(false);
-            $table->bigInteger('flagged_by')->nullable();
             $table->boolean('visible')->default(true);
         });
 

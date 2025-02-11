@@ -72,23 +72,6 @@ class UserComment extends \PKP\core\DataObject {
 	}
 
 	/**
-	 * Get Publication version.
-	 * @return int
-	 */
-	function getPublicationVersion(){
-		return $this->getData('publicationVersion');
-	}
-
-	/**
-	 * Set Publication version.
-	 * @return int
-	 * @param $publicationVersion int	 * 
-	 */
-	function setPublicationVersion($publicationVersion){
-		return $this->setData('publicationVersion', $publicationVersion);
-	}
-
-	/**
 	 * Get foreign comment ID.
 	 * @return int
 	 */

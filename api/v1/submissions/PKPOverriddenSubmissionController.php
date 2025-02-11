@@ -83,7 +83,6 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
             $userComments[] = [
             'id' => $userComment->getId(),
             'publicationId' => $userComment->getPublicationId(),
-            'publicationVersion' => $userComment->getPublicationVersion(),
             'submissionId' => $userComment->getSubmissionId(),
             'foreignCommentId' => $userComment->getForeignCommentId(),
             'userName' => $user->getFullName(),
@@ -103,6 +102,7 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
     public function addComment(Request $illuminateRequest): JsonResponse
     {
         $request = $this->getRequest();
+        $context = $request->getContext();        
         $currentUser = $request->getUser();
         // $locale = Locale::getLocale();
 
@@ -112,7 +112,6 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
         $publicationId = $requestParams['publicationId'];
         $foreignCommentId = array_key_exists('foreignCommentId', $requestParams) ? $requestParams['foreignCommentId'] : null;     
         $submissionId = $requestParams['submissionId'];  
-        $publicationVersion = null;
         $commentText = $requestParams['commentText'];
 
         // Get the DAO for user comments
@@ -120,12 +119,11 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
             
         // Create the data object
         $newUserComment = $UserCommentDao->newDataObject(); 
-        $newUserComment->setContextId(1);
-        $newUserComment->setUserId($currentUser->getId());
+        $newUserComment->setContextId($context.getId());
+        $newUserComment->setSubmissionId($submissionId);        
         $newUserComment->setPublicationId($publicationId);
+        $newUserComment->setUserId($currentUser->getId());
         $newUserComment->setForeignCommentId($foreignCommentId);        
-        $newUserComment->setSubmissionId($submissionId);
-        $newUserComment->setPublicationVersion($publicationVersion);
         $newUserComment->setCommentText($commentText);
 
         // Insert the data object

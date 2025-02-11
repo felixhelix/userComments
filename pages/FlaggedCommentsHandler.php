@@ -119,7 +119,6 @@ class flaggedCommentsHandler extends Handler {
             'id' => $userComment->getId(),
             'submissionId' => $userComment->getSubmissionId(),
 			'publicationId' => $userComment->getPublicationId(),			
-			'publicationVersion' => $userComment->getPublicationVersion(),						
             'foreignCommentId' => $userComment->getForeignCommentId(),
             'userName' => $user->getFullName(),
 			'userEmail' => $user->getEmail(),

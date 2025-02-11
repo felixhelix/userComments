@@ -1,13 +1,13 @@
 <template>
     <div>
-      {{ itemid }}
+      {{ item.id }}
       <pkpbutton @click="openExampleDialog()">edit</pkpbutton>
     </div>
 </template> 
 
 <script>
 export default {
-  props: ['itemid','apiurl','csrftoken','locale'],
+  props: ['item','apiurl','csrftoken','locale'],
   mixins: [pkp.vueMixins.dialog], 
   data() {
     return {};
@@ -15,17 +15,17 @@ export default {
   methods: {
     openExampleDialog() {
       // fetch the flagged comment from the API
-      fetch(this.apiurl + 'getComment/' +  this.itemid)
+      fetch(this.apiurl + 'getComment/' +  this.item.id)
         .then(response => response.json())
         .then(data => {
           console.log(data);
           this.openDialog({
             name: "flaggedComment",
-            title: "Flagged Comment #" + this.itemid,
+            title: "Flagged Comment #" + this.item.id,
             message: "The flagged comment reads: '" + data.commentText[this.locale] + "'<br>The reason given is: '" + data.flagText[this.locale] + "'",
             actions: [
               {
-                label: "Disable Flagged Comment",
+                label: this.item.visible ? "Disable Flagged Comment" : "Re-enable Comment",
                 isPrimary: true,
                 callback: () => {
                   // an editor has decided to disable the comment
@@ -36,9 +36,9 @@ export default {
                       'X-Csrf-Token': this.csrftoken,          
                     },                    
                     body: JSON.stringify({
-                      userCommentId: this.itemid,
-                      visible: false,
-                      flagged: true,
+                      userCommentId: this.item.id,
+                      visible: this.item.visible ? false : true,
+                      flagged: this.item.visible ? true : false, // if the item is re-enabled, the comment is unflagged also
                     }),
                   })
                   .then(response => response.json())

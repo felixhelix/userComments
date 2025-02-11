@@ -33,7 +33,7 @@
 		"commentText": {
 			"type": "string",
 			"description": "The text of the comment.",
-			"multilingual": true,
+			"multilingual": false,
 			"apiSummary": true,
 			"validation": [
 				"nullable"
@@ -128,15 +128,9 @@
 		"flagText": {
 			"type": "string",
 			"description": "The text of the flag note.",
-			"multilingual": true,
+			"multilingual": false,
 			"apiSummary": false
 		},		
-		"publicationVersion": {
-			"type": "integer",
-			"description": "Version number of the publication this comment refers to.",
-			"multilingual": false,
-			"apiSummary": true
-		},
 		"submissionId": {
 			"type": "integer",
 			"description": "Id of the submission this comment refers to.",

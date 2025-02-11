@@ -17,7 +17,7 @@
 <!-- list-panel :items="items" -->
     <template v-slot:item-actions="{ldelim}item{rdelim}">
         <!-- pkp-button @click="$modal.show('userCommentForm', item)">Edit</pkp-button -->
-        <row-button class="button" :itemid="item.id" :apiurl="apiurl" :csrftoken="csrftoken" :locale="locale">Edit</rowbutton>
+        <row-button class="button" :item="item" :apiurl="apiurl" :csrftoken="csrftoken" :locale="locale">Edit</rowbutton>
     </template>
 </list-panel>
 

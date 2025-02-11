@@ -342,7 +342,8 @@ class UserCommentsHandler extends APIHandler
         // set the data      
         $userCommentId = $requestParams['userCommentId'];        
         $params = [
-            'flagged' => true
+            'flagged' => $requestParams['flagged'],
+            'visible' => $requestParams['visible'],
         ];
 
         // update the entity

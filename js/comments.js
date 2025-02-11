@@ -8,7 +8,6 @@ const App = Vue.createApp({
     apiKey: '',
     apiURL: '',
     submissionId: '',
-    version: '',
     publicationId: '',
     csrfToken: '',
     foreignCommentId: null,

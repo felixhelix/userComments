@@ -7,7 +7,6 @@
     data-apiKey="{$apiKey}" 
     data-submissionId="{$submissionId}" 
     data-publicationId="{$publication->getData('id')}"
-    data-publicationVersion="{$publication->getData('version')}" 
     data-csrfToken="{$csrfToken}">
         <div>
         <h4 class="hidden">{translate key='plugins.generic.userComments.sectionheader'}</h4>

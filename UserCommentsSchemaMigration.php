@@ -30,7 +30,6 @@ class UserCommentsSchemaMigration extends Migration
             $table->bigInteger('context_id');            
             $table->bigInteger('submission_id')->nullable();
             $table->bigInteger('publication_id')->nullable();            
-            $table->bigInteger('publication_version')->nullable();
             $table->bigInteger('foreign_comment_id')->nullable(); // this holds optionally the key of another comment
             $table->datetime('date_created');
             $table->datetime('date_flagged')->nullable()->default(null); // holds the last date flagged

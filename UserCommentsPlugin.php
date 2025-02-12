@@ -360,6 +360,7 @@ class UserCommentsPlugin extends GenericPlugin {
             'components' => $lists,
             'items' => $userComments,
             'apiurl' => $apiUrl,
+            'preprinturl' => $dispatcher->url($request, PKPApplication::ROUTE_PAGE, $context->getPath(), 'preprint', 'view'),
             'csrftoken' => $csrfToken,
             'i18n' => $i18n
         ]);

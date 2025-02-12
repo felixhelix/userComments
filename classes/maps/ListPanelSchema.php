@@ -79,12 +79,14 @@ class ListPanelSchema extends \PKP\core\maps\Schema
                     break;  
 
                 case 'submissionId':
-                    $output['title'] = "Submission: " . $submission->getLocalizedTitle();
-                    break;   
+                    $output['submissionTitle'] = $submission->getLocalizedTitle();
+                    break;                    
 
-                case 'dateFlagged':                    
-                    $output['subtitle'] = "flagged: " . $item->getData($prop);                    
-                    break;                       
+                case 'flaggedBy':
+                    // returns a user entity
+                    $output[$prop] = Repo::user()->get((int) $item->getData($prop));
+                    break;                    
+
 
                 // Get other properties from the DataObject
                 default:

@@ -1,7 +1,6 @@
 <template>
     <div>
-      {{ item.id }}
-      <pkpbutton @click="openExampleDialog()">edit</pkpbutton>
+      <pkp-button :isPrimary="true" @click="openExampleDialog()">{{ __('common.edit') }}</pkp-button>
     </div>
 </template> 
 

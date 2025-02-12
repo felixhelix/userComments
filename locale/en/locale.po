@@ -62,6 +62,9 @@ msgstr "This comment has been unpublished due to violation of our code of conduc
 msgid "plugins.generic.userComments.apiKey"
 msgstr "API key used for displaying user comments to unauthenticated users."
 
+msgid "plugins.generic.userComments.flaggedCommentsTitle"
+msgstr "Flagged Comments"
+
 msgid "plugins.generic.userComments.listFlaggedComments"
 msgstr "List of flagged user comments"
 
@@ -91,4 +94,22 @@ msgstr "The reason given is:"
 
 msgid "plugins.generic.userComments.flagInfoHidden"
 msgstr "This comment is hidden."
+
+msgid "plugins.generic.userComments.flaggedCommentHidden"
+msgstr "hidden"
+
+msgid "plugins.generic.userComments.publicationPage"
+msgstr "Publication page"
+
+msgid "plugins.generic.userComments.commentBy"
+msgstr "comment by"
+
+msgid "plugins.generic.userComments.onPublication"
+msgstr "on publication"
+
+msgid "plugins.generic.userComments.flaggedBy"
+msgstr "flagged by"
+
+msgid "plugins.generic.userComments.flaggedAt"
+msgstr "at"
 

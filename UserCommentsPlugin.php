@@ -60,9 +60,6 @@ class UserCommentsPlugin extends GenericPlugin {
 		
 		if ($success && $this->getEnabled($mainContextId)) {	
 
-			// Creata a DAO for user comments
-			// $UserCommentDao = new UserCommentDAO($schemaService);
-			// DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
             Hook::add('Schema::get::userComment', [$this, 'addUserCommentsSchema']);
 
 			// Use a hook to insert a template on the details page
@@ -74,25 +71,23 @@ class UserCommentsPlugin extends GenericPlugin {
 			// add/inject new routes/endpoints to an existing collection/list of api end points
 			// $this->addRoute(); // this is for 4.5 already
 
-            Hook::add('LoadHandler', $this->setPageHandler(...));
-
-            // This allows themes to override the plugins templates
+            // This allows themes to override the plugin templates
             $this->_registerTemplateResource();
 
+            // Frontend            
             // Add the custom js and style sheet
             $request = Application::get()->getRequest();
             $templateMgr = TemplateManager::getManager($request);         
             $jsUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/js/comments.js';
             $cssUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/css/comments.css';
-            // Frontend
             $templateMgr->addJavaScript('vue', 'https://unpkg.com/vue@3/dist/vue.global.js');             
             $templateMgr->addJavaScript('comments', $jsUrl); 
+
             // Backend
 			// Use a hook to add a menu item in the backend
             Hook::add('TemplateManager::display', array($this, 'addWebsiteSettingsTabData'));
 			Hook::add('Template::Settings::website', array($this, 'addWebsiteSettingsTab'), Hook::SEQUENCE_LAST);    
             // Add the custom components        
-            // $jsListUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/vue/dist/userComments.iife.js';
             $jsListUrl = $request->getBaseUrl() . '/' . $this->getPluginPath() . '/public/build/userComments.iife.js';
             $templateMgr->addJavaScript(
                 'userComments', 
@@ -116,23 +111,7 @@ class UserCommentsPlugin extends GenericPlugin {
         return new UserCommentsSchemaMigration();
     }
 
-    // /**
-    //  * @copydoc Plugin::updateSchema()
-    //  */
-    // public function updateSchema($hookName, $args)
-    // {
-    //     $installer = $args[0];
-    //     $result = &$args[1];
-    //     $migration = new UserCommentsSchemaMigration($installer, $this);
-    //     try {
-    //         $migration->up();
-    //     } catch (Exception $e) {
-    //         $installer->setError(Installer::INSTALLER_ERROR_DB, __('installer.installMigrationError', ['class' => get_class($migration), 'message' => $e->getMessage()]));
-    //         $result = false;
-    //     }
-    // }	
-
-	/**
+ 	/**
 	 * @copydoc Plugin::getName()
 	 */
 	public function getName() {
@@ -153,6 +132,10 @@ class UserCommentsPlugin extends GenericPlugin {
 		return __('plugins.generic.userComments.description');
 	}
 
+	/**
+	 * @copydoc Plugin::addCommentBlock()
+     * Adds a comment block to the publication details page
+	 */    
     public function addCommentBlock(string $hookName, array $args): bool {
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
@@ -165,7 +148,7 @@ class UserCommentsPlugin extends GenericPlugin {
 		// Insert the comment template
 		$smarty->assign([
 			'baseURL' => $request->getBaseURL(),
-			// 'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'submissions/usercomments/'),
+			//'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'submissions/usercomments/'), // this is for 4.5 already
             'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'userComments/'),
 			'csrfToken' => $request->getSession()->getCSRFToken(),
 			'apiKey' => $this->getSetting($context->getId(), 'apiKey'),
@@ -181,6 +164,7 @@ class UserCommentsPlugin extends GenericPlugin {
 
 	/**
      * Add/override new api endpoints to existing list of api endpoints
+     * this is for 4.5 already
      */
     public function addRoute(): void
     {
@@ -216,7 +200,7 @@ class UserCommentsPlugin extends GenericPlugin {
 
     public function setupUserCommentsHandler($hookName, $params)
     {
-		$request = $params[0]; // APP\\core\\Request
+		$request = $params[0];
         $router = $request->getRouter();
 
         if (!($router instanceof \APIRouter)) {
@@ -259,38 +243,6 @@ class UserCommentsPlugin extends GenericPlugin {
         $manage = new Manage($this);
         return $manage->execute($args, $request);
     }
-
-	public function addMenuItem($hookName, $params)
-    {
-		$request = Application::get()->getRequest();
-		$context = $request->getContext();
-		$user = $request->getUser();
-		$router = $request->getRouter();
-        $templateMgr = $params[0];
-        $template = $params[1];
-		$managerGroupId = 3; // This should not be hard coded
-
-        if (!($template == 'management/website.tpl')) {
-            return false;
-        }
-
-		// user has to be in moderator group	
-		if(!Repo::userGroup()->userInGroup($user->getId(), $managerGroupId)) {
-			return false;
-		}
-
-		$menu = $templateMgr->getState('menu');
-		$menu['flaggedComments'] = [
-			'name' => 'Flagged Comments',
-			'url' => $router->url($request, $context->getData('urlPath'), 'flaggedComments'),
-			'isCurrent' => $router->getRequestedPage($request) === 'flaggedComments',
-		];
-		$templateMgr->setState([
-			'menu' => $menu,
-		]);		
-
-		return False;
-	}	
 
     public function addWebsiteSettingsTabData($hookName, $params)
     {
@@ -339,7 +291,6 @@ class UserCommentsPlugin extends GenericPlugin {
 		// new for 3.5
 		// $apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'submissions/usercomments/edit');
 		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'userComments/');
-		// $userCommentForm = new UserCommentForm($apiUrl, $request, $props); // the parameters for the __construct function are variable
 
         // get the translation strings
         $i18n['hide_flagged_comment'] = __('plugins.generic.userComments.hideFlaggedComment');
@@ -355,7 +306,7 @@ class UserCommentsPlugin extends GenericPlugin {
         $lists = $templateMgr->getState('components');
         // $listConfig = $flaggedCommentsList->getConfig();
         // $lists[$flaggedCommentsList->id] = $listConfig;
-        // $lists[$userCommentForm->id] = $listConfig;
+
         $templateMgr->setState([
             'components' => $lists,
             'items' => $userComments,
@@ -369,76 +320,11 @@ class UserCommentsPlugin extends GenericPlugin {
     }
 
 	public function addWebsiteSettingsTab($hookName, $params) {
-		// alternatively show a link on the admin page
         $request = Application::get()->getRequest();
         $templateMgr = TemplateManager::getManager($request);        
-        // $flaggedComments = $this->getFlaggedComments();
-
-        // $templateMgr->assign([
-        //     'items' => $flaggedComments,
-        // ]);
       
-        return $templateMgr->display($this->getTemplateResource('listFlaggedCommentsUI.tpl'));				
-		// echo('<tab id="flaggedUserComments" label="Flagged Comments">Flagged Comments</tab>');
-		// return false;
+        return $templateMgr->display($this->getTemplateResource('flaggedCommentsTab.tpl'));				
 	}	
-
-    public function setPageHandler(string $hookName, array $params): bool
-    {
-        $page = & $params[0];
-        $handler = & $params[3];
-        if ($this->getEnabled() && $page === 'flaggedComments') {
-            $handler = new FlaggedCommentsHandler($this);
-            return true;
-        }
-        return false;
-    }	
-
-	// public function setPageHandler(string $hookName, array $params) {
-	// 	$page = $params[0];	
-	// 	switch ($page) {
-	// 		case 'FlaggedComments':
-	// 			$this->import('FlaggedCommentsHandler');
-	// 			define('HANDLER_CLASS', 'flaggedCommentsHandler');
-	// 			return true;			
-	// 	}
-	// 	return false;
-	// }	
-
-	// public function getFlaggedComments()
-	// {
-	// 	$request = PKPApplication::get()->getRequest();
-	// 	$context = $request->getContext();
-
-	// 	$userCommentDao = DAORegistry::getDAO('UserCommentDAO');
-    //     // $userDao = DAORegistry::getDAO('UserDAO'); 
-	// 	// $userDao = new DAO;	
-
-    //     $queryResults = $userCommentDao->getFlagged($context->getId());
-	// 	// $userComments = $queryResults->toArray();
-
-    //     $userComments = [];
-
-    //     while ($userComment = $queryResults->next()) {  
-    //         $user = Repo::user()->get($userComment->getUserId());
-    //         $userComments[] = [
-    //         'id' => $userComment->getId(),
-    //         'submissionId' => $userComment->getSubmissionId(),
-	// 		'publicationId' => $userComment->getPublicationId(),			
-    //         'foreignCommentId' => $userComment->getForeignCommentId(),
-    //         'userName' => $user->getFullName(),
-	// 		'userEmail' => $user->getEmail(),
-    //         'commentDate' =>$userComment->getDateCreated(),
-    //         'commentText' => $userComment->getCommentText(),
-    //         'flaggedDate' => $userComment->getDateFlagged(),
-    //         'visible' => $userComment->getVisible(),
-	// 		'commentUrl' => $request->getRouter()->url($request, null, 'flaggedComments', 'edit', array($userComment->getId())),
-    //         ];
-    //     };
-
-	// 	return $userComments;
-	// 	// var_dump("getFlaggedComments: " . json_encode($userComments));
-	// }    
 
     public function addUserCommentsSchema(string $hookName, array $params): bool
     {

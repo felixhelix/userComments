@@ -187,7 +187,7 @@ class flaggedCommentsHandler extends Handler {
             'flaggedDate' => $userComment->getDateFlagged(),
 			'flagged' => $userComment->getFlagged(),
 			'flaggedByUser' => $flaggedByUser->getFullName(),	
-			'flagText' => $userComment->getFlagText(),					
+			'flagNote' => $userComment->getFlagNote(),					
 		]);
 
 		// Create an instance of the comment form
@@ -203,7 +203,7 @@ class flaggedCommentsHandler extends Handler {
             '$commentText' => $userComment->getCommentText(),
             '$flaggedDate' => $userComment->getDateFlagged(),
 			'$flagged' => $userComment->getFlagged(),
-			'$flagText' => $userComment->getFlagText(),				
+			'$flagNote' => $userComment->getFlagNote(),				
             '$visible' => $userComment->getVisible()
 		);
 		// The URL where the form will be submitted		

@@ -155,7 +155,6 @@ class UserCommentsHandler extends APIHandler
             //     $userComments[] = [
             //     'id' => $userComment->getId(),
             //     'publicationId' => $userComment->getPublicationId(),                
-            //     'publicationVersion' => $userComment->getPublicationVersion(),
             //     'submissionId' => $userComment->getSubmissionId(),
             //     'foreignCommentId' => $userComment->getForeignCommentId(),
             //     'userName' => $user->getFullName(),
@@ -186,7 +185,6 @@ class UserCommentsHandler extends APIHandler
         $context = $request->getContext();        
         $requestParams = $slimRequest->getParsedBody();
         $currentUser = $request->getUser();
-        $locale = Locale::getLocale();
 
         // This probably is not neccessary
         // get submission values
@@ -207,10 +205,9 @@ class UserCommentsHandler extends APIHandler
         //     }
         // }
 
+        $submissionId = $requestParams['submissionId'];          
         $publicationId = $requestParams['publicationId'];
         $foreignCommentId = $requestParams['foreignCommentId'];     
-        $submissionId = $requestParams['submissionId'];  
-        $publicationVersion = null;
         $commentText = $requestParams['commentText'];
             
         // Create the data object
@@ -221,8 +218,7 @@ class UserCommentsHandler extends APIHandler
         $userComment->setPublicationId($publicationId);
         $userComment->setForeignCommentId($foreignCommentId);        
         $userComment->setSubmissionId($submissionId);
-        $userComment->setPublicationVersion($publicationVersion);
-        $userComment->setCommentText($commentText, $locale);
+        $userComment->setCommentText($commentText);
 
         // Insert the data object
         $userCommentId = Repo::userComment()->add($userComment);
@@ -271,11 +267,10 @@ class UserCommentsHandler extends APIHandler
         $context = $request->getContext();  
         $requestParams = $slimRequest->getParsedBody();
         $currentUser = $request->getUser();
-        $locale = Locale::getLocale();
 
         $userCommentId = $requestParams['userCommentId'];
         $publicationId = $requestParams['publicationId'];
-        $flagText = $requestParams['flagText'];
+        $flagNote = $requestParams['flagNote'];
         // Validate input
         if ( gettype($userCommentId) != 'integer') {
             return $response->withJson(
@@ -293,8 +288,9 @@ class UserCommentsHandler extends APIHandler
             'flagged' => true,
             'dateFlagged' => Core::getCurrentDate(),
             'flaggedBy' => $currentUser->getId(),
+            'flagNote' => $flagNote,
         ];
-        $params['flagText'][$locale] = $flagText;
+        // $params['flagNote'][$locale] = $flagNote;
 
         // update the entity
         $userComment = Repo::userComment()->get($userCommentId, $context->getId());
@@ -337,7 +333,6 @@ class UserCommentsHandler extends APIHandler
         $context = $request->getContext();  
         $requestParams = $slimRequest->getParsedBody();
         $currentUser = $request->getUser();
-        $locale = Locale::getLocale();
 
         // set the data      
         $userCommentId = $requestParams['userCommentId'];        
@@ -369,9 +364,7 @@ class UserCommentsHandler extends APIHandler
         $visible = $requestParams['visible'];
         $flagged = $requestParams['flagged'];
         $messageKey = '';
-        // error_log("setVisibility: " . $visible . " on " . $userCommentId);
         $currentUser = $request->getUser();
-        $locale = Locale::getLocale();
 
         // Create a DAO for user comments
         $UserCommentDao = new UserCommentDAO();

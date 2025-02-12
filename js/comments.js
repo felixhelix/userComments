@@ -184,7 +184,7 @@ App.component('flagModal', {
     }, 
     submitflag(parentComponent, submitEvent) {
       // get the form value
-      flagTextField =  submitEvent.target[name = 'flagtext'];
+      flagTextField =  submitEvent.target[name = 'flagnote'];
       userCommentId = submitEvent.target.dataset.usercommentid ? Number(submitEvent.target.dataset.usercommentid) : null      
       // Make a POST request to the API
       fetch(this.$root.apiURL + 'flag', {
@@ -196,7 +196,7 @@ App.component('flagModal', {
         body: JSON.stringify({
           userCommentId: userCommentId,
           publicationId: Number(this.$root.publicationId),
-          flagText: flagTextField.value,
+          flagNote: flagTextField.value,
           completed: false
         }),
       })

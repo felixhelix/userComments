@@ -297,7 +297,6 @@ class UserCommentsPlugin extends GenericPlugin {
         // We need to assign the template data with a hook before we add the template itself
         $templateMgr = $params[0];
         $template = $params[1];
-        $locale = Locale::getLocale();
 
         if ($template !== 'management/website.tpl') {
             return false;
@@ -342,6 +341,16 @@ class UserCommentsPlugin extends GenericPlugin {
 		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'userComments/');
 		// $userCommentForm = new UserCommentForm($apiUrl, $request, $props); // the parameters for the __construct function are variable
 
+        // get the translation strings
+        $i18n['hide_flagged_comment'] = __('plugins.generic.userComments.hideFlaggedComment');
+        $i18n['remove_flag'] = __('plugins.generic.userComments.removeFlag');
+        $i18n['cancel'] = __('plugins.generic.userComments.cancel');
+        $i18n['alert_not_flagged'] = __('plugins.generic.userComments.alertNotFlagged');
+        $i18n['flag_info'] = __('plugins.generic.userComments.flagInfo');
+        $i18n['flag_info_comment'] = __('plugins.generic.userComments.flagInfoComment');
+        $i18n['flag_info_note'] = __('plugins.generic.userComments.flagInfoNote');
+        $i18n['flag_info_hidden'] = __('plugins.generic.userComments.flagInfoHidden');
+
         // we don't want to override existing states, so we assign them first and then add the ListPanel        
         $lists = $templateMgr->getState('components');
         // $listConfig = $flaggedCommentsList->getConfig();
@@ -352,7 +361,7 @@ class UserCommentsPlugin extends GenericPlugin {
             'items' => $userComments,
             'apiurl' => $apiUrl,
             'csrftoken' => $csrfToken,
-            'locale' => $locale
+            'i18n' => $i18n
         ]);
         
         return false;

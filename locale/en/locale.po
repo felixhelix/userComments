@@ -50,7 +50,7 @@ msgstr "Comment Added"
 msgid "plugins.generic.userComments.flag"
 msgstr "flag this comment"
 
-msgid "plugins.generic.flagText.placeholder"
+msgid "plugins.generic.flagNote.placeholder"
 msgstr "Why do you flag this comment? Please help us by providing a short reasoning."
 
 msgid "plugins.generic.userComments.flagged"
@@ -67,3 +67,28 @@ msgstr "List of flagged user comments"
 
 msgid "plugins.generic.userComments.editFlaggedComments"
 msgstr "Edit flagged user comment"
+
+msgid "plugins.generic.userComments.hideFlaggedComment"
+msgstr "Hide Flagged Comment"
+
+msgid "plugins.generic.userComments.removeFlag"
+msgstr "Remove Flag"
+
+msgid "plugins.generic.userComments.cancel"
+msgstr "Cancel"
+
+msgid "plugins.generic.userComments.alertNotFlagged"
+msgstr "This comment is not currently flagged!"
+
+msgid "plugins.generic.userComments.flagInfo"
+msgstr "The flagged comment reads: '${data.commentText}'<br>The reason given is: '${data.flagNote}'"
+
+msgid "plugins.generic.userComments.flagInfoComment"
+msgstr "The flagged comment reads:" 
+
+msgid "plugins.generic.userComments.flagInfoNote"
+msgstr "The reason given is:"
+
+msgid "plugins.generic.userComments.flagInfoHidden"
+msgstr "This comment is hidden."
+

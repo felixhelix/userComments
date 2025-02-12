@@ -13,7 +13,7 @@
 {block name="page"}
 <div class="pkpFormGroup">
 	<div class="pkpNotification pkpNotification--warning">Flagged {{$flaggedDate|date_format:$datetimeFormatLong}} by {{$flaggedByUser}}
-	<span style="display: block">Reason given: {{$flagText}}</span>
+	<span style="display: block">Reason given: {{$flagNote}}</span>
 	</div>
 	<div style="margin-top: 1rem;">Comment Text:</div>
 	<div style="background-color: white; padding: 0.5rem; border-radius: 0.5rem;">

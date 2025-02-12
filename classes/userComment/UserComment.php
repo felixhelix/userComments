@@ -140,15 +140,15 @@ class UserComment extends \PKP\core\DataObject {
 	 * @return string
 	 */
 	function getCommentText() {
-		return $this->getLocalizedData('commentText');
+		return $this->getData('commentText');
 	}
 
 	/**
 	 * Set commentText.
 	 * @param $commentText string
 	 */
-	function setCommentText($commentText, $locale) {
-		return $this->setData('commentText', $commentText, $locale);
+	function setCommentText($commentText) {
+		return $this->setData('commentText', $commentText);
 	}
 	
 	/**
@@ -199,18 +199,18 @@ class UserComment extends \PKP\core\DataObject {
 	}
 
 	/**
-	 * Set flagText.
-	 * @param $flagText string
+	 * Set flagNote.
+	 * @param $flagNote string
 	 */
-	function setFlagText(str $flagText, str $locale) {
-		return $this->setData('flagText', $flagText, $locale);
+	function setFlagNote(str $flagNote) {
+		return $this->setData('flagNote', $flagNote);
 	}		
 
 	/**
-	 * Get flagText.
+	 * Get flagNote.
 	 */
-	function getFlagText() {
-		return $this->getLocalizedData('flagText');
+	function getFlagNote() {
+		return $this->getData('flagNote');
 	}
 
 	/**

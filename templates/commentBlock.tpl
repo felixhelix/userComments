@@ -108,10 +108,10 @@
             <textarea 
                 :usercommentid="usercommentid"
                 type="text"
-                name="flagtext" 
+                name="flagnote" 
                 id="flagTextArea" 
                 class="commentTextArea" 
-                placeholder="{translate key='plugins.generic.flagText.placeholder'}"
+                placeholder="{translate key='plugins.generic.flagNote.placeholder'}"
                 required
                 v-focus="usercommentid"></textarea>
             <div class="buttons">

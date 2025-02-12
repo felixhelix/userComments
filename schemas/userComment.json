@@ -125,7 +125,7 @@
 				"nullable"
 			]			
 		},		
-		"flagText": {
+		"flagNote": {
 			"type": "string",
 			"description": "The text of the flag note.",
 			"multilingual": false,

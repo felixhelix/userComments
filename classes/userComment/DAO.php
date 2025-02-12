@@ -34,7 +34,6 @@ class DAO extends EntityDAO {
 		'userId' => 'user_id',
 		'submissionId' => 'submission_id',
 		'publicationId' => 'publication_id',
-		'publicationVersion' => 'publication_version',
 		'foreignCommentId' => 'foreign_comment_id',
 		'dateCreated' => 'date_created',
 		'flagged' => 'flagged',

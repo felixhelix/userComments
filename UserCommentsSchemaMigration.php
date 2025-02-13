@@ -40,12 +40,9 @@ class UserCommentsSchemaMigration extends Migration
         Schema::create('user_comment_settings', function (Blueprint $table) {
             $table->bigInteger('comment_setting_id')->autoIncrement();
             $table->bigInteger('comment_id');
-            $table->string('locale', 14)->default('en_US');
+            $table->string('locale', 14);
             $table->string('setting_name', 255);
             $table->longText('setting_value')->nullable();
-            // $table->string('setting_type', 6)->comment('(bool|int|float|string|object)');
-            // $table->index(['object_id'], 'user_comments_settings_id');
-            // $table->unique(['object_id', 'locale', 'setting_name'], 'user_comments_settings_pkey');
         });
     }
 

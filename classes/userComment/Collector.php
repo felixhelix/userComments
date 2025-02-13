@@ -12,7 +12,7 @@ class Collector implements CollectorInterface
 {
     public DAO $dao;
     public ?array $contextIds = null;
-    public ?array $publicationIds = null;
+    public ?int $publicationId = null;
     public ?bool $flagged = null;
     public ?int $count = null;
     public ?int $offset = null;
@@ -43,9 +43,9 @@ class Collector implements CollectorInterface
         return $this;
     }
 
-    public function filterByPublicationIds(?array $publicationIds): self
+    public function filterByPublicationId(?int $publicationId): self
     {
-        $this->publicationIds = $publicationIds;
+        $this->publicationId = $publicationId;
         return $this;
     }    
 
@@ -78,12 +78,12 @@ class Collector implements CollectorInterface
             $uc->whereIn('uc.context_id', $this->contextIds);
         }
 
-        if (isset($this->publicationIds)) {
-            $uc->whereIn('uc.publication_id', $this->publicationIds);
+        if (isset($this->publicationId)) {
+            $uc->where('uc.publication_id', $this->publicationId);
         }
 
         if (isset($this->flagged)) {
-            $uc->where('uc.flagged',  true);
+            $uc->where('uc.flagged',  $this->flagged);
         }        
 
         if (isset($this->count)) {

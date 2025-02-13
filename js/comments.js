@@ -57,7 +57,7 @@ const App = Vue.createApp({
     postData(parentComponent, submitEvent) {
       // get the form value
       commentTextField =  submitEvent.target[name = 'commentText'];
-      foreignCommentId = submitEvent.target.dataset.usercommentid ? Number(submitEvent.target.dataset.usercommentid) : null
+      foreignCommentId = submitEvent.target.dataset.commentid ? Number(submitEvent.target.dataset.commentid) : null
       // Make a POST request to the API
       fetch(this.$root.apiURL + 'add', {
         method: 'POST',
@@ -161,7 +161,7 @@ const App = Vue.createApp({
 App.component('userCommentsBlock', {
   // This displays the comment text, meta data, flag or flagging button,
   // and is a container for either the form or the toggle button and replies
-  props: ['userComments','usercommentid','commentsRef'],
+  props: ['userComments','commentid','commentsRef'],
   data() {
     return {
       commentAction: 'formButton',
@@ -177,7 +177,7 @@ App.component('userCommentsBlock', {
 });
 
 App.component('flagModal', {
-  props: ['usercommentid', 'usercomment'],  
+  props: ['commentid', 'usercomment'],  
   methods: {
     cancelflag() {
       this.usercomment.showFlagForm = false;
@@ -185,7 +185,7 @@ App.component('flagModal', {
     submitflag(parentComponent, submitEvent) {
       // get the form value
       flagTextField =  submitEvent.target[name = 'flagnote'];
-      userCommentId = submitEvent.target.dataset.usercommentid ? Number(submitEvent.target.dataset.usercommentid) : null      
+      commentid = submitEvent.target.dataset.commentid ? Number(submitEvent.target.dataset.commentid) : null      
       // Make a POST request to the API
       fetch(this.$root.apiURL + 'flag', {
         method: 'POST',
@@ -194,7 +194,7 @@ App.component('flagModal', {
           'X-Csrf-Token': this.$root.csrfToken,          
         },
         body: JSON.stringify({
-          userCommentId: userCommentId,
+          commentid: commentid,
           publicationId: Number(this.$root.publicationId),
           flagNote: flagTextField.value,
           completed: false
@@ -221,11 +221,11 @@ App.component('flagModal', {
 App.component('formContainer', {
   // this is a placeholder for either the form for or the toggle button
   // only visible if the parent comment is not disabled
-  props: ['usercommentid'],
+  props: ['commentid'],
   data() {
     return {
       // If this is the root element, display the input form (commentForm), else display a toggle button (formButton)
-      commentAction:  (this.usercommentid === null ? 'userCommentForm' : 'formButton')
+      commentAction:  (this.commentid === null ? 'userCommentForm' : 'formButton')
     }
   },  
   methods: {
@@ -234,17 +234,17 @@ App.component('formContainer', {
     }
   },
   template: `
-    <div v-if="$root.user" :data-commentID=usercommentid>
-      <component :is="commentAction" :usercommentid></component>
+    <div v-if="$root.user" :data-commentID=commentid>
+      <component :is="commentAction" :commentid></component>
     </div>`
   });
   
 App.component('userCommentForm', {
   // display the input form
-  props: ['usercommentid'],
+  props: ['commentid'],
   data() {
     return {
-      userCommentFieldId:  ("userComment_" + this.usercommentid) // use v-bind:id="userCommentFieldId"
+      userCommentFieldId:  ("userComment_" + this.commentid) // use v-bind:id="userCommentFieldId"
     }
   }, 
   template: '#userCommentForm'
@@ -253,14 +253,14 @@ App.component('userCommentForm', {
 App.component('formButton', {
   // display a toggle button
   props: {
-    usercommentid: {
+    commentid: {
       type: [Number, null],
       default: null,
     }
   },
   // data() {
   //   return {
-  //     buttonText:  (this.usercommentid === null ? "comment" : "reply") // use v-bind:id="userCommentFieldId"
+  //     buttonText:  (this.commentid === null ? "comment" : "reply") // use v-bind:id="userCommentFieldId"
   //   }
   // }, 
   // template: `

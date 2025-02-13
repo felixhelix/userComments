@@ -76,7 +76,7 @@ export default {
           'X-Csrf-Token': this.csrftoken,          
         },                    
         body: JSON.stringify({
-          userCommentId: this.item.id,
+          commentId: this.item.id,
           flagged: flagged,
           visible: visible,
         }),

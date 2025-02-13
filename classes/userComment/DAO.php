@@ -114,8 +114,5 @@ class DAO extends EntityDAO {
     {
         parent::_delete($UserComment);
     }
-	
-
-
 
 }

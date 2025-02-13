@@ -11,24 +11,24 @@
         <div>
         <h4 class="hidden">{translate key='plugins.generic.userComments.sectionheader'}</h4>
         {if $user}
-        <form-container :usercommentid=null></form-container>
+        <form-container :commentid=null></form-container>
         {else}
         <span>{translate key='plugins.generic.userComments.loggedOut' loginPageUrl="login"}</span>
         {/if}
         </div>
-        <user-comments-block :user-comments="userComments" :usercommentid=null :comments-ref="commentsRef"></user-comments-block>
+        <user-comments-block :user-comments="userComments" :commentid=null :comments-ref="commentsRef"></user-comments-block>
     </div>
 </section>
 
 <template id="userCommentsBlock">
 <ul data-title="userComments" 
     class="userComments" 
-    :id="`commentList${ usercommentid }`"
-    :ref="(el) => (commentsRef[`commentList${ usercommentid }`] = el)"
+    :id="`commentList${ commentid }`"
+    :ref="(el) => (commentsRef[`commentList${ commentid }`] = el)"
     v-if="userComments && userComments.length">
     <li v-for="userComment in userComments" 
         :key="userComment.id"
-        :ref="`commentBlock${ usercommentid }`">
+        :ref="`commentBlock${ commentid }`">
         <div class="userComment" 
             :id="`comment${ userComment.id }`" 
             :ref="(el) => (commentsRef[userComment.id] = el)"
@@ -59,19 +59,19 @@
                     <path fill-rule="evenodd" d="M3 2.25a.75.75 0 0 1 .75.75v.54l1.838-.46a9.75 9.75 0 0 1 6.725.738l.108.054A8.25 8.25 0 0 0 18 4.524l3.11-.732a.75.75 0 0 1 .917.81 47.784 47.784 0 0 0 .005 10.337.75.75 0 0 1-.574.812l-3.114.733a9.75 9.75 0 0 1-6.594-.77l-.108-.054a8.25 8.25 0 0 0-5.69-.625l-2.202.55V21a.75.75 0 0 1-1.5 0V3A.75.75 0 0 1 3 2.25Z" clip-rule="evenodd" />
                     </svg>
                 </div> 
-                <flag-modal :usercommentid=userComment.id :usercomment=userComment v-if="userComment.showFlagForm"></flag-modal>
+                <flag-modal :commentid=userComment.id :usercomment=userComment v-if="userComment.showFlagForm"></flag-modal>
             </div>                     
             <div class="authorBlock">
                 <span class="authorName">{{ userComment.userName }}</span>
                 <a class="authorOrcid" :href="userComment.userOrcid">{{ userComment.userOrcid }}</a>
                 <span class="authorAffiliation">{{ userComment.userAffiliation }}</span>
             </div>
-            <form-container v-if="userComment.visible != '0'" :usercommentid=userComment.id></form-container>    
+            <form-container v-if="userComment.visible != '0'" :commentid=userComment.id></form-container>    
         </div>
         <div class="replies" v-if="userComment.children && userComment.children.length">
             <user-comments-block 
                 :user-comments="userComment.children" 
-                :usercommentid=userComment.id
+                :commentid=userComment.id
                 :comments-ref="commentsRef"></user-comments-block>
         </div>
   </li>
@@ -80,43 +80,43 @@
 
 <template id="userCommentForm">
 <form @submit.prevent="$root.postData($parent, $event)" 
-    :data-usercommentid="usercommentid"
+    :data-commentid="commentid"
     class="cmp_form">
     <label class="sr-only" for="commentTextArea">{translate key='plugins.generic.userComments.label'}</label>
     <textarea 
-        :usercommentid="usercommentid"    
+        :commentid="commentid"    
         type="text"
         name="commentText" 
         id="commentTextArea" 
         class="commentTextArea" 
         placeholder="{translate key='plugins.generic.userComments.placeholder'}"
         required
-        v-focus="usercommentid"></textarea>
+        v-focus="commentid"></textarea>
     <div class="buttons">
         <button type="submit" class="submit">{translate key='plugins.generic.userComments.submit'}</button>
-        <a v-if="this.usercommentid !== null" @click="$parent.toggleComment()" class="linkbutton">{translate key='plugins.generic.userComments.close'}</a>
+        <a v-if="this.commentid !== null" @click="$parent.toggleComment()" class="linkbutton">{translate key='plugins.generic.userComments.close'}</a>
     </div>
 </form>
 </template>
 
 <template id="flagModal">
 <form @submit.prevent="submitflag($parent, $event)" 
-    :data-usercommentid="usercommentid"
+    :data-commentid="commentid"
     class="cmp_form">
     <div class="modal-backdrop">
         <div class="modal">
             <textarea 
-                :usercommentid="usercommentid"
+                :commentid="commentid"
                 type="text"
                 name="flagnote" 
                 id="flagTextArea" 
                 class="commentTextArea" 
                 placeholder="{translate key='plugins.generic.flagNote.placeholder'}"
                 required
-                v-focus="usercommentid"></textarea>
+                v-focus="commentid"></textarea>
             <div class="buttons">
                 <button type="submit" class="submit" name="submitflag">{translate key='plugins.generic.userComments.flag'}</button>
-                <a v-if="this.usercommentid !== null" @click="cancelflag" class="linkbutton">{translate key='plugins.generic.userComments.close'}</a>
+                <a v-if="this.commentid !== null" @click="cancelflag" class="linkbutton">{translate key='plugins.generic.userComments.close'}</a>
             </div>
         </div>
     </div>                

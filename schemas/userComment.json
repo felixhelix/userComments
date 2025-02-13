@@ -34,10 +34,7 @@
 			"type": "string",
 			"description": "The text of the comment.",
 			"multilingual": false,
-			"apiSummary": true,
-			"validation": [
-				"nullable"
-			]
+			"apiSummary": true
 		},
 		"userId": {
 			"type": "integer",

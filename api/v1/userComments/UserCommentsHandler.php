@@ -51,7 +51,6 @@ class UserCommentsHandler extends APIHandler
                 ],      
                 [
                     'pattern' => $this->getEndpointPattern() . '/update',
-                    //'handler' => [$this, 'setVisibility'],
                     'handler' => [$this, 'update'],
                     'roles' => $rolesEdit
                 ],                               
@@ -75,9 +74,7 @@ class UserCommentsHandler extends APIHandler
             ],            
         ];
 
-        // error_log("UserCommentsHandler called: " . $this->getEndpointPattern()); // . '/getCommentsByPublication/{publicationId}');
         parent::__construct();
-        // parent::__construct($controller);
     }
 
     //
@@ -98,75 +95,39 @@ class UserCommentsHandler extends APIHandler
 
     public function getComment($slimRequest, $response, $args)
     {
-        //$request = APIHandler::getRequest();
-        //$context = $request->getContext();        
         $commentId = (int) $args['commentId'];
         $queryResult = Repo::userComment()
             ->get($commentId);
 
-        // $userComment = ['An error has occured :/'];
-
-        // if ($queryResult->isEmpty()) {
-        //     $userComment = ['There is no comment with this id.'];
-        // }    
-        // else { 
-        //     $userComment = ['There is a comment with this id :)'];
-        //     // Repo::userComment()
-        //     //     ->getSchemaMap()
-        //     //     ->map($queryResult->values());
-        // };
-
-        $userComment = Repo::userComment()
-            ->getSchemaMap()
-            ->map($queryResult);
-
-        return $response->withJson(
-            $userComment, 200);                
-
-        // return $response->withJson(
-        //     ['id' => $commentId,
-        //     'comment' => $userComment,
-        // ], 200);
+        if (empty($queryResult)) {
+            return $response->withStatus(404)->withJsonError('api.404.resourceNotFound');
+        }    
+        else { 
+            $userComment = Repo::userComment()
+                ->getSchemaMap()
+                ->map($queryResult);
+            return $response->withJson(
+                $userComment, 200);                    
+        }
+        
     }
 
     public function getCommentsByPublication($slimRequest, $response, $args)
     {
-        $params = $slimRequest->getQueryParams(); // ['searchPhrase' => 'barnes']
+        $params = $slimRequest->getQueryParams();
         $request = $this->getRequest();
         $publicationId = (int) $args['publicationId'];
-        // $request = $this->getRequest();
-        // $baseURL = $request->getBaseURL();
-
-		// $userCommentDao = DAORegistry::getDAO('UserCommentDAO');
-        // $queryResults = $userCommentDao->getByPublicationId($publicationId);
 
         $queryResults = Repo::userComment()
             ->getCollector()
-            ->filterByPublicationIds([$publicationId])
+            ->filterByPublicationId($publicationId)
             ->getMany();
             // ->remember();
 
-        if ($queryResults->isEmpty()) {
-            $userComments = ['none yet :/'];
+        if (empty($queryResults)) {
+            $userComments = [];
         }
         else { 
-            // foreach ($queryResults as $userComment) {
-            //     $user = Repo::user()->get((int) $userComment->getUserId());   
-            //     $userComments[] = [
-            //     'id' => $userComment->getId(),
-            //     'publicationId' => $userComment->getPublicationId(),                
-            //     'submissionId' => $userComment->getSubmissionId(),
-            //     'foreignCommentId' => $userComment->getForeignCommentId(),
-            //     'userName' => $user->getFullName(),
-            //     'userOrcid' => $user->getData('orcid'),
-            //     'userAffiliation' => $user->getLocalizedAffiliation(),
-            //     'commentDate' =>$userComment->getDateCreated(),
-            //     'commentText' => $userComment->getCommentText(),
-            //     'flagged' => $userComment->getFlagged(),            
-            //     'flaggedDate' => $userComment->getDateFlagged(),
-            //     'visible' => $userComment->getVisible(),
-            //     ];
-            // }
             $userComments = Repo::userComment()
             ->getSchemaMap()
             ->mapMany($queryResults->values());
@@ -186,25 +147,6 @@ class UserCommentsHandler extends APIHandler
         $requestParams = $slimRequest->getParsedBody();
         $currentUser = $request->getUser();
 
-        // This probably is not neccessary
-        // get submission values
-        // $sanitizedValues = [];
-        // $submissionValues = array(
-        //     'commentText' => 'string',
-        //     'publicationId' => 'integer',
-        //     'foreignCommentId' => 'integer');
-
-        // foreach ($submissionValues as $submissionValue => $type) {
-        //     if (gettype($requestParams[$submissionValue]) == $type) {
-        //         $sanitizedValues [] = $requestParams[$submissionValue];
-        //     }
-        //     else {
-        //         return $response->withJson(
-        //             ['error' => 'wrong type',
-        //         ], 400);
-        //     }
-        // }
-
         $submissionId = $requestParams['submissionId'];          
         $publicationId = $requestParams['publicationId'];
         $foreignCommentId = $requestParams['foreignCommentId'];     
@@ -221,39 +163,30 @@ class UserCommentsHandler extends APIHandler
         $userComment->setCommentText($commentText);
 
         // Insert the data object
-        $userCommentId = Repo::userComment()->add($userComment);
-        // Get the comment entitty
+        $commentId = Repo::userComment()->add($userComment);
+        // Get the comment entity
         // $userComment = $UserCommentDao->getById($commentId);
 
         // Log the event in the event log related to the submission
-		$msg = 'comment.event.posted';
-        // import('plugins.generic.userComments.classes.log.CommentLog');
-        // import('plugins.generic.userComments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
-        // $logDetails = array(
-        //     'publicationId' => $publicationId,
-        //     'commentId' => $commentId,
-        //     'foreignCommentId' => $foreignCommentId,
-        //     'userId' => $currentUser->getId(),       
-        //     'dateCreated' => $userComment->getDateCreated()     
-        // );
-        // $request, $submission, $eventType, $messageKey, $params = array()
-        // CommentLog::logEvent($request, $commentId, COMMENT_POSTED, $msg, $logDetails);
-
+		$msg = 'comment posted: ' . $commentId; // either a locale key or literal string
+        // $data = json_decode('{"commentId:" . $commentId . ", userCommentText:": . $userCommentText}');
         $eventLog = Repo::eventLog()->newDataObject([
             'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
             'assocId' => $submissionId,
             'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
             'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
-            'userCommentId' => $userCommentId,
-            'message' => $msg,
+            'message' => $msg,            
             'isTranslated' => false,
-            'dateLogged' => Core::getCurrentDate()
+            'dateLogged' => Core::getCurrentDate(),
+            'username' => $currentUser->getData('userName'),
+            // 'data' => $data, // this should accept an object, but throws an error ?
         ]);
         Repo::eventLog()->add($eventLog);        
 
+        // Return the data, so that the comment list can be updated
         return $response->withJson([
-            'id' => $userCommentId,
-            'comment' => $commentText,
+            'id' => $commentId,
+            'comment' => $userCommentText,
             'userName' => $currentUser->getFullName(),
             'userOrcid' => $currentUser->getData('orcid'),
             'userAffiliation' => $currentUser->getLocalizedAffiliation(),
@@ -268,11 +201,11 @@ class UserCommentsHandler extends APIHandler
         $requestParams = $slimRequest->getParsedBody();
         $currentUser = $request->getUser();
 
-        $userCommentId = $requestParams['userCommentId'];
+        $commentId = $requestParams['commentid'];
         $publicationId = $requestParams['publicationId'];
         $flagNote = $requestParams['flagNote'];
         // Validate input
-        if ( gettype($userCommentId) != 'integer') {
+        if ( gettype($commentId) != 'integer') {
             return $response->withJson(
                 ['error' => 'wrong type',
             ], 400);            
@@ -290,39 +223,28 @@ class UserCommentsHandler extends APIHandler
             'flaggedBy' => $currentUser->getId(),
             'flagNote' => $flagNote,
         ];
-        // $params['flagNote'][$locale] = $flagNote;
 
         // update the entity
-        $userComment = Repo::userComment()->get($userCommentId, $context->getId());
+        $userComment = Repo::userComment()->get($commentId, $context->getId());
         Repo::userComment()->update($userComment, $params);
 
         // Log the event
 		// Flagging is logged in the event log and is related to the submission
-		$msg = 'comment.event.flagged';
-        // import('plugins.generic.userComments.classes.log.CommentLog');
-        // import('plugins.generic.userComments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
-        // $logDetails = array(
-        //     'publicationId' => $publicationId,
-        //     'commentId' => $userCommentId,
-        //     'userId' => $currentUser->getId(),            
-        // );
-        // $request, $submission, $eventType, $messageKey, $params = array()
-        // CommentLog::logEvent($request, $userCommentId, COMMENT_FLAGGED, $msg, $logDetails);
-
+		$msg = 'comment flagged: ' . $commentId; // either a locale key or literal string
         $eventLog = Repo::eventLog()->newDataObject([
             'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
             'assocId' => $publicationId,
             'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
             'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
-            'userCommentId' => $userComment->getId(),
             'message' => $msg,
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate()
         ]);
         Repo::eventLog()->add($eventLog);             
 
+        // Return updated entry
         return $response->withJson(
-            ['id' => $userCommentId,
+            ['id' => $commentId,
             'flagged' => true,
         ], 200);
     }
@@ -335,76 +257,21 @@ class UserCommentsHandler extends APIHandler
         $currentUser = $request->getUser();
 
         // set the data      
-        $userCommentId = $requestParams['userCommentId'];        
+        $commentId = $requestParams['commentId'];        
         $params = [
             'flagged' => $requestParams['flagged'],
             'visible' => $requestParams['visible'],
         ];
 
         // update the entity
-        $userComment = Repo::userComment()->get($userCommentId, $context->getId());
-        error_log(json_encode($userComment));
+        $userComment = Repo::userComment()->get($commentId, $context->getId());
         Repo::userComment()->update($userComment, $params);        
 
-        return $response->withJson(
-            ['userCommentId' => $userComment->getId(),
-        ], 200);
-
-    }
-    
-    public function setVisibility($slimRequest, $response, $args)
-    {
-        // User comments may not be deleted
-        // This changes the visibility of the comment
-        // and/or the flagging
-        $request = APIHandler::getRequest();
-        $requestParams = $slimRequest->getParsedBody();
-        $userCommentId = $requestParams['userCommentId'];
-        $publicationId = $requestParams['publicationId'];
-        $visible = $requestParams['visible'];
-        $flagged = $requestParams['flagged'];
-        $messageKey = '';
-        $currentUser = $request->getUser();
-
-        // Create a DAO for user comments
-        $UserCommentDao = new UserCommentDAO();
-        DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
-
-        // Get the data object
-        $userComment = $UserCommentDao->getById($userCommentId);    
-
-        // Import the classes for logging
-        // import('plugins.generic.userComments.classes.log.CommentLog');
-        // import('plugins.generic.userComments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
-
-        // Update the data object
-        // Only possible value for flagged should be false, since once the flag is removed, 
-        // the comment is removed from the list of flagged comments as well
-        $userComment->setFlagged($flagged == "true" ? true : false);
-        if ($flagged != "true") {
-            // if the comment is un-flagged, it has to be visible
-            $userComment->setVisible(true);
-            // In this cas the logged message relates to this event
-            $messageKey = COMMENT_UNFLAGGED;
-            $msg = 'comment.event.unflag';
-        } else {
-            $userComment->setVisible($visible == 'true' ? true : false);
-            $messageKey = $visible == 'true' ? COMMENT_VISIBLE : COMMENT_HIDDEN;
-            $msg = $visible == 'true' ? 'comment.event.setvisible' : 'comment.event.hide';
-        }
-        
-        $UserCommentDao->updateObject($userComment);               
-
         // Log the event
-        // Some log details are redundant, but since I'm unsure about the validity of ASSOC_TYPE I will maintain these for now 
-        // $logDetails = array(
-        //     'publicationId' => $publicationId,
-        //     'commentId' => $userCommentId,
-        //     'userId' => $currentUser->getId(),
-        // );
-        // $request, $commentId, $eventType, $messageKey, $params = array()
-        // CommentLog::logEvent($request, $userCommentId, $messageKey, $msg, $logDetails);
-
+        // There are only two options: 
+        // if the entry is not visible, it must have been hidden, 
+        // if it is visible (again) it must have been unflagged.
+		$msg = 'comment' . visible?' hidden: ':' unflagged: ' . $commentId; // either a locale key or literal string
         $eventLog = Repo::eventLog()->newDataObject([
             'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
             'assocId' => $publicationId,
@@ -414,15 +281,14 @@ class UserCommentsHandler extends APIHandler
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate()
         ]);
-        Repo::eventLog()->add($eventLog); 
-        
+        Repo::eventLog()->add($eventLog);     
+
         return $response->withJson(
-            ['id' => $userCommentId,
-            'comment' => 'comment visibilty was changed',
-        ], 200);        
+            ['commentId' => $userComment->getId(),
+        ], 200);
 
     }
-
+    
     function getFlaggedComments($slimRequest, $response, $args) {
 
         $queryResults = Repo::userComment()
@@ -432,7 +298,7 @@ class UserCommentsHandler extends APIHandler
             // ->remember();
 
         if ($queryResults->isEmpty()) {
-            $userComments = ['none yet :/'];
+            $userComments = [];
         }
         else { 
             $userComments = Repo::userComment()
@@ -441,16 +307,7 @@ class UserCommentsHandler extends APIHandler
         };
 
         return $response->withJson(
-            $userComments, 200);   
-        
-        // return $response->withJson(
-        //     [
-        //         'items'=> [
-        //             [ 'itemTitle' => 'title 1' ],
-        //             [ 'itemTitle' => 'title 2' ],
-        //         ]
-        //     ],
-        // 200);        
+            $userComments, 200);     
 
     }
 

@@ -18,7 +18,10 @@ use APP\core\Application;
 use APP\core\Services;
 use APP\plugins\generic\userComments\classes\userComment;
 use APP\plugins\generic\userComments\classes\facades\Repo;
-// use APP\facades\Repo;
+use Illuminate\Support\Facades\Mail;
+use PKP\mail\Mailable;
+use PKP\stageAssignment\StageAssignmentDAO; // used to sent email to
+use PKP\user\User;
 
 // Comment events
 define('COMMENT_POSTED',		0x80000001);
@@ -169,7 +172,7 @@ class UserCommentsHandler extends APIHandler
 
         // Log the event in the event log related to the submission
 		$msg = 'comment posted: ' . $commentId; // either a locale key or literal string
-        // $data = json_decode('{"commentId:" . $commentId . ", userCommentText:": . $userCommentText}');
+        // $data = json_decode('{"commentId":"' . $commentId . '", "userCommentText":"' . $commentText . '"}');
         $eventLog = Repo::eventLog()->newDataObject([
             'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
             'assocId' => $submissionId,
@@ -197,6 +200,7 @@ class UserCommentsHandler extends APIHandler
     public function flagComment($slimRequest, $response, $args)
     {
         $request = APIHandler::getRequest();
+        $dispatcher = $request->getDispatcher();
         $context = $request->getContext();  
         $requestParams = $slimRequest->getParsedBody();
         $currentUser = $request->getUser();
@@ -242,6 +246,31 @@ class UserCommentsHandler extends APIHandler
         ]);
         Repo::eventLog()->add($eventLog);             
 
+        // Send email
+        // get manager/editor contact email
+        $recipientIds = [];
+        $submission = Repo::submission()->get((int) Repo::publication()->get((int) $publicationId)->getData('submissionId'));
+        $stageAssignmentDao = DAORegistry::getDAO('StageAssignmentDAO'); /** @var StageAssignmentDAO $stageAssignmentDao */
+        $editorStageAssignments = $stageAssignmentDao->getEditorsAssignedToStage($submission->getId(), $submission->getStageId());
+        foreach ($editorStageAssignments as $editorStageAssignment) {
+            $recipientIds[] = $editorStageAssignment->getUserId();
+        }
+        $recipients = Repo::user()->getCollector()->filterByUserIds($recipientIds)->getMany();
+
+        $editUrl = $dispatcher->url($request, PKPApplication::ROUTE_PAGE, $context->getPath(), 'management', 'settings','website#flaggedUserComments');
+        $subject = "Comment #$commentId has been flagged";
+        $body = "Comment #$commentId has been flagged.\nThe flagnote is: '$flagNote'.\n<a href='$editUrl'>Log in</a> to edit the comment.";
+
+        $mailable = new Mailable();
+        $mailable
+            ->from($context->getData('contactEmail'), $context->getData('contactName'))
+            ->to($recipients->map(fn(User $recipient) => ['email' => $recipient->getEmail(), 'name' => $recipient->getFullName()])->toArray())
+            ->cc($context->getData('contactEmail'), $context->getData('contactName'))
+            ->subject($subject)
+            ->body($body);
+        
+        Mail::send($mailable);        
+
         // Return updated entry
         return $response->withJson(
             ['id' => $commentId,
@@ -271,7 +300,7 @@ class UserCommentsHandler extends APIHandler
         // There are only two options: 
         // if the entry is not visible, it must have been hidden, 
         // if it is visible (again) it must have been unflagged.
-		$msg = 'comment' . visible?' hidden: ':' unflagged: ' . $commentId; // either a locale key or literal string
+		$msg = 'comment' . $visible?' hidden: ':' unflagged: ' . $commentId; // either a locale key or literal string
         $eventLog = Repo::eventLog()->newDataObject([
             'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
             'assocId' => $publicationId,

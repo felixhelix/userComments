@@ -7,7 +7,8 @@
     data-apiKey="{$apiKey}" 
     data-submissionId="{$submissionId}" 
     data-publicationId="{$publication->getData('id')}"
-    data-csrfToken="{$csrfToken}">
+    data-csrfToken="{$csrfToken}"
+    data-test="commentsApp">
         <div>
         <h4 class="hidden">{translate key='plugins.generic.userComments.sectionheader'}</h4>
         {if $user}
@@ -21,7 +22,8 @@
 </section>
 
 <template id="userCommentsBlock">
-<ul data-title="userComments" 
+<ul data-title="userComments"
+    data-test="userCommentsBlock"
     class="userComments" 
     :id="`commentList${ commentid }`"
     :ref="(el) => (commentsRef[`commentList${ commentid }`] = el)"
@@ -102,7 +104,8 @@
 <template id="flagModal">
 <form @submit.prevent="submitflag($parent, $event)" 
     :data-commentid="commentid"
-    class="cmp_form">
+    class="cmp_form"
+    data-test="flagModal">
     <div class="modal-backdrop">
         <div class="modal">
             <textarea 

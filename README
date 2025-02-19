@@ -1,26 +1,34 @@
-For the plugin to work, two tables have to be created:
+# User Comments
+
+This plugin adds a comment thread to the article/preprints details page. For it to work, it needs a user's API key. You can either use an existing user, or add one just for this purpose. It is recommended to use an account with only "Reader" permission.
+
+## Compatibility
+
+The latest release of this plugin is compatible with the following PKP applications:
+
+* OJS, OPS 3.4.0
+
+## Installation
+
+1. Enter the administration area of ​​your application and navigate to Settings > Website > Plugins > Upload a new plugin.
+2. Under Upload file select the file customQuestions.tar.gz.
+3. Click Save and the plugin will be installed on your website.
+4. Activate the plugin.
+5. Add an api key: On the plugin's settings page enter the api of a user with only "Reader" permissions.
+
+## Running Tests
+
+### Integration Tests
+
+To execute Cypress integration tests, run the following command from root of the PKP Appplication directory:
+```bash
+npx cypress open --config '{"specPattern":["plugins/generic/userComments/cypress/tests/functional/**/*.cy.js"]}'
+```
+
+# License
+__This plugin is licensed under the GNU General Public License v3.0__
+
+__Copyright (c) 2025 UCL Cologne__
 
 
-create table user_comments(
-    comment_id bigint auto_increment, 
-    user_id bigint not null, 
-    context_id int not null, 
-    submission_id bigint not null, 
-    publication_id int not null, 
-    foreign_comment_id int, 
-    date_created date, 
-    date_flagged date, 
-    flagged bool default false, 
-    flagged_by bigint, 
-    visible bool default true, 
-    primary key(comment_id)
-);
 
-create table user_comment_settings(
-    comment_setting_id bigint auto_increment,
-    comment_id bigint not null, 
-    locale varchar(28) default 'en', 
-    setting_name varchar(255),
-    setting_value text,
-    primary key(comment_setting_id)
-);

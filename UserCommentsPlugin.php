@@ -64,6 +64,7 @@ class UserCommentsPlugin extends GenericPlugin {
 
 			// Use a hook to insert a template on the details page
 			Hook::add('Templates::Preprint::Main', [$this, 'addCommentBlock'], Hook::SEQUENCE_LAST);	
+            Hook::add('Templates::Article::Details', [$this, 'addCommentBlock'], Hook::SEQUENCE_LAST);
 
 			// Add the API handler
 			Hook::add('Dispatcher::dispatch', array($this, 'setupUserCommentsHandler'), Hook::SEQUENCE_LAST);	
@@ -307,11 +308,13 @@ class UserCommentsPlugin extends GenericPlugin {
         // $listConfig = $flaggedCommentsList->getConfig();
         // $lists[$flaggedCommentsList->id] = $listConfig;
 
+        $application = Application::get()->getName();
+
         $templateMgr->setState([
             'components' => $lists,
             'items' => $userComments,
             'apiurl' => $apiUrl,
-            'preprinturl' => $dispatcher->url($request, PKPApplication::ROUTE_PAGE, $context->getPath(), 'preprint', 'view'),
+            'preprinturl' => $dispatcher->url($request, PKPApplication::ROUTE_PAGE, $context->getPath(), $application=='ops'?'preprint':'article', 'view'),
             'csrftoken' => $csrfToken,
             'i18n' => $i18n
         ]);

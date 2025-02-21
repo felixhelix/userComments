@@ -26,7 +26,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Get context ID.
 	 * @return int
 	 */
-	function getContextId(){
+	function getContextId(): int {
 		return $this->getData('contextId');
 	}
 
@@ -34,15 +34,16 @@ class UserComment extends \PKP\core\DataObject {
 	 * Set context ID.
 	 * @param $contextId int
 	 */
-	function setContextId($contextId) {
+	function setContextId(int $contextId) {
 		return $this->setData('contextId', $contextId);
 	}
+
 
 	/**
 	 * Get submission ID.
 	 * @return int
 	 */
-	function getSubmissionId(){
+	function getSubmissionId(): int {
 		return $this->getData('submissionId');
 	}
 
@@ -50,7 +51,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Set submission ID.
 	 * @param $submissionId int
 	 */
-	function setSubmissionId($submissionId) {
+	function setSubmissionId(int $submissionId) {
 		return $this->setData('submissionId', $submissionId);
 	}
 
@@ -58,7 +59,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Get Publication Id.
 	 * @return int
 	 */
-	function getPublicationId(){
+	function getPublicationId(): int {
 		return $this->getData('publicationId');
 	}
 
@@ -67,7 +68,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * @return int
 	 * @param $publicationId int	 * 
 	 */
-	function setPublicationId($publicationId){
+	function setPublicationId(int $publicationId){
 		return $this->setData('publicationId', $publicationId);
 	}
 
@@ -75,7 +76,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Get foreign comment ID.
 	 * @return int
 	 */
-	function getForeignCommentId(){
+	function getForeignCommentId(): int {
 		return $this->getData('foreignCommentId');
 	}
 
@@ -83,7 +84,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Set foreign comment ID.
 	 * @param $foreignCommentId int
 	 */
-	function setForeignCommentId($foreignCommentId) {
+	function setForeignCommentId(int $foreignCommentId) {
 		return $this->setData('foreignCommentId', $foreignCommentId);
 	}
 
@@ -91,7 +92,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Get user ID.
 	 * @return int
 	 */
-	function getUserId(){
+	function getUserId(): int {
 		return $this->getData('userId');
 	}
 
@@ -99,7 +100,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Set user ID.
 	 * @param $userId int
 	 */
-	function setUserId($userId) {
+	function setUserId(int $userId) {
 		return $this->setData('userId', $userId);
 	}	
 
@@ -107,7 +108,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Get objectId.
 	 * @return string
 	 */
-	function getId(): ?int {
+	function getId(): int {
 		return $this->getData('commentId');
 	}
 
@@ -139,7 +140,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Get commentText.
 	 * @return string
 	 */
-	function getCommentText() {
+	function getCommentText(): string {
 		return $this->getData('commentText');
 	}
 
@@ -147,7 +148,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Set commentText.
 	 * @param $commentText string
 	 */
-	function setCommentText($commentText) {
+	function setCommentText(string $commentText) {
 		return $this->setData('commentText', $commentText);
 	}
 	
@@ -155,7 +156,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Get flagged.
 	 * @return boolean
 	 */
-	function getFlagged() {
+	function getFlagged(): bool {
 		return $this->getData('flagged');
 	}
 
@@ -163,7 +164,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Set flagged.
 	 * @param $flagged boolean
 	 */
-	function setFlagged($flagged) {
+	function setFlagged(bool $flagged) {
 		return $this->setData('flagged', $flagged);
 	}
 
@@ -177,7 +178,7 @@ class UserComment extends \PKP\core\DataObject {
 
 	/**
 	 * Set date flagged.
-	 * @param $dateFlagged date
+	 * @param $dateFlagged datetime
 	 */
 	function setDateFlagged($dateFlagged) {
 		return $this->setData('dateFlagged', $dateFlagged);
@@ -194,7 +195,7 @@ class UserComment extends \PKP\core\DataObject {
 	/**
 	 * Get flaggedBy.
 	 */
-	function getFlaggedBy() {
+	function getFlaggedBy(): int {
 		return $this->getData('flaggedBy');
 	}
 
@@ -202,14 +203,14 @@ class UserComment extends \PKP\core\DataObject {
 	 * Set flagNote.
 	 * @param $flagNote string
 	 */
-	function setFlagNote(str $flagNote) {
+	function setFlagNote(string $flagNote) {
 		return $this->setData('flagNote', $flagNote);
 	}		
 
 	/**
 	 * Get flagNote.
 	 */
-	function getFlagNote() {
+	function getFlagNote(): string {
 		return $this->getData('flagNote');
 	}
 
@@ -217,7 +218,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Get visible.
 	 * @return boolean
 	 */
-	function getVisible() {
+	function getVisible(): bool {
 		return $this->getData('visible');
 	}
 
@@ -225,7 +226,7 @@ class UserComment extends \PKP\core\DataObject {
 	 * Set visible.
 	 * @param $visible boolean
 	 */
-	function setVisible($visible) {
+	function setVisible(bool $visible) {
 		return $this->setData('visible', $visible);
 	}	
 

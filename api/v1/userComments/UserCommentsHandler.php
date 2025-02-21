@@ -161,9 +161,9 @@ class UserCommentsHandler extends APIHandler
         $userComment->setContextId($context->getId());
         $userComment->setUserId($currentUser->getId());
         $userComment->setPublicationId($publicationId);
-        $userComment->setForeignCommentId($foreignCommentId);        
         $userComment->setSubmissionId($submissionId);
         $userComment->setCommentText($commentText);
+        if($foreignCommentId){ $userComment->setForeignCommentId($foreignCommentId); };                
 
         // Insert the data object
         $commentId = Repo::userComment()->add($userComment);

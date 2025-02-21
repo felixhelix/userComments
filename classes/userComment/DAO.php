@@ -54,34 +54,6 @@ class DAO extends EntityDAO {
 		return app(UserComment::class);
 	}
 
-    // public function getCount(Collector $query): int
-    // {
-    //     return $query
-    //         ->getQueryBuilder()
-    //         ->get('cq.' . $this->primaryKeyColumn)
-    //         ->count();
-    // }
-
-    // public function getIds(Collector $query): Collection
-    // {
-    //     return $query
-    //         ->getQueryBuilder()
-    //         ->select('cq.' . $this->primaryKeyColumn)
-    //         ->pluck('cq.' . $this->primaryKeyColumn);
-    // }
-
-    // /**
-    //  * Get a comment
-    //  */
-    // public function get(int $id, ?int $contextId): ?UserComment
-    // {
-    //     $row = DB::table($this->table)
-    //         ->where($this->primaryKeyColumn, $id)
-    //         ->where($this->parentKeyColumn, $contextId)
-    //         ->first();
-    //     return $row ? $this->fromRow($row) : null;
-    // }
-
     public function getMany(Collector $query): LazyCollection
     {
         $rows = $query

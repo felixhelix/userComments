@@ -1,7 +1,5 @@
 /// <reference types="cypress" />
 
-// This test adds a comment and a sub-comment
-
 describe('addUserComment', () => {
     beforeEach(() => {
         // cy.visit('/index.php/preprints/preprint/view/1')

@@ -1,0 +1,4 @@
+cypress
+.git
+node_modules
+vue

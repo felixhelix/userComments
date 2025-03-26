@@ -194,7 +194,7 @@ App.component('flagModal', {
           'X-Csrf-Token': this.$root.csrfToken,          
         },
         body: JSON.stringify({
-          commentid: commentid,
+          commentId: commentid,
           publicationId: Number(this.$root.publicationId),
           flagNote: flagTextField.value,
           completed: false

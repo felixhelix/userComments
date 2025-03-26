@@ -63,14 +63,14 @@ class UserCommentsPlugin extends GenericPlugin {
             Hook::add('Schema::get::userComment', [$this, 'addUserCommentsSchema']);
 
 			// Use a hook to insert a template on the details page
-			Hook::add('Templates::Preprint::Main', [$this, 'addCommentBlock'], Hook::SEQUENCE_LAST);	
-            Hook::add('Templates::Article::Details', [$this, 'addCommentBlock'], Hook::SEQUENCE_LAST);
+			Hook::add('Templates::Preprint::Main', $this->addCommentBlock(...));	
+            Hook::add('Templates::Article::Details', $this->addCommentBlock(...));
 
 			// Add the API handler
 			Hook::add('Dispatcher::dispatch', array($this, 'setupUserCommentsHandler'), Hook::SEQUENCE_LAST);	
 
 			// add/inject new routes/endpoints to an existing collection/list of api end points
-			// $this->addRoute(); // this is for 4.5 already
+			$this->addRoute();
 
             // This allows themes to override the plugin templates
             $this->_registerTemplateResource();
@@ -141,17 +141,17 @@ class UserCommentsPlugin extends GenericPlugin {
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
 
+        $smarty = &$args[1];
+        $output = &$args[2];        
+
 		$user = $request->getUser();
-        $smarty = & $args[1];
 		$publication = $smarty->getTemplateVars('currentPublication');
-        $output = & $args[2];	
 		
 		// Insert the comment template
 		$smarty->assign([
 			'baseURL' => $request->getBaseURL(),
-			//'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'submissions/usercomments/'), // this is for 4.5 already
-            'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'userComments/'),
-			'csrfToken' => $request->getSession()->getCSRFToken(),
+			'apiURL' => $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'submissions/usercomments/'),
+			'csrfToken' => $request->getSession()->token(),
 			'apiKey' => $this->getSetting($context->getId(), 'apiKey'),
 			'submissionId' => $publication->getData('submissionId'), 
 			'publicationId' =>  $publication->getId(),
@@ -260,7 +260,7 @@ class UserCommentsPlugin extends GenericPlugin {
         $dispatcher = $request->getDispatcher();
         // listPanel does not support this :/
         $apiURL = $request->getDispatcher()->url($request, ROUTE_API, $context->getData('urlPath'), 'userComments/getFlaggedComments');
-        $csrfToken = $request->getSession()->getCSRFToken();
+        $csrfToken = $request->getSession()->token();
         
         $queryResults = Repo::userComment()
             ->getCollector()

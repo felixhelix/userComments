@@ -79,7 +79,7 @@ class ListPanelSchema extends \PKP\core\maps\Schema
                     break;  
 
                 case 'submissionId':
-                    $output['submissionTitle'] = $submission->getLocalizedTitle();
+                    $output['submissionTitle'] = $submission->getCurrentPublication()->getLocalizedFullTitle();
                     break;                    
 
                 case 'flaggedBy':

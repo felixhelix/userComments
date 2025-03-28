@@ -67,7 +67,10 @@
           },
           modalStyle: 'primary',
         });
+      } else {
+        alert(props.i18n.alert_not_flagged);
       };
+
     });
 	};
 

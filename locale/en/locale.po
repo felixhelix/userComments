@@ -81,7 +81,7 @@ msgid "plugins.generic.userComments.cancel"
 msgstr "Cancel"
 
 msgid "plugins.generic.userComments.alertNotFlagged"
-msgstr "This comment is not currently flagged!"
+msgstr "Error: This comment is not (longer) flagged."
 
 msgid "plugins.generic.userComments.flagInfo"
 msgstr "The flagged comment reads: '${data.commentText}'<br>The reason given is: '${data.flagNote}'"

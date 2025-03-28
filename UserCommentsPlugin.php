@@ -289,9 +289,7 @@ class UserCommentsPlugin extends GenericPlugin {
 
 		// The URL where the form will be submitted		
 		$dispatcher = $request->getDispatcher();
-		// new for 3.5
-		// $apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'submissions/usercomments/edit');
-		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'userComments/');
+		$apiUrl = $dispatcher->url($request, ROUTE_API, $context->getPath(), 'submissions/usercomments/');
 
         // get the translation strings
         $i18n['hide_flagged_comment'] = __('plugins.generic.userComments.hideFlaggedComment');

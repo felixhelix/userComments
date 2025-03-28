@@ -17,25 +17,21 @@
 
 namespace APP\plugins\generic\userComments\api\v1\submissions;
 
-// use APP\facades\Repo;
-use APP\plugins\generic\userComments\classes\UserCommentDAO;
+use PKP\core\Core;
+use PKP\core\PKPApplication;
+use PKP\API\v1\submissions\PKPSubmissionController;
+use PKP\security\Role;
+use PKP\security\Validation;
+use APP\plugins\generic\userComments\classes\userComment;
+use APP\plugins\generic\userComments\classes\facades\Repo;
+use PKP\log\event\EventLogEntry;
+use PKP\mail\Mailable;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Route;
-use PKP\API\v1\submissions\PKPSubmissionController;
-use PKP\security\Role;
-use PKP\db\DAORegistry;
-
-use PKP\core\Core;
-use PKP\core\PKPApplication;
-use APP\plugins\generic\userComments\classes\userComment;
-use APP\plugins\generic\userComments\classes\facades\Repo;
-use PKP\security\Validation;
-use PKP\log\event\EventLogEntry;
 use Illuminate\Support\Facades\Mail;
-use PKP\mail\Mailable;
-
 
 class PKPOverriddenSubmissionController extends PKPSubmissionController
 {
@@ -54,30 +50,35 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
                 Role::ROLE_ID_MANAGER,                
             ]),
         ])->group(function () {
-            Route::get('usercomments/getbypublication/{publicationId}', $this->getCommentsByPublication(...))
-            ->name('submission.usercomments.getMany')
-            ->whereNumber('publicationId');
-            Route::post('usercomments/add', $this->submitComment(...))
-            ->name('submission.usercomments.add'); 
-            Route::post('usercomments/flag', $this->flagComment(...))
-            ->name('submission.usercomments.flag');  
-            Route::post('usercomments/edit', $this->editComment(...))
-            ->name('submission.usercomments.edit');                                 
+            Route::get('usercomments/getbypublication/{publicationId}', $this->getCommentsByPublication(...));
+            Route::get('usercomments/getComment/{commentId}', $this->getById(...));
+            Route::post('usercomments/add', $this->submit(...));
+            Route::post('usercomments/flag', $this->flag(...));
+            Route::post('usercomments/update', $this->update(...));
         });                
 
     }
     
-    /**
-     * A simple test api endpoint which will be added to the list of [users] api endpoint as
-     * http://BASE_URL/index.php/CONTEXT_PATH/api/v1/submissions/usercomments
-     */
-    public function addNewRoute(Request $illuminateRequest): JsonResponse
+    public function getById(Request $illuminateRequest): JsonResponse
     {
-        $publication = Repo::publication()->get((int) $illuminateRequest->route('publicationId'));        
-        return response()->json([
-            'message' => $illuminateRequest->route('publicationId')
-        ], Response::HTTP_OK);
-    }
+        $commentId = (int) $illuminateRequest->route('commentId');        
+        $queryResult = Repo::userComment()
+            ->get($commentId);
+
+        if (empty($queryResult)) {
+            return response()->json([
+                'error' => __('api.404.resourceNotFound'),
+            ], Response::HTTP_NOT_FOUND);
+        }    
+        else { 
+            $userComment = Repo::userComment()
+                ->getSchemaMap()
+                ->map($queryResult);
+            return response()->json(
+                $userComment, Response::HTTP_OK);                    
+        }
+        
+    }    
 
     public function getCommentsByPublication(Request $illuminateRequest): JsonResponse
     {
@@ -101,7 +102,7 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
             $userComments, Response::HTTP_OK);
     }      
 
-    public function submitComment(Request $illuminateRequest): JsonResponse
+    public function submit(Request $illuminateRequest): JsonResponse
     {
         $request = $this->getRequest();
         $context = $request->getContext();        
@@ -148,7 +149,7 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
         // Return the data, so that the comment list can be updated
         return response()->json([
             'id' => $commentId,
-            'comment' => $userCommentText,
+            'comment' => $commentText,
             'userName' => $currentUser->getFullName(),
             'userOrcid' => $currentUser->getData('orcid'),
             'userAffiliation' => $currentUser->getLocalizedAffiliation(),
@@ -156,7 +157,7 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
         ], Response::HTTP_OK);
     }
     
-    public function flagComment(Request $illuminateRequest): JsonResponse
+    public function flag(Request $illuminateRequest): JsonResponse
     {
         $request = $this->getRequest();
         $dispatcher = $request->getDispatcher();        
@@ -231,68 +232,44 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
         ], Response::HTTP_OK);        
     }
 
-    public function editComment(Request $illuminateRequest): JsonResponse
+    public function update(Request $illuminateRequest): JsonResponse
     {
-        // User comments may not be deleted
-        // This changes the visibility of the comment
-        // and/or the flagging
         $request = $this->getRequest();
+        $context = $request->getContext();  
         $requestParams = $illuminateRequest->input();
-        $userCommentId = $requestParams['userCommentId'];
-        $publicationId = $requestParams['publicationId'];
-        $visible = $requestParams['visible'];
-        $flagged = $requestParams['flagged'];
-        $messageKey = '';
-        // error_log("setVisibility: " . $visible . " on " . $userCommentId);
         $currentUser = $request->getUser();
-        // $locale = Locale::getLocale();
 
-        // Create a DAO for user comments
-        $UserCommentDao = new UserCommentDAO();
-        DAORegistry::registerDAO('UserCommentDAO', $UserCommentDao);
+        // set the data      
+        $commentId = $requestParams['commentId'];     
+        $visible = $requestParams['visible'];        
 
-        // Get the data object
-        $userComment = $UserCommentDao->getById($userCommentId);    
-
-        // Import the classes for logging
-        // import('plugins.generic.userComments.classes.log.CommentLog');
-        // import('plugins.generic.userComments.classes.log.CommentEventLogEntry'); // We need this for the ASSOC_TYPE and EVENT_TYPE constants
-
-        // Update the data object
-        // Only possible value for flagged should be false, since once the flag is removed, 
-        // the comment is removed from the list of flagged comments as well
-        $userComment->setFlagged($flagged == 'true' ? true : false);
-        if ($flagged != 'true') {
-            // if the comment is un-flagged, it has to be visible
-            $userComment->setVisible(true);
-            // In this cas the logged message relates to this event
-            // $messageKey = COMMENT_UNFLAGGED;
-            $msg = 'comment.event.unflag';
-        } else {
-            $userComment->setVisible($visible == 'true' ? true : false);
-            // $messageKey = $visible == 'true' ? COMMENT_VISIBLE : COMMENT_HIDDEN;
-            $msg = $visible == 'true' ? 'comment.event.setvisible' : 'comment.event.hide';
-        }
-        
-        $UserCommentDao->updateObject($userComment);               
+        // update the entity
+        $params = [
+            'flagged' => $requestParams['flagged'],
+            'visible' => $visible,
+        ];        
+        $userComment = Repo::userComment()->get($commentId, $context->getId());
+        Repo::userComment()->update($userComment, $params);        
 
         // Log the event
-        // Some log details are redundant, but since I'm unsure about the validity of ASSOC_TYPE I will maintain these for now 
-        $logDetails = array(
-            'publicationId' => $publicationId,
-            'commentId' => $userCommentId,
-            'userId' => $currentUser->getId(),
-        );
-        // $request, $commentId, $eventType, $messageKey, $params = array()
-        // CommentLog::logEvent($request, $userCommentId, $messageKey, $msg, $logDetails);
+        // There are only two options: 
+        // if the entry is not visible, it must have been hidden, 
+        // if it is visible (again) it must have been unflagged.
+		$msg = 'comment' . $visible?' hidden: ':' unflagged: ' . $commentId; // either a locale key or literal string
+        $eventLog = Repo::eventLog()->newDataObject([
+            'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
+            'assocId' => $userComment->getData('publicationId'),
+            'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
+            'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
+            'message' => $msg,
+            'isTranslated' => false,
+            'dateLogged' => Core::getCurrentDate()
+        ]);
+        Repo::eventLog()->add($eventLog);     
 
-        $commentText = 'comment visibilty and/or flagging has been changed';
         return response()->json(
-            ['id' => $userCommentId,
-            'comment' => $msg,
-        ], Response::HTTP_OK);        
-
+            ['commentId' => $userComment->getId(),
+        ], Response::HTTP_OK); 
     }
-
 
 }

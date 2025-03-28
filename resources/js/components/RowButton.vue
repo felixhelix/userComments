@@ -1,92 +1,89 @@
 <template>
-    <div>
-      <pkp-button :isPrimary="true" @click="openExampleDialog()">{{ __('common.edit') }}</pkp-button>
-    </div>
-</template> 
+	<PkpButton :isPrimary="true" @click="openEditDialog">{{ t('common.edit') }}</PkpButton>
+</template>
 
-<script>
-export default {
-  props: ['item','apiurl','csrftoken','i18n'],
-  mixins: [pkp.vueMixins.dialog], 
-  data() {
-    return {
+<script setup>
+	const { useModal } = pkp.modules.useModal;
+	const { openDialog } = useModal();
+  const { useLocalize } = pkp.modules.useLocalize;
+  const {t} = useLocalize();
+
+  const props = defineProps({
+    item: {type: Object, required: true},
+    apiurl: {type: String, required: true},
+    csrftoken: {type: String, required: true},
+    i18n: {type: String, required: true},
+  });  
+
+  const actions = {
       hideComment: {
-        label: this.i18n.hide_flagged_comment,
+        label: props.i18n.hide_flagged_comment,
         isPrimary: true,
-        callback: () => {
+        callback: (close) => {
           // the editor has decided to hide the flagged comment
-          this.updateComment(true, false);
+          updateComment(true, false);
+          close();
         }
       },
       removeFlag: {
-        label:  this.i18n.remove_flag,
+        label:  props.i18n.remove_flag,
         isWarnable: true,
-        callback: () => {
+        callback: (close) => {
           // editor has decided to remove the flag
-          this.updateComment(false, true);
+          updateComment(false, true);
+          close();
         },
       },  
       cancel: {
-        label: this.i18n.cancel,
+        label: props.i18n.cancel,
         isWarnable: false,
-        callback: () => {
+        callback: (close) => {
           // user has cancelled. close the modal
-          this.$modal.hide('flaggedComment');
+          close();
         },
       },                 
     }
-  },
-  methods: {
-    openExampleDialog() {
-      // fetch the flagged comment from the API
-      fetch(this.apiurl + 'getComment/' +  this.item.id)
-        .then(response => response.json())
-        .then(data => {
-          if (data.flagged) {
-            this.openDialog({
-              name: "flaggedComment",
-              title: "Flagged Comment #" + this.item.id,
-              // message: `The flagged comment reads: '${data.commentText}'<br>The reason given is: '${data.flagNote}'`, // 
-              // message: eval('`'+this.i18n.flag_info+'`'),
-              message: this.i18n.flag_info_comment + ' \'' +  data.commentText + '\'<br>' + this.i18n.flag_info_note + ' \'' + data.flagNote + '\'' + (data.visible?'':'<div class="pkpButton--isWarnable">'+this.i18n.flag_info_hidden+'</div>'),
-              actions: data.visible ? [
-                this.hideComment,
-                this.removeFlag,
-                this.cancel,
+
+	function openEditDialog() {
+    // fetch the flagged comment from the API
+    fetch(props.apiurl + 'getComment/' +  props.item.id)
+    .then(response => response.json())
+    .then(data => {
+      if (data.flagged) {
+        openDialog({
+          name: "flaggedComment",
+          title: "Flagged Comment #" + props.item.id,
+          message: props.i18n.flag_info_comment + ' \'' +  data.commentText + '\'<br>' + props.i18n.flag_info_note + ' \'' + data.flagNote + '\'' + (data.visible?'':'<div class="pkpButton--isWarnable">'+props.i18n.flag_info_hidden+'</div>'),
+          actions: data.visible ? [
+                actions.hideComment,
+                actions.removeFlag,
+                actions.cancel,
               ] : [ 
-                this.removeFlag,
-                this.cancel, 
-              ]
-            });  
-          } else {
-            // the list does so far not update together with the item
-            window.alert(this.i18n.alert_not_flagged);
-          }       
-        })
-        .catch(error => {
-          console.error('Error fetching data:', error);
+              actions.removeFlag,
+              actions.cancel, 
+              ],
+          close: () => {
+            // dialog has been closed
+          },
+          modalStyle: 'primary',
         });
-    },
-    updateComment(flagged, visible) {
-      // editor has decided to remove the flag
-      fetch(this.apiurl + 'update', { 
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Csrf-Token': this.csrftoken,          
-        },                    
-        body: JSON.stringify({
-          commentId: this.item.id,
-          flagged: flagged,
-          visible: visible,
-        }),
-      })
-      // .then(response => response.json())
-      // .then(data => {
-      //   console.log(data);
-      // });
-      this.$modal.hide('flaggedComment');
-    },
-  },
-};
+      };
+    });
+	};
+
+  function updateComment(flagged, visible) {
+    // editor has decided to remove the flag
+    fetch(props.apiurl + 'update', { 
+      method: 'POST', 
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Csrf-Token': props.csrftoken,          
+      },                    
+      body: JSON.stringify({
+        commentId: props.item.id,
+        flagged: flagged,
+        visible: visible,
+      }),
+    })
+  };
 </script>

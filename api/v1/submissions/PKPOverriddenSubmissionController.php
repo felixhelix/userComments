@@ -19,8 +19,8 @@ namespace APP\plugins\generic\userComments\api\v1\submissions;
 
 use PKP\core\Core;
 use PKP\core\PKPApplication;
-use PKP\API\v1\submissions\PKPSubmissionController;
-use PKP\security\Role;
+// use PKP\API\v1\submissions\PKPSubmissionController;
+// use PKP\security\Role;
 use PKP\security\Validation;
 use APP\plugins\generic\userComments\classes\userComment;
 use APP\plugins\generic\userComments\classes\facades\Repo;
@@ -30,34 +30,34 @@ use PKP\mail\Mailable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Route;
+// use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 
-class PKPOverriddenSubmissionController extends PKPSubmissionController
+class PKPOverriddenSubmissionController // extends PKPSubmissionController
 {
     /**
      * @copydoc \PKP\core\PKPBaseController::getGroupRoutes()
      */
-    public function getGroupRoutes(): void
-    {
-        parent::getGroupRoutes();
+    // public function getGroupRoutes(): void
+    // {
+    //     parent::getGroupRoutes();
 
-        Route::middleware([
-            self::roleAuthorizer([
-                Role::ROLE_ID_READER,
-                Role::ROLE_ID_REVIEWER,
-                Role::ROLE_ID_AUTHOR,
-                Role::ROLE_ID_MANAGER,                
-            ]),
-        ])->group(function () {
-            Route::get('usercomments/getbypublication/{publicationId}', $this->getCommentsByPublication(...));
-            Route::get('usercomments/getComment/{commentId}', $this->getById(...));
-            Route::post('usercomments/add', $this->submit(...));
-            Route::post('usercomments/flag', $this->flag(...));
-            Route::post('usercomments/update', $this->update(...));
-        });                
+    //     Route::middleware([
+    //         self::roleAuthorizer([
+    //             Role::ROLE_ID_READER,
+    //             Role::ROLE_ID_REVIEWER,
+    //             Role::ROLE_ID_AUTHOR,
+    //             Role::ROLE_ID_MANAGER,                
+    //         ]),
+    //     ])->group(function () {
+    //         Route::get('usercomments/getbypublication/{publicationId}', $this->getCommentsByPublication(...));
+    //         Route::get('usercomments/getComment/{commentId}', $this->getById(...));
+    //         Route::post('usercomments/add', $this->submit(...));
+    //         Route::post('usercomments/flag', $this->flag(...));
+    //         Route::post('usercomments/update', $this->update(...));
+    //     });                
 
-    }
+    // }
     
     public function getById(Request $illuminateRequest): JsonResponse
     {
@@ -80,7 +80,7 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
         
     }    
 
-    public function getCommentsByPublication(Request $illuminateRequest): JsonResponse
+    static function getCommentsByPublication(Request $illuminateRequest): JsonResponse
     {
         $publicationId = (int) $illuminateRequest->route('publicationId');
 
@@ -102,9 +102,10 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
             $userComments, Response::HTTP_OK);
     }      
 
-    public function submit(Request $illuminateRequest): JsonResponse
+    static function submit(Request $illuminateRequest): JsonResponse
     {
-        $request = $this->getRequest();
+        $request = PKPApplication::get()->getRequest();
+        // $request = $this->getRequest();
         $context = $request->getContext();        
         $currentUser = $request->getUser();
         // $locale = Locale::getLocale();
@@ -137,7 +138,7 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
             'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
             'assocId' => $submissionId,
             'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
-            'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
+            'userId' => Validation::loggedInAs() ?? $currentUser->getId(),
             'message' => $msg,            
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate(),
@@ -157,9 +158,9 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
         ], Response::HTTP_OK);
     }
     
-    public function flag(Request $illuminateRequest): JsonResponse
+    static function flag(Request $illuminateRequest): JsonResponse
     {
-        $request = $this->getRequest();
+        $request = PKPApplication::get()->getRequest();
         $dispatcher = $request->getDispatcher();        
         $context = $request->getContext();    
         $site = $request->getSite();
@@ -203,7 +204,7 @@ class PKPOverriddenSubmissionController extends PKPSubmissionController
             'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
             'assocId' => $publicationId,
             'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
-            'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
+            'userId' => Validation::loggedInAs() ?? $currentUser->getId(),
             'message' => $msg,
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate()

@@ -169,31 +169,59 @@ class UserCommentsPlugin extends GenericPlugin {
      */
     public function addRoute(): void
     {
-        Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler): bool {
+        Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController $apiController, APIHandler $apiHandler): bool {
             
             // This allow to add a route on fly without defining a api controller
             // Through this allow quick add/modify routes, it's better to use
             // controller based appraoch which is more structured and understandable
+
+            $validRoles = [
+                Role::ROLE_ID_READER,
+                Role::ROLE_ID_REVIEWER,
+                Role::ROLE_ID_AUTHOR,
+                Role::ROLE_ID_MANAGER, 
+            ];
+
             $apiHandler->addRoute(
                 'GET',
-                'usercomments/onfly',
+                'usercomments/getbypublication/{publicationId}',
                 function (IlluminateRequest $request): JsonResponse {
-                    return response()->json([
-                        'message' => 'userComments added successfully on fly',
-                    ], Response::HTTP_OK);
+                    return PKPOverriddenSubmissionController::getCommentsByPublication($request);
                 },
-                'test.onfly',
-                [
-                    Role::ROLE_ID_SITE_ADMIN,
-                    Role::ROLE_ID_MANAGER,
-                    Role::ROLE_ID_SUB_EDITOR,
-                ]
+                // function (IlluminateRequest $request): JsonResponse {
+                //     $publicationId = (int) $request->route('publicationId');
+                //     return response()->json([
+                //         'message' => 'userComments for ' . $publicationId,
+                //     ], Response::HTTP_OK);
+                // },
+                'usercomments.getbypublication',
+                $validRoles
             );
+
+            $apiHandler->addRoute(
+                'POST',
+                'usercomments/add',
+                function (IlluminateRequest $request): JsonResponse {
+                    return PKPOverriddenSubmissionController::submit($request);
+                },
+                'usercomments.add',
+                $validRoles
+            );            
+
+            $apiHandler->addRoute(
+                'POST',
+                'usercomments/flag',
+                function (IlluminateRequest $request): JsonResponse {
+                    return PKPOverriddenSubmissionController::flag($request);
+                },
+                'usercomments.flag',
+                $validRoles
+            );              
             
             // This allow to update the api controller directly with an overrided controller 
             // that extends a core controller where one or more routes can be added or 
             // multiple existing routes can be modified
-            $apiController = new PKPOverriddenSubmissionController();
+            // $apiController = new PKPOverriddenSubmissionController(); // support has been dropped!
             
             return false;
         });

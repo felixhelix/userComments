@@ -13,8 +13,8 @@
 <version>
 	<application>userComments</application>
 	<type>plugins.generic</type>
-	<release>1.0.1.0</release>
-	<date>2025-02-19</date>
+	<release>1.0.1.1</release>
+	<date>2025-08-22</date>
   <lazy-load>1</lazy-load>
   <class>UserCommentsPlugin</class>
 </version>

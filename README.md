@@ -12,6 +12,8 @@ The latest release of this plugin is compatible with the following PKP applicati
 
 * OJS, OPS 3.4.0
 
+The latest version is compatible with OJS/OPS 3.5. 
+
 ## Installation
 
 1. Enter the administration area of ​​your application and navigate to Settings > Website > Plugins > Upload a new plugin.

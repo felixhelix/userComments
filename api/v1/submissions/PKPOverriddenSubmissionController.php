@@ -59,7 +59,7 @@ class PKPOverriddenSubmissionController // extends PKPSubmissionController
 
     // }
     
-    public function getById(Request $illuminateRequest): JsonResponse
+    static function getById(Request $illuminateRequest): JsonResponse
     {
         $commentId = (int) $illuminateRequest->route('commentId');        
         $queryResult = Repo::userComment()
@@ -233,9 +233,9 @@ class PKPOverriddenSubmissionController // extends PKPSubmissionController
         ], Response::HTTP_OK);        
     }
 
-    public function update(Request $illuminateRequest): JsonResponse
+    static function update(Request $illuminateRequest): JsonResponse
     {
-        $request = $this->getRequest();
+        $request = PKPApplication::get()->getRequest();
         $context = $request->getContext();  
         $requestParams = $illuminateRequest->input();
         $currentUser = $request->getUser();
@@ -261,7 +261,7 @@ class PKPOverriddenSubmissionController // extends PKPSubmissionController
             'assocType' => PKPApplication::ASSOC_TYPE_PUBLICATION,
             'assocId' => $userComment->getData('publicationId'),
             'eventType' => EventLogEntry::SUBMISSION_LOG_NOTE_POSTED,
-            'userId' => Validation::loggedInAs() ?? $request->getUser()->getId(),
+            'userId' => Validation::loggedInAs() ?? $currentUser->getId(),
             'message' => $msg,
             'isTranslated' => false,
             'dateLogged' => Core::getCurrentDate()

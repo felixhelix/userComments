@@ -199,6 +199,22 @@ class UserCommentsPlugin extends GenericPlugin {
             );
 
             $apiHandler->addRoute(
+                'GET',
+                'usercomments/getComment/{commentId}',
+                function (IlluminateRequest $request): JsonResponse {
+                    return PKPOverriddenSubmissionController::getById($request);
+                },
+                // function (IlluminateRequest $request): JsonResponse {
+                //     $publicationId = (int) $request->route('publicationId');
+                //     return response()->json([
+                //         'message' => 'userComments for ' . $publicationId,
+                //     ], Response::HTTP_OK);
+                // },
+                'usercomments.getById',
+                $validRoles
+            );            
+
+            $apiHandler->addRoute(
                 'POST',
                 'usercomments/add',
                 function (IlluminateRequest $request): JsonResponse {
@@ -216,7 +232,17 @@ class UserCommentsPlugin extends GenericPlugin {
                 },
                 'usercomments.flag',
                 $validRoles
-            );              
+            );          
+            
+            $apiHandler->addRoute(
+                'POST',
+                'usercomments/update',
+                function (IlluminateRequest $request): JsonResponse {
+                    return PKPOverriddenSubmissionController::update($request);
+                },
+                'usercomments.update',
+                $validRoles
+            );               
             
             // This allow to update the api controller directly with an overrided controller 
             // that extends a core controller where one or more routes can be added or 

@@ -23,3 +23,12 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('login', (username, password, context) => {
+	context = context || 'index';
+	password = password || (username + username);
+	cy.visit('index.php/' + context + '/en/login/signIn', {
+		method: 'POST',
+		body: {username: username, password: password}
+	});
+});

@@ -5,7 +5,7 @@ describe('addUserComment', () => {
         // cy.visit('/index.php/preprints/preprint/view/1')
         cy.login('admin','admin','publicknowledge');
         // Load a preprint page
-        cy.visit('/index.php/publicknowledge/preprint/view/1');
+        cy.visit('/index.php/publicknowledge/article/view/1'); //use "preprint" here for ops
     })
 
     it('writes a comment in the last textarea field and submit the comment', () => {

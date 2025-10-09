@@ -7,7 +7,7 @@ describe('API testing', () => {
     })
 
     it("get comments for a publication", () => {
-        cy.request("GET", "/index.php/publicknowledge/api/v1/userComments/getbypublication/2").then((response) => {
+        cy.request("GET", "/index.php/publicknowledge/api/v1/submissions/usercomments/getbypublication/1").then((response) => {
         expect(response.status).to.eq(200)
         // expect(response.body.results).length.to.be.greaterThan(1)
             cy.log(JSON.stringify(response.body))
